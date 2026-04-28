@@ -2,9 +2,15 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>学习进度表</title>
+
 <style>
-body { font-family: Arial; margin:20px; }
+body {
+  font-family: Arial;
+  margin: 15px;
+  background: #f5f5f5;
+}
 
 .topbar {
   display:flex;
@@ -12,63 +18,117 @@ body { font-family: Arial; margin:20px; }
   align-items:center;
 }
 
-.done { text-decoration: line-through; }
+h2 {
+  margin: 0;
+}
+
+button {
+  font-size: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #007bff;
+  color: white;
+}
+
+button:active {
+  opacity: 0.8;
+}
+
+input, select {
+  font-size: 16px;
+  padding: 10px;
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.done {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.task-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin: 8px 0;
+}
 
 .calendar {
   display: grid;
-  grid-template-columns: repeat(7, 32px);
-  gap: 4px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
   margin-top:10px;
 }
 
 .day {
-  width:32px;height:32px;
+  aspect-ratio: 1;
   text-align:center;
-  line-height:32px;
+  line-height:30px;
   font-size:12px;
+  border-radius:6px;
 }
 
-.doneDay { background: green; color:#fff; }
-.emptyDay { background: #eee; }
+.doneDay {
+  background: #4caf50;
+  color:white;
+}
 
-.header { font-weight:bold; }
+.emptyDay {
+  background: #ddd;
+}
+
+.header {
+  font-weight:bold;
+}
 
 #settingsPanel {
   display:none;
-  border:1px solid #ccc;
-  padding:10px;
-  margin-top:10px;
 }
-
-button { margin-left:5px; }
 </style>
 </head>
+
 <body>
 
 <div class="topbar">
-  <h2>📘 学习进度表</h2>
+  <h2>📘 学习进度</h2>
   <button onclick="toggleSettings()">⚙️</button>
 </div>
 
-<h3>🔥 连续学习：<span id="streak">0</span> 天</h3>
+<div class="card">
+  🔥 连续学习：<b id="streak">0</b> 天
+</div>
 
-<input id="taskInput" placeholder="输入任务">
-<select id="categorySelect"></select>
-<button onclick="addTask()">添加任务</button>
+<div class="card">
+  <input id="taskInput" placeholder="输入任务">
+  <select id="categorySelect"></select>
+  <button onclick="addTask()">添加任务</button>
+</div>
 
-<div id="settingsPanel">
+<div class="card" id="settingsPanel">
   <h4>分类管理</h4>
   <input id="newCategory" placeholder="新分类">
   <button onclick="addCategory()">添加</button>
   <ul id="categoryList"></ul>
 </div>
 
-<hr>
+<div class="card">
+  <h4>📋 今日任务</h4>
+  <div id="taskList"></div>
+</div>
 
-<ul id="taskList"></ul>
-
-<h3>📅 本月学习情况</h3>
-<div class="calendar" id="calendar"></div>
+<div class="card">
+  <h4>📅 本月学习</h4>
+  <div class="calendar" id="calendar"></div>
+</div>
 
 <script>
 // ===== 数据 =====
@@ -77,7 +137,7 @@ let history = JSON.parse(localStorage.getItem("history")) || {};
 let categories = JSON.parse(localStorage.getItem("categories")) || ["日语","编程"];
 let lastDate = localStorage.getItem("lastDate") || getLocalDateStr();
 
-// ===== 工具函数（本地时间）=====
+// ===== 日期 =====
 function getLocalDateStr(date = new Date()){
   const y = date.getFullYear();
   const m = String(date.getMonth()+1).padStart(2,'0');
@@ -85,24 +145,18 @@ function getLocalDateStr(date = new Date()){
   return `${y}-${m}-${d}`;
 }
 
-// ===== 跨天检测（核心）=====
+// ===== 跨天检测 =====
 function checkNewDay(){
   const today = getLocalDateStr();
-
   if(today !== lastDate){
-    // 重置任务完成状态（但不删除任务）
-    tasks = tasks.map(t => ({
-      ...t,
-      done:false
-    }));
-
+    tasks = tasks.map(t => ({...t, done:false}));
     lastDate = today;
     localStorage.setItem("lastDate", today);
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }
 }
 
-// ===== 设置面板 =====
+// ===== 设置 =====
 function toggleSettings(){
   const panel = document.getElementById("settingsPanel");
   panel.style.display = panel.style.display === "none" ? "block" : "none";
@@ -112,7 +166,6 @@ function toggleSettings(){
 function addCategory(){
   const input = document.getElementById("newCategory");
   if(!input.value.trim()) return;
-
   categories.push(input.value);
   input.value="";
   save();
@@ -151,32 +204,35 @@ function renderCategories(){
 function addTask(){
   const input = document.getElementById("taskInput");
   const cat = document.getElementById("categorySelect").value;
-
   if(!input.value.trim()) return;
 
-  tasks.push({
-    text: input.value,
-    done:false,
-    category:cat
-  });
-
+  tasks.push({ text: input.value, done:false, category:cat });
   input.value="";
   save();
 }
 
 function toggleTask(i){
   tasks[i].done = !tasks[i].done;
-
-  if(tasks[i].done){
-    history[getLocalDateStr()] = true;
-  }
-
+  updateTodayHistory();
   save();
 }
 
 function deleteTask(i){
   tasks.splice(i,1);
+  updateTodayHistory();
   save();
+}
+
+// ===== 打卡逻辑 =====
+function updateTodayHistory(){
+  const today = getLocalDateStr();
+  const hasDone = tasks.some(t => t.done);
+
+  if(hasDone){
+    history[today] = true;
+  } else {
+    delete history[today];
+  }
 }
 
 // ===== 渲染任务 =====
@@ -185,7 +241,10 @@ function renderTasks(){
   list.innerHTML="";
 
   tasks.forEach((t,i)=>{
-    const li = document.createElement("li");
+    const row = document.createElement("div");
+    row.className="task-row";
+
+    const left = document.createElement("div");
 
     const cb = document.createElement("input");
     cb.type="checkbox";
@@ -193,18 +252,20 @@ function renderTasks(){
     cb.onclick=()=>toggleTask(i);
 
     const span = document.createElement("span");
-    span.textContent = `[${t.category}] ` + t.text;
+    span.textContent = ` [${t.category}] ${t.text}`;
     if(t.done) span.className="done";
+
+    left.appendChild(cb);
+    left.appendChild(span);
 
     const del = document.createElement("button");
     del.textContent="删";
     del.onclick=()=>deleteTask(i);
 
-    li.appendChild(cb);
-    li.appendChild(span);
-    li.appendChild(del);
+    row.appendChild(left);
+    row.appendChild(del);
 
-    list.appendChild(li);
+    list.appendChild(row);
   });
 }
 
@@ -259,6 +320,15 @@ function renderCalendar(){
     d.textContent = i;
     d.classList.add(history[key]?"doneDay":"emptyDay");
 
+    // ✅ 可点击
+    d.onclick = () => {
+      if(history[key]){
+        alert(key + " ✔ 学习过");
+      } else {
+        alert(key + " ❌ 没学习");
+      }
+    };
+
     cal.appendChild(d);
   }
 }
@@ -268,11 +338,10 @@ function save(){
   localStorage.setItem("tasks",JSON.stringify(tasks));
   localStorage.setItem("history",JSON.stringify(history));
   localStorage.setItem("categories",JSON.stringify(categories));
-
   renderAll();
 }
 
-// ===== 总渲染 =====
+// ===== 渲染 =====
 function renderAll(){
   renderCategories();
   renderTasks();
