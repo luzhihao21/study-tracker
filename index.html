@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>学习进度表</title>
+<style>
+body { font-family: Arial; margin:20px; }
+
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.done { text-decoration: line-through; }
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 32px);
+  gap: 4px;
+  margin-top:10px;
+}
+
+.day {
+  width:32px;height:32px;
+  text-align:center;
+  line-height:32px;
+  font-size:12px;
+}
+
+.doneDay { background: green; color:#fff; }
+.emptyDay { background: #eee; }
+
+.header { font-weight:bold; }
+
+#settingsPanel {
+  display:none;
+  border:1px solid #ccc;
+  padding:10px;
+  margin-top:10px;
+}
+
+button { margin-left:5px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h2>📘 学习进度表</h2>
+  <button onclick="toggleSettings()">⚙️</button>
+</div>
+
+<h3>🔥 连续学习：<span id="streak">0</span> 天</h3>
+
+<input id="taskInput" placeholder="输入任务">
+<select id="categorySelect"></select>
+<button onclick="addTask()">添加任务</button>
+
+<div id="settingsPanel">
+  <h4>分类管理</h4>
+  <input id="newCategory" placeholder="新分类">
+  <button onclick="addCategory()">添加</button>
+  <ul id="categoryList"></ul>
+</div>
+
+<hr>
+
+<ul id="taskList"></ul>
+
+<h3>📅 本月学习情况</h3>
+<div class="calendar" id="calendar"></div>
+
+<script>
+// ===== 数据 =====
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let history = JSON.parse(localStorage.getItem("history")) || {};
+let categories = JSON.parse(localStorage.getItem("categories")) || ["日语","编程"];
+let lastDate = localStorage.getItem("lastDate") || getLocalDateStr();
+
+// ===== 工具函数（本地时间）=====
+function getLocalDateStr(date = new Date()){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+// ===== 跨天检测（核心）=====
+function checkNewDay(){
+  const today = getLocalDateStr();
+
+  if(today !== lastDate){
+    // 重置任务完成状态（但不删除任务）
+    tasks = tasks.map(t => ({
+      ...t,
+      done:false
+    }));
+
+    lastDate = today;
+    localStorage.setItem("lastDate", today);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
+}
+
+// ===== 设置面板 =====
+function toggleSettings(){
+  const panel = document.getElementById("settingsPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+
+// ===== 分类 =====
+function addCategory(){
+  const input = document.getElementById("newCategory");
+  if(!input.value.trim()) return;
+
+  categories.push(input.value);
+  input.value="";
+  save();
+}
+
+function deleteCategory(i){
+  categories.splice(i,1);
+  save();
+}
+
+function renderCategories(){
+  const sel = document.getElementById("categorySelect");
+  const list = document.getElementById("categoryList");
+
+  sel.innerHTML="";
+  list.innerHTML="";
+
+  categories.forEach((c,i)=>{
+    const op = document.createElement("option");
+    op.textContent = c;
+    sel.appendChild(op);
+
+    const li = document.createElement("li");
+    li.textContent = c;
+
+    const btn = document.createElement("button");
+    btn.textContent="删";
+    btn.onclick=()=>deleteCategory(i);
+
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+// ===== 任务 =====
+function addTask(){
+  const input = document.getElementById("taskInput");
+  const cat = document.getElementById("categorySelect").value;
+
+  if(!input.value.trim()) return;
+
+  tasks.push({
+    text: input.value,
+    done:false,
+    category:cat
+  });
+
+  input.value="";
+  save();
+}
+
+function toggleTask(i){
+  tasks[i].done = !tasks[i].done;
+
+  if(tasks[i].done){
+    history[getLocalDateStr()] = true;
+  }
+
+  save();
+}
+
+function deleteTask(i){
+  tasks.splice(i,1);
+  save();
+}
+
+// ===== 渲染任务 =====
+function renderTasks(){
+  const list = document.getElementById("taskList");
+  list.innerHTML="";
+
+  tasks.forEach((t,i)=>{
+    const li = document.createElement("li");
+
+    const cb = document.createElement("input");
+    cb.type="checkbox";
+    cb.checked = t.done;
+    cb.onclick=()=>toggleTask(i);
+
+    const span = document.createElement("span");
+    span.textContent = `[${t.category}] ` + t.text;
+    if(t.done) span.className="done";
+
+    const del = document.createElement("button");
+    del.textContent="删";
+    del.onclick=()=>deleteTask(i);
+
+    li.appendChild(cb);
+    li.appendChild(span);
+    li.appendChild(del);
+
+    list.appendChild(li);
+  });
+}
+
+// ===== streak =====
+function renderStreak(){
+  let count = 0;
+  let d = new Date();
+
+  while(true){
+    let key = getLocalDateStr(d);
+    if(history[key]){
+      count++;
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+
+  document.getElementById("streak").textContent = count;
+}
+
+// ===== 日历 =====
+function renderCalendar(){
+  const cal = document.getElementById("calendar");
+  cal.innerHTML="";
+
+  const week = ["日","一","二","三","四","五","六"];
+
+  week.forEach(w=>{
+    const d = document.createElement("div");
+    d.textContent = w;
+    d.className="day header";
+    cal.appendChild(d);
+  });
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  const firstDay = new Date(year,month,1).getDay();
+  const days = new Date(year,month+1,0).getDate();
+
+  for(let i=0;i<firstDay;i++){
+    cal.appendChild(document.createElement("div"));
+  }
+
+  for(let i=1;i<=days;i++){
+    const d = document.createElement("div");
+    d.className="day";
+
+    const date = new Date(year,month,i);
+    const key = getLocalDateStr(date);
+
+    d.textContent = i;
+    d.classList.add(history[key]?"doneDay":"emptyDay");
+
+    cal.appendChild(d);
+  }
+}
+
+// ===== 保存 =====
+function save(){
+  localStorage.setItem("tasks",JSON.stringify(tasks));
+  localStorage.setItem("history",JSON.stringify(history));
+  localStorage.setItem("categories",JSON.stringify(categories));
+
+  renderAll();
+}
+
+// ===== 总渲染 =====
+function renderAll(){
+  renderCategories();
+  renderTasks();
+  renderStreak();
+  renderCalendar();
+}
+
+// ===== 初始化 =====
+checkNewDay();
+renderAll();
+
+</script>
+
+</body>
+</html>
