@@ -6,232 +6,120 @@
 <title>学习进度表</title>
 
 <style>
-body {
-  font-family: Arial;
-  margin: 15px;
-  background: #f5f5f5;
-}
-
-.topbar {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-h2 {
-  margin: 0;
-}
-
-button {
-  font-size: 16px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: none;
-  background: #007bff;
-  color: white;
-}
-
-button:active {
-  opacity: 0.8;
-}
-
-input, select {
-  font-size: 16px;
-  padding: 10px;
-  margin-top: 8px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.card {
-  background: white;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 12px;
-}
-
-.done {
-  text-decoration: line-through;
-  color: gray;
-}
-
-.task-row {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin: 8px 0;
-}
-
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-top:10px;
-}
-
-.day {
-  aspect-ratio: 1;
-  text-align:center;
-  line-height:30px;
-  font-size:12px;
-  border-radius:6px;
-}
-
-.doneDay {
-  background: #4caf50;
-  color:white;
-}
-
-.emptyDay {
-  background: #ddd;
-}
-
-.header {
-  font-weight:bold;
-}
-
-#settingsPanel {
-  display:none;
-}
+body {font-family: Arial; margin:15px; background:#f5f5f5;}
+.topbar {display:flex; justify-content:space-between; align-items:center;}
+button {font-size:16px;padding:10px;border-radius:8px;border:none;background:#007bff;color:white;}
+.card {background:white;padding:12px;border-radius:10px;margin-top:12px;}
+.done {text-decoration:line-through;color:gray;}
+.task-row {display:flex;justify-content:space-between;margin:8px 0;}
+.calendar {display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px;}
+.day {aspect-ratio:1;text-align:center;font-size:12px;border-radius:6px;}
+.full {background:#4caf50;color:white;}
+.partial {background:#ff9800;color:white;}
+.empty {background:#ddd;}
 </style>
 </head>
 
 <body>
 
 <div class="topbar">
-  <h2>📘 学习进度</h2>
-  <button onclick="toggleSettings()">⚙️</button>
+<h2>📘 学习进度</h2>
 </div>
 
 <div class="card">
-  🔥 连续学习：<b id="streak">0</b> 天
+🔥 连续学习：<b id="streak">0</b> 天
 </div>
 
 <div class="card">
-  <input id="taskInput" placeholder="输入任务">
-  <select id="categorySelect"></select>
-  <button onclick="addTask()">添加任务</button>
-</div>
+<input id="taskInput" placeholder="输入任务">
+<select id="categorySelect"></select>
 
-<div class="card" id="settingsPanel">
-  <h4>分类管理</h4>
-  <input id="newCategory" placeholder="新分类">
-  <button onclick="addCategory()">添加</button>
-  <ul id="categoryList"></ul>
-</div>
+<select id="rangeSelect">
+<option value="1">今天</option>
+<option value="3">最近3天</option>
+<option value="7">最近7天</option>
+<option value="999">每天</option>
+</select>
 
-<div class="card">
-  <h4>📋 今日任务</h4>
-  <div id="taskList"></div>
+<button onclick="addTask()">添加任务</button>
 </div>
 
 <div class="card">
-  <h4>📅 本月学习</h4>
-  <div class="calendar" id="calendar"></div>
+<h4>📋 今日任务</h4>
+<div id="taskList"></div>
+</div>
+
+<div class="card">
+<h4>📅 本月学习</h4>
+<div class="calendar" id="calendar"></div>
 </div>
 
 <script>
 // ===== 数据 =====
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let history = JSON.parse(localStorage.getItem("history")) || {};
-let categories = JSON.parse(localStorage.getItem("categories")) || ["日语","编程"];
-let lastDate = localStorage.getItem("lastDate") || getLocalDateStr();
+let categories = ["日语","编程"];
 
 // ===== 日期 =====
-function getLocalDateStr(date = new Date()){
-  const y = date.getFullYear();
-  const m = String(date.getMonth()+1).padStart(2,'0');
-  const d = String(date.getDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
+function getDateStr(d){
+  return d.toISOString().split("T")[0];
 }
 
-// ===== 跨天检测 =====
-function checkNewDay(){
-  const today = getLocalDateStr();
-  if(today !== lastDate){
-    tasks = tasks.map(t => ({...t, done:false}));
-    lastDate = today;
-    localStorage.setItem("lastDate", today);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }
+function today(){
+  return getDateStr(new Date());
 }
 
-// ===== 设置 =====
-function toggleSettings(){
-  const panel = document.getElementById("settingsPanel");
-  panel.style.display = panel.style.display === "none" ? "block" : "none";
-}
-
-// ===== 分类 =====
-function addCategory(){
-  const input = document.getElementById("newCategory");
-  if(!input.value.trim()) return;
-  categories.push(input.value);
-  input.value="";
-  save();
-}
-
-function deleteCategory(i){
-  categories.splice(i,1);
-  save();
-}
-
-function renderCategories(){
-  const sel = document.getElementById("categorySelect");
-  const list = document.getElementById("categoryList");
-
-  sel.innerHTML="";
-  list.innerHTML="";
-
-  categories.forEach((c,i)=>{
-    const op = document.createElement("option");
-    op.textContent = c;
-    sel.appendChild(op);
-
-    const li = document.createElement("li");
-    li.textContent = c;
-
-    const btn = document.createElement("button");
-    btn.textContent="删";
-    btn.onclick=()=>deleteCategory(i);
-
-    li.appendChild(btn);
-    list.appendChild(li);
-  });
-}
-
-// ===== 任务 =====
+// ===== 添加任务（支持时间范围）=====
 function addTask(){
-  const input = document.getElementById("taskInput");
+  const text = document.getElementById("taskInput").value;
   const cat = document.getElementById("categorySelect").value;
-  if(!input.value.trim()) return;
+  const range = parseInt(document.getElementById("rangeSelect").value);
 
-  tasks.push({ text: input.value, done:false, category:cat });
-  input.value="";
+  if(!text) return;
+
+  for(let i=0;i<range;i++){
+    const d = new Date();
+    d.setDate(d.getDate()+i);
+
+    tasks.push({
+      text,
+      category:cat,
+      date:getDateStr(d),
+      done:false
+    });
+  }
+
   save();
 }
 
-function toggleTask(i){
-  tasks[i].done = !tasks[i].done;
-  updateTodayHistory();
+// ===== 今日任务 =====
+function getTodayTasks(){
+  return tasks.filter(t=>t.date===today());
+}
+
+// ===== 切换任务 =====
+function toggleTask(index){
+  const todayTasks = getTodayTasks();
+  todayTasks[index].done = !todayTasks[index].done;
+  updateHistory();
   save();
 }
 
-function deleteTask(i){
-  tasks.splice(i,1);
-  updateTodayHistory();
-  save();
-}
+// ===== 更新history（核心）=====
+function updateHistory(){
+  const todayTasks = getTodayTasks();
 
-// ===== 打卡逻辑 =====
-function updateTodayHistory(){
-  const today = getLocalDateStr();
-  const hasDone = tasks.some(t => t.done);
+  if(todayTasks.length===0) return;
 
-  if(hasDone){
-    history[today] = true;
-  } else {
-    delete history[today];
+  const doneCount = todayTasks.filter(t=>t.done).length;
+  const ratio = doneCount / todayTasks.length;
+
+  if(ratio===1){
+    history[today()] = 1;
+  }else if(ratio>0){
+    history[today()] = 0.5;
+  }else{
+    delete history[today()];
   }
 }
 
@@ -240,9 +128,11 @@ function renderTasks(){
   const list = document.getElementById("taskList");
   list.innerHTML="";
 
-  tasks.forEach((t,i)=>{
-    const row = document.createElement("div");
-    row.className="task-row";
+  const todayTasks = getTodayTasks();
+
+  todayTasks.forEach((t,i)=>{
+    const div = document.createElement("div");
+    div.className="task-row";
 
     const left = document.createElement("div");
 
@@ -252,84 +142,60 @@ function renderTasks(){
     cb.onclick=()=>toggleTask(i);
 
     const span = document.createElement("span");
-    span.textContent = ` [${t.category}] ${t.text}`;
+    span.textContent=`[${t.category}] ${t.text}`;
     if(t.done) span.className="done";
 
     left.appendChild(cb);
     left.appendChild(span);
 
-    const del = document.createElement("button");
-    del.textContent="删";
-    del.onclick=()=>deleteTask(i);
-
-    row.appendChild(left);
-    row.appendChild(del);
-
-    list.appendChild(row);
+    div.appendChild(left);
+    list.appendChild(div);
   });
 }
 
 // ===== streak =====
 function renderStreak(){
-  let count = 0;
-  let d = new Date();
+  let count=0;
+  let d=new Date();
 
   while(true){
-    let key = getLocalDateStr(d);
+    const key=getDateStr(d);
     if(history[key]){
       count++;
       d.setDate(d.getDate()-1);
-    } else break;
+    }else break;
   }
 
-  document.getElementById("streak").textContent = count;
+  document.getElementById("streak").textContent=count;
 }
 
-// ===== 日历 =====
+// ===== 日历（支持半完成）=====
 function renderCalendar(){
-  const cal = document.getElementById("calendar");
+  const cal=document.getElementById("calendar");
   cal.innerHTML="";
 
-  const week = ["日","一","二","三","四","五","六"];
-
-  week.forEach(w=>{
-    const d = document.createElement("div");
-    d.textContent = w;
-    d.className="day header";
-    cal.appendChild(d);
-  });
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-
-  const firstDay = new Date(year,month,1).getDay();
-  const days = new Date(year,month+1,0).getDate();
-
-  for(let i=0;i<firstDay;i++){
-    cal.appendChild(document.createElement("div"));
-  }
+  const now=new Date();
+  const year=now.getFullYear();
+  const month=now.getMonth();
+  const days=new Date(year,month+1,0).getDate();
 
   for(let i=1;i<=days;i++){
-    const d = document.createElement("div");
-    d.className="day";
+    const d=new Date(year,month,i);
+    const key=getDateStr(d);
 
-    const date = new Date(year,month,i);
-    const key = getLocalDateStr(date);
+    const div=document.createElement("div");
+    div.className="day";
+    div.textContent=i;
 
-    d.textContent = i;
-    d.classList.add(history[key]?"doneDay":"emptyDay");
+    if(history[key]===1){
+      div.classList.add("full");
+    }else if(history[key]===0.5){
+      div.classList.add("partial");
+    }else{
+      div.classList.add("empty");
+    }
 
-    // ✅ 可点击
-    d.onclick = () => {
-      if(history[key]){
-        alert(key + " ✔ 学习过");
-      } else {
-        alert(key + " ❌ 没学习");
-      }
-    };
-
-    cal.appendChild(d);
+    cal.appendChild(div);
   }
 }
 
@@ -337,20 +203,18 @@ function renderCalendar(){
 function save(){
   localStorage.setItem("tasks",JSON.stringify(tasks));
   localStorage.setItem("history",JSON.stringify(history));
-  localStorage.setItem("categories",JSON.stringify(categories));
   renderAll();
 }
 
 // ===== 渲染 =====
 function renderAll(){
-  renderCategories();
   renderTasks();
   renderStreak();
   renderCalendar();
 }
 
 // ===== 初始化 =====
-checkNewDay();
+updateHistory();
 renderAll();
 
 </script>
