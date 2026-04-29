@@ -75,6 +75,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+auth.getRedirectResult().then(result => {
+  if (result.user) {
+    console.log("登录成功:", result.user.email);
+  }
+}).catch(error => {
+  console.error("登录错误:", error);
+});
 
 // ===== 数据 =====
 let tasks = [];
