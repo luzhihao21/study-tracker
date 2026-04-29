@@ -6,17 +6,18 @@
 <title>学习进度表</title>
 
 <style>
-body {font-family: Arial; margin:15px; background:#f5f5f5;}
-.topbar {display:flex; justify-content:space-between; align-items:center;}
-button {font-size:16px;padding:10px;border-radius:8px;border:none;background:#007bff;color:white;}
-.card {background:white;padding:12px;border-radius:10px;margin-top:12px;}
+body {font-family: Arial;margin:15px;background:#f5f5f5;}
+.topbar {display:flex;justify-content:space-between;}
+button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff;}
+.card {background:#fff;padding:12px;border-radius:10px;margin-top:12px;}
 .done {text-decoration:line-through;color:gray;}
 .task-row {display:flex;justify-content:space-between;margin:8px 0;}
 .calendar {display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px;}
-.day {aspect-ratio:1;text-align:center;font-size:12px;border-radius:6px;}
+.day {aspect-ratio:1;text-align:center;font-size:12px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
 .full {background:#4caf50;color:white;}
 .partial {background:#ff9800;color:white;}
 .empty {background:#ddd;}
+.header {font-weight:bold;background:none;}
 </style>
 </head>
 
@@ -32,7 +33,6 @@ button {font-size:16px;padding:10px;border-radius:8px;border:none;background:#00
 
 <div class="card">
 <input id="taskInput" placeholder="输入任务">
-<select id="categorySelect"></select>
 
 <select id="rangeSelect">
 <option value="1">今天</option>
@@ -50,7 +50,7 @@ button {font-size:16px;padding:10px;border-radius:8px;border:none;background:#00
 </div>
 
 <div class="card">
-<h4>📅 本月学习</h4>
+<h4 id="calendarTitle"></h4>
 <div class="calendar" id="calendar"></div>
 </div>
 
@@ -58,7 +58,6 @@ button {font-size:16px;padding:10px;border-radius:8px;border:none;background:#00
 // ===== 数据 =====
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let history = JSON.parse(localStorage.getItem("history")) || {};
-let categories = ["日语","编程"];
 
 // ===== 日期 =====
 function getDateStr(d){
@@ -69,10 +68,9 @@ function today(){
   return getDateStr(new Date());
 }
 
-// ===== 添加任务（支持时间范围）=====
+// ===== 添加任务 =====
 function addTask(){
   const text = document.getElementById("taskInput").value;
-  const cat = document.getElementById("categorySelect").value;
   const range = parseInt(document.getElementById("rangeSelect").value);
 
   if(!text) return;
@@ -83,7 +81,6 @@ function addTask(){
 
     tasks.push({
       text,
-      category:cat,
       date:getDateStr(d),
       done:false
     });
@@ -105,7 +102,7 @@ function toggleTask(index){
   save();
 }
 
-// ===== 更新history（核心）=====
+// ===== 更新history =====
 function updateHistory(){
   const todayTasks = getTodayTasks();
 
@@ -142,7 +139,7 @@ function renderTasks(){
     cb.onclick=()=>toggleTask(i);
 
     const span = document.createElement("span");
-    span.textContent=`[${t.category}] ${t.text}`;
+    span.textContent = t.text; // ✅ 已去掉 []
     if(t.done) span.className="done";
 
     left.appendChild(cb);
@@ -169,7 +166,7 @@ function renderStreak(){
   document.getElementById("streak").textContent=count;
 }
 
-// ===== 日历（支持半完成）=====
+// ===== 日历 =====
 function renderCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="";
@@ -177,7 +174,26 @@ function renderCalendar(){
   const now=new Date();
   const year=now.getFullYear();
   const month=now.getMonth();
-  const days=new Date(year,month+1,0).getDate();
+
+  // 标题
+  document.getElementById("calendarTitle").textContent = `${month+1}月学习进度`;
+
+  // 星期头
+  const week = ["日","一","二","三","四","五","六"];
+  week.forEach(w=>{
+    const d=document.createElement("div");
+    d.textContent=w;
+    d.className="day header";
+    cal.appendChild(d);
+  });
+
+  const firstDay = new Date(year,month,1).getDay();
+  const days = new Date(year,month+1,0).getDate();
+
+  // 补空格
+  for(let i=0;i<firstDay;i++){
+    cal.appendChild(document.createElement("div"));
+  }
 
   for(let i=1;i<=days;i++){
     const d=new Date(year,month,i);
