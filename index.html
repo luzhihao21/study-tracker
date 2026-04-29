@@ -86,10 +86,10 @@ function getDateStr(d){
   return d.toISOString().split("T")[0];
 }
 
-// ===== 登录 =====
+// ===== 登录（redirect版）=====
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
+  auth.signInWithRedirect(provider);
 }
 
 function logout(){
@@ -184,9 +184,14 @@ function renderTasks(){
 
   const list = getTasksByDate(selectedDate);
   const d = new Date(selectedDate);
+  const todayStr = getDateStr(new Date());
 
-  document.getElementById("taskTitle").textContent =
-    `📋 ${d.getMonth()+1}月${d.getDate()}日任务`;
+  if(selectedDate === todayStr){
+    document.getElementById("taskTitle").textContent = "📋 今日任务";
+  }else{
+    document.getElementById("taskTitle").textContent =
+      `📋 ${d.getMonth()+1}月${d.getDate()}日任务`;
+  }
 
   list.forEach((t,i)=>{
     const div = document.createElement("div");
@@ -279,7 +284,7 @@ function renderCalendar(){
 
 // ===== 保存 =====
 function save(){
-  saveToCloud(); // 云
+  saveToCloud();
   renderAll();
 }
 
