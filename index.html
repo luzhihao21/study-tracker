@@ -62,7 +62,7 @@ button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ===== Firebase 初始化 =====
+// ===== Firebase =====
 const firebaseConfig = {
   apiKey: "AIzaSyBJOy5FUYZ35McTPje8uQfwmL4UW0hCVjg",
   authDomain: "study-tracker-f8e6b.firebaseapp.com",
@@ -76,12 +76,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ⭐ 强制持久化（关键）
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
-// ⭐ 处理 redirect 登录结果（关键）
-auth.getRedirectResult().catch(err => console.error(err));
-
 // ===== 数据 =====
 let tasks = [];
 let history = {};
@@ -92,21 +86,16 @@ function getDateStr(d){
   return d.toISOString().split("T")[0];
 }
 
-// ===== 登录 =====
+// ===== 登录（redirect版）=====
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .then(() => {
-      return auth.signInWithRedirect(provider);
-    });
+  auth.signInWithRedirect(provider);
 }
 
 function logout(){
   auth.signOut();
 }
 
-// ⭐ 登录状态监听（核心）
 auth.onAuthStateChanged(user=>{
   if(user){
     document.getElementById("user").textContent = "已登录：" + user.email;
