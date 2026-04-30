@@ -68,7 +68,7 @@
 ```bash
 git clone https://github.com/luzhihao21/study-tracker.git
 cd study-tracker
-**2. データベース設定 / Database setup / 数据库配置
+**2. データベース設定 / Database setup / 数据库配置**
 CREATE DATABASE study_db;
 **3. アプリケーションプロパティ設定 / Application properties / 配置文件
 src/main/resources/application.properties を編集：
