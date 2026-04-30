@@ -7,7 +7,7 @@
 
 <style>
 body {font-family: Arial;margin:15px;background:#f5f5f5;}
-button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff;}
+button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff;margin:2px;}
 .card {background:#fff;padding:12px;border-radius:10px;margin-top:12px;}
 .done {text-decoration:line-through;color:gray;}
 .task-row {display:flex;justify-content:space-between;margin:8px 0;}
@@ -18,6 +18,7 @@ button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff
 .empty {background:#ddd;}
 .header {font-weight:bold;}
 .today {border:2px solid #2196f3;}
+.loading {text-align:center;color:#666;padding:20px;}
 </style>
 </head>
 
@@ -80,6 +81,7 @@ const db = firebase.firestore();
 let tasks = [];
 let history = {};
 let selectedDate = getDateStr(new Date());
+let isLoading = true;  // 添加加载状态标记
 
 // ===== 日期 =====
 function getDateStr(d){
@@ -99,9 +101,14 @@ function logout(){
 auth.onAuthStateChanged(user=>{
   if(user){
     document.getElementById("user").textContent = "已登录：" + user.email;
-    loadFromCloud();
+    loadFromCloud();  // 登录后加载数据
   }else{
     document.getElementById("user").textContent = "未登录";
+    // 未登录时清空数据
+    tasks = [];
+    history = {};
+    isLoading = false;
+    renderAll();
   }
 });
 
@@ -113,22 +120,47 @@ function saveToCloud(){
   db.collection("users").doc(user.uid).set({
     tasks,
     history
-  });
+  }).catch(err => console.error("保存失败:", err));
 }
 
 function loadFromCloud(){
   const user = auth.currentUser;
   if(!user) return;
 
+  isLoading = true;
+  showLoadingState(true);
+  
   db.collection("users").doc(user.uid).get()
     .then(doc=>{
       if(doc.exists){
         const data = doc.data();
         tasks = data.tasks || [];
         history = data.history || {};
-        renderAll();
+      } else {
+        // 新用户，初始化空数据
+        tasks = [];
+        history = {};
       }
+      isLoading = false;
+      showLoadingState(false);
+      renderAll();
+    })
+    .catch(err => {
+      console.error("加载失败:", err);
+      isLoading = false;
+      showLoadingState(false);
+      renderAll();
     });
+}
+
+// 显示/隐藏加载状态
+function showLoadingState(show) {
+  const taskList = document.getElementById("taskList");
+  const calendar = document.getElementById("calendar");
+  if (show) {
+    taskList.innerHTML = '<div class="loading">加载中...</div>';
+    calendar.innerHTML = '<div class="loading">加载中...</div>';
+  }
 }
 
 // ===== 添加任务 =====
@@ -141,14 +173,19 @@ function addTask(){
     const d = new Date();
     d.setDate(d.getDate()+i);
 
-    tasks.push({
-      text,
-      date:getDateStr(d),
-      done:false
-    });
+    // 检查是否已有相同任务（可选，避免重复）
+    const exists = tasks.some(t => t.text === text && t.date === getDateStr(d));
+    if (!exists) {
+      tasks.push({
+        text,
+        date:getDateStr(d),
+        done:false
+      });
+    }
   }
 
   save();
+  document.getElementById("taskInput").value = ""; // 清空输入框
 }
 
 // ===== 获取任务 =====
@@ -159,9 +196,11 @@ function getTasksByDate(date){
 // ===== 切换任务 =====
 function toggleTask(index){
   const list = getTasksByDate(selectedDate);
-  list[index].done = !list[index].done;
-  updateHistory(selectedDate);
-  save();
+  if (list[index]) {
+    list[index].done = !list[index].done;
+    updateHistory(selectedDate);
+    save();
+  }
 }
 
 // ===== 更新history =====
@@ -180,6 +219,7 @@ function updateHistory(date){
 // ===== 渲染任务 =====
 function renderTasks(){
   const listEl = document.getElementById("taskList");
+  if (!listEl) return;
   listEl.innerHTML="";
 
   const list = getTasksByDate(selectedDate);
@@ -191,6 +231,15 @@ function renderTasks(){
   }else{
     document.getElementById("taskTitle").textContent =
       `📋 ${d.getMonth()+1}月${d.getDate()}日任务`;
+  }
+
+  if (list.length === 0) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.textContent = "✨ 暂无任务，添加一个吧";
+    emptyDiv.style.color = "#999";
+    emptyDiv.style.padding = "10px";
+    listEl.appendChild(emptyDiv);
+    return;
   }
 
   list.forEach((t,i)=>{
@@ -222,25 +271,28 @@ function renderStreak(){
 
   while(true){
     const key=getDateStr(d);
-    if(history[key]){
+    if(history[key] === 1){  // 只有完全完成才算连续
       count++;
       d.setDate(d.getDate()-1);
     }else break;
   }
 
-  document.getElementById("streak").textContent=count;
+  const streakEl = document.getElementById("streak");
+  if (streakEl) streakEl.textContent = count;
 }
 
 // ===== 日历 =====
 function renderCalendar(){
   const cal=document.getElementById("calendar");
+  if (!cal) return;
   cal.innerHTML="";
 
   const now=new Date();
   const year=now.getFullYear();
   const month=now.getMonth();
 
-  document.getElementById("calendarTitle").textContent = `${month+1}月学习进度`;
+  const titleEl = document.getElementById("calendarTitle");
+  if (titleEl) titleEl.textContent = `${month+1}月学习进度`;
 
   const week=["日","一","二","三","四","五","六"];
   week.forEach(w=>{
@@ -290,13 +342,16 @@ function save(){
 
 // ===== 渲染 =====
 function renderAll(){
+  // 只有在非加载状态或已加载完成时才渲染
+  if (isLoading) return;
   renderTasks();
   renderStreak();
   renderCalendar();
 }
 
-// ===== 初始化 =====
-renderAll();
+// ===== 初始化：先渲染空状态，等待登录回调加载数据 =====
+// 不调用 renderAll()，让 onAuthStateChanged 处理
+renderAll();  // 初始渲染空数据（未登录状态）
 
 </script>
 
