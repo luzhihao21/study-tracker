@@ -68,23 +68,42 @@
 ```bash
 git clone https://github.com/luzhihao21/study-tracker.git
 cd study-tracker
+```
+
 **2. データベース設定 / Database setup / 数据库配置**
-CREATE DATABASE study_db;
-**3. アプリケーションプロパティ設定 / Application properties / 配置文件
-src/main/resources/application.properties を編集：
-spring.datasource.url=jdbc:mysql://localhost:3306/study_db
-spring.datasource.username=root
+
+```sql
+CREATE DATABASE study_tracker;
+```
+
+**3. アプリケーションプロパティ設定 / Application properties / 配置文件**
+
+`study-backend/src/main/resources/application.properties` を編集：
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/study_tracker
+spring.datasource.username=your_username
 spring.datasource.password=your_password
-**4. バックエンド起動 / Start backend / 启动后端
+spring.jpa.hibernate.ddl-auto=update
+```
+
+**4. バックエンド起動 / Start backend / 启动后端**
+
+```bash
 cd study-backend
 mvn spring-boot:run
-**5. フロントエンド起動 / Start frontend / 启动前端
-VS Code で study-cloud.html を開く
-Live Server で起動
-**6. ブラウザでアクセス / Access in browser / 浏览器访问
-http://localhost:8080 (backend)
-http://localhost:5500/study-cloud.html (frontend)
-📁 プロジェクト構造 / Project Structure / 项目结构
+```
+
+**5. フロントエンド起動 / Start frontend / 启动前端**
+
+- VS Code で `study-cloud.html` を開く
+- Live Server で起動
+
+**6. ブラウザでアクセス / Access in browser / 浏览器访问**
+http://localhost:8080
+---
+
+## 📁 プロジェクト構造 / Project Structure / 项目结构
 study-tracker/
 ├── study-cloud.html          # フロントエンド / Frontend
 ├── study-backend/            # バックエンド / Backend
@@ -99,28 +118,38 @@ study-tracker/
 │   └── src/main/resources/
 │       └── application.properties
 └── README.md
-🌐 API エンドポイント / API Endpoints / API接口
-Method	Endpoint	説明
-GET	/api/tasks?date={date}	指定日のタスク取得
-GET	/api/tasks/all	全タスク取得
-POST	/api/tasks	タスク追加
-PUT	/api/tasks/{id}/toggle	完了状態切替
-DELETE	/api/tasks/{id}	タスク削除
-🎯 今後の計画 / Future Plans / 后续计划
-React でフロントエンドを書き換え
+---
 
-ポモドーロタイマー追加
+## 🌐 API エンドポイント / API Endpoints / API接口
 
-学習時間統計グラフ
+| Method | Endpoint | 説明 / Description / 说明 |
+|--------|----------|--------------------------|
+| GET | `/api/tasks?date={date}` | 指定日のタスク取得 / Get tasks by date / 获取指定日期任务 |
+| GET | `/api/tasks/all` | 全タスク取得 / Get all tasks / 获取全部任务 |
+| POST | `/api/tasks` | タスク追加 / Add task / 添加任务 |
+| PUT | `/api/tasks/{id}/toggle` | 完了状態切替 / Toggle completion / 切换完成状态 |
+| DELETE | `/api/tasks/{id}` | タスク削除 / Delete task / 删除任务 |
 
-クラウドデプロイ
+---
 
-👨‍💻 作者 / Author / 作者
-luzhihao21
+## 🎯 今後の計画 / Future Plans / 后续计划
 
-GitHub: @luzhihao21
+- [ ] React でフロントエンドを書き換え
+- [ ] ポモドーロタイマー追加
+- [ ] 学習時間統計グラフ
+- [ ] クラウドデプロイ
 
-📄 ライセンス / License / 许可证
+---
+
+## 👨‍💻 作者 / Author / 作者
+
+**luzhihao21**  
+GitHub: [@luzhihao21](https://github.com/luzhihao21)
+
+---
+
+## 📄 ライセンス / License / 许可证
+
 MIT License
 
 Copyright (c) 2025 luzhihao21
@@ -143,7 +172,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-⭐ 応援よろしくお願いします！
-このプロジェクトが役に立ったら、⭐️を付けてください！
-If this project helps you, please give it a star!
-如果这个项目对你有帮助，请点个星标！
+---
+
+⭐ **応援よろしくお願いします！/ If this project helps you, please give it a star! / 如果这个项目对你有帮助，请点个星标！**
