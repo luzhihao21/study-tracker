@@ -7,7 +7,7 @@
 
 <style>
 body {font-family: Arial;margin:15px;background:#f5f5f5;}
-button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff;margin:2px;}
+button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff;margin:2px;cursor:pointer;}
 .card {background:#fff;padding:12px;border-radius:10px;margin-top:12px;}
 .done {text-decoration:line-through;color:gray;}
 .task-row {display:flex;justify-content:space-between;margin:8px 0;}
@@ -19,6 +19,8 @@ button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff
 .header {font-weight:bold;}
 .today {border:2px solid #2196f3;}
 .loading {text-align:center;color:#666;padding:20px;}
+.delete-btn {background:#ff4444;color:white;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px;}
+.task-text {margin-left:8px;}
 </style>
 </head>
 
@@ -27,9 +29,10 @@ button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff
 <h2>📘 学习进度</h2>
 
 <div class="card">
-  <button onclick="login()">Google登录</button>
-  <button onclick="logout()">退出</button>
-  <div id="user">未登录</div>
+  <button onclick="login()">🔐 Google登录</button>
+  <button onclick="logout()">🚪 退出</button>
+  <div id="user" style="margin-top:8px;">未登录</div>
+  <div id="saveStatus" style="margin-top:5px;font-size:12px;color:#666;"></div>
 </div>
 
 <div class="card">
@@ -37,14 +40,14 @@ button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff
 </div>
 
 <div class="card">
-<input id="taskInput" placeholder="输入任务">
-<select id="rangeSelect">
+<input id="taskInput" placeholder="输入任务" style="padding:8px;width:60%;">
+<select id="rangeSelect" style="padding:8px;">
 <option value="1">今天</option>
 <option value="3">最近3天</option>
 <option value="7">最近7天</option>
 <option value="999">每天</option>
 </select>
-<button onclick="addTask()">添加任务</button>
+<button onclick="addTask()">➕ 添加任务</button>
 </div>
 
 <div class="card">
@@ -63,7 +66,7 @@ button {padding:10px;border:none;border-radius:8px;background:#007bff;color:#fff
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ===== Firebase =====
+// ===== Firebase 配置 =====
 const firebaseConfig = {
   apiKey: "AIzaSyBJOy5FUYZ35McTPje8uQfwmL4UW0hCVjg",
   authDomain: "study-tracker-f8e6b.firebaseapp.com",
@@ -77,255 +80,340 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ===== 数据 =====
+// ===== 全局数据 =====
 let tasks = [];
 let history = {};
 let selectedDate = getDateStr(new Date());
-let isLoading = true;  // 添加加载状态标记
 
-// ===== 日期 =====
+// ===== 工具函数 =====
 function getDateStr(d){
   return d.toISOString().split("T")[0];
 }
 
-// ===== 登录（redirect版）=====
-function login(){
+// ===== 本地备份（防止数据丢失）=====
+function saveToLocalBackup() {
+  const backup = {
+    tasks: tasks,
+    history: history,
+    lastBackup: new Date().toISOString()
+  };
+  localStorage.setItem('study_tracker_backup', JSON.stringify(backup));
+  console.log('✅ 已保存到本地备份');
+}
+
+function loadFromLocalBackup() {
+  const backupStr = localStorage.getItem('study_tracker_backup');
+  if (backupStr) {
+    try {
+      const backup = JSON.parse(backupStr);
+      tasks = backup.tasks || [];
+      history = backup.history || {};
+      console.log('📦 从本地备份加载数据，任务数:', tasks.length);
+      return true;
+    } catch(e) {
+      console.error('读取备份失败:', e);
+    }
+  }
+  return false;
+}
+
+// ===== Firestore 云存储 =====
+async function saveToCloud() {
+  const user = auth.currentUser;
+  if (!user) {
+    console.log('未登录，跳过云保存');
+    return false;
+  }
+
+  try {
+    await db.collection("users").doc(user.uid).set({
+      tasks: tasks,
+      history: history,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById("saveStatus").textContent = '✓ 已同步到云端';
+    setTimeout(() => {
+      document.getElementById("saveStatus").textContent = '';
+    }, 2000);
+    console.log('✅ 保存到云端成功, 任务数:', tasks.length);
+    return true;
+  } catch(err) {
+    console.error('❌ 保存到云端失败:', err);
+    document.getElementById("saveStatus").textContent = '✗ 同步失败，数据已保存到本地';
+    return false;
+  }
+}
+
+async function loadFromCloud() {
+  const user = auth.currentUser;
+  if (!user) return false;
+
+  try {
+    const doc = await db.collection("users").doc(user.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      tasks = data.tasks || [];
+      history = data.history || {};
+      console.log('☁️ 从云端加载成功, 任务数:', tasks.length);
+      // 同时更新本地备份
+      saveToLocalBackup();
+      return true;
+    } else {
+      console.log('📭 云端无数据，尝试从本地恢复');
+      // 云端没有数据，尝试从本地备份恢复
+      if (loadFromLocalBackup()) {
+        // 如果有本地数据，立即上传到云端
+        saveToCloud();
+        return true;
+      }
+      return false;
+    }
+  } catch(err) {
+    console.error('❌ 从云端加载失败:', err);
+    // 云端加载失败，尝试从本地备份加载
+    return loadFromLocalBackup();
+  }
+}
+
+// ===== 登录/登出 =====
+function login() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithRedirect(provider);
 }
 
-function logout(){
+function logout() {
   auth.signOut();
+  // 登出时不清空数据，保持显示
 }
 
-auth.onAuthStateChanged(user=>{
-  if(user){
-    document.getElementById("user").textContent = "已登录：" + user.email;
-    loadFromCloud();  // 登录后加载数据
-  }else{
-    document.getElementById("user").textContent = "未登录";
-    // 未登录时清空数据
-    tasks = [];
-    history = {};
-    isLoading = false;
+// 监听认证状态
+auth.onAuthStateChanged(async (user) => {
+  console.log('认证状态变化:', user ? '已登录 ' + user.email : '未登录');
+  
+  if (user) {
+    document.getElementById("user").innerHTML = `✅ 已登录：${user.email}<br>📡 云端同步已启用`;
+    // 显示加载中
+    document.getElementById("taskList").innerHTML = '<div class="loading">加载中...</div>';
+    
+    // 加载数据
+    const loaded = await loadFromCloud();
+    if (!loaded) {
+      // 全新用户，初始化空数据
+      tasks = [];
+      history = {};
+      console.log('🆕 新用户，初始化空数据');
+    }
+    renderAll();
+  } else {
+    document.getElementById("user").innerHTML = '❌ 未登录<br>📦 数据仅保存在本地浏览器';
+    // 未登录时也尝试从本地备份加载
+    loadFromLocalBackup();
     renderAll();
   }
 });
 
-// ===== 云存储 =====
-function saveToCloud(){
-  const user = auth.currentUser;
-  if(!user) return;
-
-  db.collection("users").doc(user.uid).set({
-    tasks,
-    history
-  }).catch(err => console.error("保存失败:", err));
-}
-
-function loadFromCloud(){
-  const user = auth.currentUser;
-  if(!user) return;
-
-  isLoading = true;
-  showLoadingState(true);
-  
-  db.collection("users").doc(user.uid).get()
-    .then(doc=>{
-      if(doc.exists){
-        const data = doc.data();
-        tasks = data.tasks || [];
-        history = data.history || {};
-      } else {
-        // 新用户，初始化空数据
-        tasks = [];
-        history = {};
-      }
-      isLoading = false;
-      showLoadingState(false);
-      renderAll();
-    })
-    .catch(err => {
-      console.error("加载失败:", err);
-      isLoading = false;
-      showLoadingState(false);
-      renderAll();
-    });
-}
-
-// 显示/隐藏加载状态
-function showLoadingState(show) {
-  const taskList = document.getElementById("taskList");
-  const calendar = document.getElementById("calendar");
-  if (show) {
-    taskList.innerHTML = '<div class="loading">加载中...</div>';
-    calendar.innerHTML = '<div class="loading">加载中...</div>';
-  }
-}
-
 // ===== 添加任务 =====
-function addTask(){
-  const text = document.getElementById("taskInput").value;
+function addTask() {
+  const text = document.getElementById("taskInput").value.trim();
   const range = parseInt(document.getElementById("rangeSelect").value);
-  if(!text) return;
+  
+  if (!text) {
+    alert('请输入任务内容');
+    return;
+  }
 
-  for(let i=0;i<range;i++){
+  const addedCount = [];
+  
+  for (let i = 0; i < range; i++) {
     const d = new Date();
-    d.setDate(d.getDate()+i);
-
-    // 检查是否已有相同任务（可选，避免重复）
-    const exists = tasks.some(t => t.text === text && t.date === getDateStr(d));
+    d.setDate(d.getDate() + i);
+    const dateStr = getDateStr(d);
+    
+    // 检查是否已有相同的未完成任务
+    const exists = tasks.some(t => t.text === text && t.date === dateStr);
+    
     if (!exists) {
       tasks.push({
-        text,
-        date:getDateStr(d),
-        done:false
+        id: Date.now() + '-' + i + '-' + Math.random(), // 唯一ID
+        text: text,
+        date: dateStr,
+        done: false,
+        createdAt: new Date().toISOString()
       });
+      addedCount.push(dateStr);
     }
   }
 
-  save();
-  document.getElementById("taskInput").value = ""; // 清空输入框
+  if (addedCount.length > 0) {
+    console.log(`✅ 添加了 ${addedCount.length} 个任务`);
+    save();
+    document.getElementById("taskInput").value = '';
+  } else {
+    alert('这些日期的任务已存在');
+  }
 }
 
-// ===== 获取任务 =====
-function getTasksByDate(date){
-  return tasks.filter(t=>t.date===date);
-}
-
-// ===== 切换任务 =====
-function toggleTask(index){
-  const list = getTasksByDate(selectedDate);
-  if (list[index]) {
-    list[index].done = !list[index].done;
-    updateHistory(selectedDate);
+// ===== 删除任务 =====
+function deleteTask(taskId) {
+  const index = tasks.findIndex(t => t.id === taskId);
+  if (index !== -1) {
+    tasks.splice(index, 1);
     save();
   }
 }
 
-// ===== 更新history =====
-function updateHistory(date){
-  const list = getTasksByDate(date);
-  if(list.length===0) return;
-
-  const doneCount = list.filter(t=>t.done).length;
-  const ratio = doneCount / list.length;
-
-  if(ratio===1) history[date]=1;
-  else if(ratio>0) history[date]=0.5;
-  else delete history[date];
+// ===== 获取某天的任务 =====
+function getTasksByDate(date) {
+  return tasks.filter(t => t.date === date);
 }
 
-// ===== 渲染任务 =====
-function renderTasks(){
+// ===== 切换任务完成状态 =====
+function toggleTask(taskId) {
+  const task = tasks.find(t => t.id === taskId);
+  if (task) {
+    task.done = !task.done;
+    updateHistory(task.date);
+    save();
+  }
+}
+
+// ===== 更新历史记录 =====
+function updateHistory(date) {
+  const list = getTasksByDate(date);
+  if (list.length === 0) {
+    delete history[date];
+    return;
+  }
+
+  const doneCount = list.filter(t => t.done).length;
+  const ratio = doneCount / list.length;
+
+  if (ratio === 1) {
+    history[date] = 1;  // 全完成
+  } else if (ratio > 0) {
+    history[date] = 0.5; // 部分完成
+  } else {
+    delete history[date]; // 无完成
+  }
+}
+
+// ===== 渲染任务列表 =====
+function renderTasks() {
   const listEl = document.getElementById("taskList");
   if (!listEl) return;
-  listEl.innerHTML="";
+  listEl.innerHTML = "";
 
   const list = getTasksByDate(selectedDate);
   const d = new Date(selectedDate);
   const todayStr = getDateStr(new Date());
 
-  if(selectedDate === todayStr){
+  if (selectedDate === todayStr) {
     document.getElementById("taskTitle").textContent = "📋 今日任务";
-  }else{
-    document.getElementById("taskTitle").textContent =
-      `📋 ${d.getMonth()+1}月${d.getDate()}日任务`;
+  } else {
+    document.getElementById("taskTitle").textContent = `📋 ${d.getMonth()+1}月${d.getDate()}日任务`;
   }
 
   if (list.length === 0) {
-    const emptyDiv = document.createElement("div");
-    emptyDiv.textContent = "✨ 暂无任务，添加一个吧";
-    emptyDiv.style.color = "#999";
-    emptyDiv.style.padding = "10px";
-    listEl.appendChild(emptyDiv);
+    listEl.innerHTML = '<div style="color:#999;padding:10px;">✨ 暂无任务，点击上方"添加任务"</div>';
     return;
   }
 
-  list.forEach((t,i)=>{
+  list.forEach(task => {
     const div = document.createElement("div");
-    div.className="task-row";
+    div.className = "task-row";
 
     const left = document.createElement("div");
+    left.style.display = "flex";
+    left.style.alignItems = "center";
+    left.style.gap = "8px";
 
     const cb = document.createElement("input");
-    cb.type="checkbox";
-    cb.checked = t.done;
-    cb.onclick=()=>toggleTask(i);
+    cb.type = "checkbox";
+    cb.checked = task.done;
+    cb.onclick = () => toggleTask(task.id);
 
     const span = document.createElement("span");
-    span.textContent = t.text;
-    if(t.done) span.className="done";
+    span.textContent = task.text;
+    span.className = task.done ? "done" : "";
+    span.style.flex = "1";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.className = "delete-btn";
+    deleteBtn.onclick = () => deleteTask(task.id);
 
     left.appendChild(cb);
     left.appendChild(span);
     div.appendChild(left);
+    div.appendChild(deleteBtn);
     listEl.appendChild(div);
   });
 }
 
-// ===== streak =====
-function renderStreak(){
-  let count=0;
-  let d=new Date();
-
-  while(true){
-    const key=getDateStr(d);
-    if(history[key] === 1){  // 只有完全完成才算连续
+// ===== 连续学习天数 =====
+function renderStreak() {
+  let count = 0;
+  let d = new Date();
+  
+  while (true) {
+    const key = getDateStr(d);
+    if (history[key] === 1) {
       count++;
-      d.setDate(d.getDate()-1);
-    }else break;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
   }
-
+  
   const streakEl = document.getElementById("streak");
   if (streakEl) streakEl.textContent = count;
 }
 
-// ===== 日历 =====
-function renderCalendar(){
-  const cal=document.getElementById("calendar");
+// ===== 日历视图 =====
+function renderCalendar() {
+  const cal = document.getElementById("calendar");
   if (!cal) return;
-  cal.innerHTML="";
+  cal.innerHTML = "";
 
-  const now=new Date();
-  const year=now.getFullYear();
-  const month=now.getMonth();
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
 
-  const titleEl = document.getElementById("calendarTitle");
-  if (titleEl) titleEl.textContent = `${month+1}月学习进度`;
+  document.getElementById("calendarTitle").textContent = `${year}年 ${month+1}月学习进度`;
 
-  const week=["日","一","二","三","四","五","六"];
-  week.forEach(w=>{
-    const d=document.createElement("div");
-    d.textContent=w;
-    d.className="day header";
+  const week = ["日", "一", "二", "三", "四", "五", "六"];
+  week.forEach(w => {
+    const d = document.createElement("div");
+    d.textContent = w;
+    d.className = "day header";
     cal.appendChild(d);
   });
 
-  const firstDay=new Date(year,month,1).getDay();
-  const days=new Date(year,month+1,0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
 
-  for(let i=0;i<firstDay;i++){
-    cal.appendChild(document.createElement("div"));
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    cal.appendChild(empty);
   }
 
-  for(let i=1;i<=days;i++){
-    const d=new Date(year,month,i);
-    const key=getDateStr(d);
+  for (let i = 1; i <= days; i++) {
+    const d = new Date(year, month, i);
+    const key = getDateStr(d);
 
-    const div=document.createElement("div");
-    div.className="day";
-    div.textContent=i;
+    const div = document.createElement("div");
+    div.className = "day";
+    div.textContent = i;
 
-    if(history[key]===1) div.classList.add("full");
-    else if(history[key]===0.5) div.classList.add("partial");
+    if (history[key] === 1) div.classList.add("full");
+    else if (history[key] === 0.5) div.classList.add("partial");
     else div.classList.add("empty");
 
-    if(key===getDateStr(new Date())){
+    if (key === getDateStr(new Date())) {
       div.classList.add("today");
     }
 
-    div.onclick=()=>{
+    div.onclick = () => {
       selectedDate = key;
       renderTasks();
     };
@@ -334,24 +422,29 @@ function renderCalendar(){
   }
 }
 
-// ===== 保存 =====
-function save(){
-  saveToCloud();
+// ===== 保存所有数据 =====
+async function save() {
+  // 先保存到本地备份
+  saveToLocalBackup();
+  
+  // 再尝试保存到云端
+  await saveToCloud();
+  
+  // 重新渲染界面
   renderAll();
 }
 
-// ===== 渲染 =====
-function renderAll(){
-  // 只有在非加载状态或已加载完成时才渲染
-  if (isLoading) return;
+// ===== 渲染全部 =====
+function renderAll() {
   renderTasks();
   renderStreak();
   renderCalendar();
 }
 
-// ===== 初始化：先渲染空状态，等待登录回调加载数据 =====
-// 不调用 renderAll()，让 onAuthStateChanged 处理
-renderAll();  // 初始渲染空数据（未登录状态）
+// ===== 页面加载时自动从本地恢复 =====
+console.log('🚀 应用启动，尝试从本地恢复数据...');
+loadFromLocalBackup();
+renderAll();
 
 </script>
 
