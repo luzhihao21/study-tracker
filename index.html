@@ -2,66 +2,332 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>学习进度表</title>
 
 <style>
-body {font-family: Arial;margin:15px;background:#f5f5f5;max-width:600px;margin:0 auto;padding:15px;}
-button {padding:10px 15px;border:none;border-radius:8px;background:#007bff;color:#fff;margin:2px;cursor:pointer;}
-.card {background:#fff;padding:12px;border-radius:10px;margin-top:12px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-.done {text-decoration:line-through;color:gray;}
-.task-row {display:flex;justify-content:space-between;align-items:center;margin:8px 0;padding:5px;border-radius:5px;}
-.task-row:hover {background:#f0f0f0;}
-.calendar {display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px;}
-.day {aspect-ratio:1;text-align:center;font-size:12px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.1s;}
-.day:hover {transform:scale(1.05);}
-.full {background:#4caf50;color:white;}
-.partial {background:#ff9800;color:white;}
-.empty {background:#e0e0e0;}
-.header {font-weight:bold;background:#ddd;cursor:default;}
-.header:hover {transform:none;}
-.today {border:2px solid #2196f3;font-weight:bold;}
-.delete-btn {background:#ff4444;color:white;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:12px;}
-.delete-btn:hover {background:#cc0000;}
-.input-group {display:flex;gap:8px;flex-wrap:wrap;}
-.input-group input {flex:2;padding:8px;border:1px solid #ddd;border-radius:6px;}
-.input-group select {padding:8px;border:1px solid #ddd;border-radius:6px;}
-.stats {display:flex;justify-content:space-around;text-align:center;}
-.stats div {flex:1;}
-.stat-number {font-size:24px;font-weight:bold;color:#007bff;}
-.export-buttons {display:flex;gap:5px;margin-top:10px;}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  margin: 0;
+  padding: 15px;
+  background: #f5f7fa;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* 头部区域 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.settings-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.settings-btn:hover {
+  background: #e0e0e0;
+}
+
+/* 设置面板 */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+  border-radius: 15px 0 0 15px;
+}
+.settings-panel.show {
+  right: 0;
+}
+.settings-panel h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+.settings-panel button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 12px;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  display: none;
+}
+.overlay.show {
+  display: block;
+}
+.close-settings {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* 热力图 */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.day {
+  aspect-ratio: 1;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.2s;
+  font-weight: 500;
+}
+.day:hover {
+  transform: scale(1.05);
+}
+.full {
+  background: #4caf50;
+  color: white;
+}
+.partial {
+  background: #ff9800;
+  color: white;
+}
+.empty {
+  background: #e8e8e8;
+  color: #666;
+}
+.header {
+  font-weight: bold;
+  background: #d0d0d0;
+  cursor: default;
+  color: #333;
+}
+.header:hover {
+  transform: none;
+}
+.today {
+  border: 2px solid #2196f3;
+  font-weight: bold;
+}
+.month-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* 任务列表 */
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+.task-item:hover {
+  background: #f5f5f5;
+}
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.task-left input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.task-text {
+  font-size: 15px;
+  word-break: break-word;
+  flex: 1;
+  cursor: pointer;
+}
+.task-text.done {
+  text-decoration: line-through;
+  color: #999;
+}
+.delete-task {
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+.delete-task:hover {
+  background: #cc0000;
+}
+.empty-tasks {
+  text-align: center;
+  color: #999;
+  padding: 25px;
+}
+
+/* 输入区域 */
+.input-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.input-group input {
+  flex: 2;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+.input-group input:focus {
+  border-color: #007bff;
+}
+.input-group select {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: white;
+  font-size: 14px;
+  outline: none;
+}
+.input-group button {
+  padding: 12px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.input-group button:hover {
+  background: #0056b3;
+}
+
+/* 统计区域 */
+.stats-container {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  gap: 10px;
+}
+.stat-card {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 14px;
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #007bff;
+}
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* 提示 */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+  z-index: 1100;
+  transition: transform 0.3s;
+  pointer-events: none;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
 </style>
 </head>
 
 <body>
 
-<h2>📘 学习进度表</h2>
+<div class="header">
+  <h2>📘 学习进度</h2>
+  <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+</div>
 
+<!-- 设置面板 -->
+<div class="overlay" id="overlay" onclick="toggleSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <button class="close-settings" onclick="toggleSettings()">✕</button>
+  <h4>⚙️ 数据管理</h4>
+  <button onclick="exportData()" style="background:#28a745;">📤 导出备份</button>
+  <button onclick="importData()" style="background:#ff9800;">📥 导入备份</button>
+  <button onclick="clearAllData()" style="background:#dc3545;">🗑️ 清空所有</button>
+  <div style="margin-top: 20px; font-size: 12px; color: #999; text-align: center;">
+    数据自动保存在浏览器中
+  </div>
+</div>
+<input type="file" id="importFile" style="display:none;" accept=".json">
+
+<!-- 热力图区域 -->
 <div class="card">
-  <div style="color:#28a745;margin-bottom:8px;">💾 数据自动保存在浏览器中，清除缓存会丢失</div>
-  <div class="export-buttons">
-    <button onclick="exportData()" style="background:#28a745;">📤 导出备份</button>
-    <button onclick="importData()" style="background:#ff9800;">📥 导入备份</button>
-    <button onclick="clearAllData()" style="background:#dc3545;" id="clearBtn">🗑️ 清空所有</button>
-  </div>
-  <input type="file" id="importFile" style="display:none;" accept=".json" onchange="handleImport(event)">
+  <div class="month-title" id="calendarTitle"></div>
+  <div class="calendar" id="calendar"></div>
 </div>
 
-<div class="card stats">
-  <div>
-    <div class="stat-number" id="totalTasks">0</div>
-    <div>总任务</div>
-  </div>
-  <div>
-    <div class="stat-number" id="completedTasks">0</div>
-    <div>已完成</div>
-  </div>
-  <div>
-    <div class="stat-number" id="streak">0</div>
-    <div>连续学习</div>
-  </div>
+<!-- 今日任务区域 -->
+<div class="card">
+  <h4 id="taskTitle" style="margin-top: 0; margin-bottom: 12px;">📋 今日任务</h4>
+  <div id="taskList"></div>
 </div>
 
+<!-- 添加任务区域 -->
 <div class="card">
   <div class="input-group">
     <input id="taskInput" placeholder="输入学习任务..." onkeypress="if(event.key==='Enter') addTask()">
@@ -75,25 +341,52 @@ button {padding:10px 15px;border:none;border-radius:8px;background:#007bff;color
   </div>
 </div>
 
+<!-- 统计数据区域 -->
 <div class="card">
-  <h4 id="taskTitle">📋 今日任务</h4>
-  <div id="taskList"></div>
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-number" id="totalTasks">0</div>
+      <div class="stat-label">总任务</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="completedTasks">0</div>
+      <div class="stat-label">已完成</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="streak">0</div>
+      <div class="stat-label">连续学习</div>
+    </div>
+  </div>
 </div>
 
-<div class="card">
-  <h4 id="calendarTitle"></h4>
-  <div class="calendar" id="calendar"></div>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
 // ===== 数据存储 =====
-let tasks = [];      // 所有任务 {id, text, date, done}
-let history = {};    // 日期完成状态 { "2025-01-01": 1 或 0.5 }
+let tasks = [];
+let history = {};
 let selectedDate = getDateStr(new Date());
 
 // ===== 工具函数 =====
 function getDateStr(d) {
   return d.toISOString().split("T")[0];
+}
+
+function showToast(msg, duration = 2000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, duration);
+}
+
+// ===== 设置面板 =====
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  const overlay = document.getElementById('overlay');
+  panel.classList.toggle('show');
+  overlay.classList.toggle('show');
 }
 
 // ===== 保存到 localStorage =====
@@ -138,7 +431,7 @@ function exportData() {
   a.download = `学习记录_${getDateStr(new Date())}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  alert('✅ 备份已导出！');
+  showToast('✅ 备份已导出！');
 }
 
 // ===== 导入数据 =====
@@ -158,9 +451,9 @@ function handleImport(event) {
       history = data.history || {};
       saveToLocal();
       renderAll();
-      alert('✅ 导入成功！');
+      showToast('✅ 导入成功！');
     } catch(err) {
-      alert('❌ 文件格式错误');
+      showToast('❌ 文件格式错误');
     }
   };
   reader.readAsText(file);
@@ -174,7 +467,8 @@ function clearAllData() {
     history = {};
     saveToLocal();
     renderAll();
-    alert('已清空');
+    showToast('已清空');
+    toggleSettings();
   }
 }
 
@@ -184,7 +478,7 @@ function addTask() {
   const range = parseInt(document.getElementById("rangeSelect").value);
   
   if (!text) {
-    alert('请输入任务内容');
+    showToast('请输入任务内容');
     return;
   }
 
@@ -195,7 +489,6 @@ function addTask() {
     d.setDate(d.getDate() + i);
     const dateStr = getDateStr(d);
     
-    // 避免重复添加相同的未完成任务
     const exists = tasks.some(t => t.text === text && t.date === dateStr && !t.done);
     
     if (!exists) {
@@ -215,19 +508,20 @@ function addTask() {
     renderAll();
     document.getElementById("taskInput").value = '';
     document.getElementById("taskInput").focus();
+    showToast(`✅ 添加了 ${added} 个任务`);
   } else if (range === 1) {
-    alert('今天已经有这个任务了');
+    showToast('今天已经有这个任务了');
   } else {
-    alert('所选日期中已有相同的任务');
+    showToast('所选日期中已有相同的任务');
   }
 }
 
 // ===== 删除任务 =====
 function deleteTask(taskId) {
-  const index = tasks.findIndex(t => t.id === taskId);
-  if (index !== -1) {
-    const date = tasks[index].date;
-    tasks.splice(index, 1);
+  const task = tasks.find(t => t.id === taskId);
+  if (task) {
+    const date = task.date;
+    tasks = tasks.filter(t => t.id !== taskId);
     updateHistory(date);
     saveToLocal();
     renderAll();
@@ -241,13 +535,22 @@ function getTasksByDate(date) {
 
 // ===== 切换任务状态 =====
 function toggleTask(taskId) {
-  const taskIndex = tasks.findIndex(t => t.id === taskId);
-  if (taskIndex !== -1) {
-    tasks[taskIndex].done = !tasks[taskIndex].done;
-    updateHistory(tasks[taskIndex].date);
+  const task = tasks.find(t => t.id === taskId);
+  if (task) {
+    task.done = !task.done;
+    updateHistory(task.date);
     saveToLocal();
-    renderTasks(); // 只刷新任务列表，更快
-    renderStats(); // 刷新统计数据
+    
+    // 只刷新必要的部分，保持性能
+    if (selectedDate === task.date) {
+      renderTasks();
+    } else {
+      // 如果切换的不是当前选中日期，只更新统计和热力图
+      renderStats();
+      renderCalendar();
+    }
+    renderStats();
+    renderCalendar();  // 关键：刷新热力图颜色
   }
 }
 
@@ -287,7 +590,7 @@ function renderTasks() {
   }
 
   if (list.length === 0) {
-    listEl.innerHTML = '<div style="color:#999;padding:20px;text-align:center;">✨ 暂无任务，点击上方"添加任务"</div>';
+    listEl.innerHTML = '<div class="empty-tasks">✨ 暂无任务，点击上方"添加任务"</div>';
     return;
   }
 
@@ -295,32 +598,31 @@ function renderTasks() {
   
   list.forEach(task => {
     const div = document.createElement("div");
-    div.className = "task-row";
+    div.className = "task-item";
 
     const left = document.createElement("div");
-    left.style.display = "flex";
-    left.style.alignItems = "center";
-    left.style.gap = "10px";
+    left.className = "task-left";
 
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.checked = task.done;
-    cb.style.width = "18px";
-    cb.style.height = "18px";
-    cb.style.cursor = "pointer";
-    cb.onclick = () => toggleTask(task.id);
+    cb.onclick = (e) => {
+      e.stopPropagation();
+      toggleTask(task.id);
+    };
 
     const span = document.createElement("span");
+    span.className = "task-text" + (task.done ? " done" : "");
     span.textContent = task.text;
-    if (task.done) span.className = "done";
-    span.style.flex = "1";
-    span.style.cursor = "pointer";
     span.onclick = () => toggleTask(task.id);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "删除";
-    deleteBtn.className = "delete-btn";
-    deleteBtn.onclick = () => deleteTask(task.id);
+    deleteBtn.className = "delete-task";
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteTask(task.id);
+    };
 
     left.appendChild(cb);
     left.appendChild(span);
@@ -337,7 +639,6 @@ function renderStats() {
   document.getElementById("totalTasks").textContent = total;
   document.getElementById("completedTasks").textContent = completed;
   
-  // 计算连续学习天数
   let streak = 0;
   let d = new Date();
   
@@ -353,7 +654,7 @@ function renderStats() {
   document.getElementById("streak").textContent = streak;
 }
 
-// ===== 渲染日历 =====
+// ===== 渲染日历（热力图）=====
 function renderCalendar() {
   const cal = document.getElementById("calendar");
   if (!cal) return;
@@ -376,13 +677,11 @@ function renderCalendar() {
   const firstDay = new Date(year, month, 1).getDay();
   const days = new Date(year, month + 1, 0).getDate();
 
-  // 补全上月空白
   for (let i = 0; i < firstDay; i++) {
     const empty = document.createElement("div");
     cal.appendChild(empty);
   }
 
-  // 渲染当月每一天
   for (let i = 1; i <= days; i++) {
     const d = new Date(year, month, i);
     const key = getDateStr(d);
@@ -391,6 +690,7 @@ function renderCalendar() {
     div.className = "day";
     div.textContent = i;
 
+    // 根据 history 设置颜色
     if (history[key] === 1) div.classList.add("full");
     else if (history[key] === 0.5) div.classList.add("partial");
     else div.classList.add("empty");
@@ -399,17 +699,18 @@ function renderCalendar() {
       div.classList.add("today");
     }
 
-    div.onclick = (function(dateKey) {
+    div.onclick = (function(dateKey, element) {
       return function() {
         selectedDate = dateKey;
         renderTasks();
-        // 高亮当前选中的日期
+        // 清除之前的高亮
         document.querySelectorAll('.calendar .day').forEach(el => {
-          el.style.border = '';
+          el.style.outline = '';
         });
-        this.style.border = '2px solid #007bff';
+        element.style.outline = '2px solid #007bff';
+        element.style.outlineOffset = '2px';
       };
-    })(key);
+    })(key, div);
 
     cal.appendChild(div);
   }
@@ -417,9 +718,9 @@ function renderCalendar() {
 
 // ===== 全部渲染 =====
 function renderAll() {
+  renderCalendar();
   renderTasks();
   renderStats();
-  renderCalendar();
 }
 
 // ===== 页面启动 =====
@@ -427,7 +728,7 @@ console.log('🚀 应用启动');
 loadFromLocal();
 renderAll();
 
-// 如果还没有数据，添加示例任务
+// 如果没有数据，添加示例任务
 if (tasks.length === 0) {
   console.log('📝 添加示例任务');
   const today = getDateStr(new Date());
@@ -448,6 +749,9 @@ if (tasks.length === 0) {
   saveToLocal();
   renderAll();
 }
+
+// 挂载文件导入事件
+document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
 
 </body>
