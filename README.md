@@ -68,3 +68,82 @@
 ```bash
 git clone https://github.com/luzhihao21/study-tracker.git
 cd study-tracker
+**2. データベース設定 / Database setup / 数据库配置
+CREATE DATABASE study_db;
+**3. アプリケーションプロパティ設定 / Application properties / 配置文件
+src/main/resources/application.properties を編集：
+spring.datasource.url=jdbc:mysql://localhost:3306/study_db
+spring.datasource.username=root
+spring.datasource.password=your_password
+**4. バックエンド起動 / Start backend / 启动后端
+cd study-backend
+mvn spring-boot:run
+**5. フロントエンド起動 / Start frontend / 启动前端
+VS Code で study-cloud.html を開く
+Live Server で起動
+**6. ブラウザでアクセス / Access in browser / 浏览器访问
+http://localhost:8080 (backend)
+http://localhost:5500/study-cloud.html (frontend)
+📁 プロジェクト構造 / Project Structure / 项目结构
+study-tracker/
+├── study-cloud.html          # フロントエンド / Frontend
+├── study-backend/            # バックエンド / Backend
+│   ├── src/main/java/com/study/
+│   │   ├── StudyApplication.java
+│   │   ├── controller/
+│   │   │   └── TaskController.java
+│   │   ├── model/
+│   │   │   └── Task.java
+│   │   └── repository/
+│   │       └── TaskRepository.java
+│   └── src/main/resources/
+│       └── application.properties
+└── README.md
+🌐 API エンドポイント / API Endpoints / API接口
+Method	Endpoint	説明
+GET	/api/tasks?date={date}	指定日のタスク取得
+GET	/api/tasks/all	全タスク取得
+POST	/api/tasks	タスク追加
+PUT	/api/tasks/{id}/toggle	完了状態切替
+DELETE	/api/tasks/{id}	タスク削除
+🎯 今後の計画 / Future Plans / 后续计划
+React でフロントエンドを書き換え
+
+ポモドーロタイマー追加
+
+学習時間統計グラフ
+
+クラウドデプロイ
+
+👨‍💻 作者 / Author / 作者
+luzhihao21
+
+GitHub: @luzhihao21
+
+📄 ライセンス / License / 许可证
+MIT License
+
+Copyright (c) 2025 luzhihao21
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+⭐ 応援よろしくお願いします！
+このプロジェクトが役に立ったら、⭐️を付けてください！
+If this project helps you, please give it a star!
+如果这个项目对你有帮助，请点个星标！
