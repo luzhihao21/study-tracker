@@ -1,0 +1,4 @@
+com\study\repository\TaskRepository.class
+com\study\model\Task.class
+com\study\controller\TaskController.class
+com\study\StudyApplication.class
