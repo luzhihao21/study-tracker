@@ -14,12 +14,50 @@ h2 { margin: 0; font-size: 22px; }
 .settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px 8px; border-radius: 50%; }
 .calendar-wrapper { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
 .calendar { display: grid; grid-template-columns: repeat(7, minmax(42px, 1fr)); gap: 5px; margin-top: 10px; min-width: 280px; }
-.day { aspect-ratio: 1; text-align: center; font-size: 13px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 500; }
+
+/* ② 修复：星期头居中 */
+.day {
+  aspect-ratio: 1;
+  text-align: center;
+  font-size: 13px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* 关键：水平居中 */
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+}
 .day.header { background: #e0e0e0; cursor: default; }
 .full { background: #4caf50; color: white; }
 .partial { background: #ff9800; color: white; }
 .empty { background: #e8e8e8; color: #666; }
 .today { border: 2px solid #2196f3; font-weight: bold; }
+
+/* ① 日本节假日专属样式 */
+.holiday {
+  background: #f8bbd0 !important;
+  color: #c2185b !important;
+  position: relative;
+}
+.holiday::after {
+  content: '祝';
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 8px;
+  opacity: 0.7;
+}
+.holiday.full { background: #e91e63 !important; color: white !important; }
+.holiday.partial { background: #f06292 !important; color: white !important; }
+/* 节假日 + 今日边框 */
+.holiday.today { border: 2px solid #c2185b; }
+
+/* 节假日图例 */
+.legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; align-items: center; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 4px; }
+
 .month-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
 @media (max-width: 480px) { .calendar { grid-template-columns: repeat(7, minmax(38px, 1fr)); gap: 3px; } .day { font-size: 11px; } }
 .task-item { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px; border-radius: 10px; }
@@ -27,7 +65,7 @@ h2 { margin: 0; font-size: 22px; }
 .task-left input { width: 20px; height: 20px; cursor: pointer; }
 .task-text { font-size: 15px; word-break: break-word; flex: 1; cursor: pointer; }
 .task-text.done { text-decoration: line-through; color: #999; }
-.delete-task { background: #ff4444; color: white; border: none; border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+.delete-task { background: #ff4444; color: white; border: none; border-radius: 8px; padding: 5px 12px; cursor: pointer; flex-shrink: 0; }
 .empty-tasks { text-align: center; color: #999; padding: 25px; }
 .input-group { display: flex; gap: 8px; flex-wrap: wrap; }
 .input-group input { flex: 2; padding: 12px; border: 1px solid #ddd; border-radius: 12px; }
@@ -45,6 +83,29 @@ h2 { margin: 0; font-size: 22px; }
 .settings-panel button { width: 100%; margin: 8px 0; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
 .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 10px 20px; border-radius: 30px; z-index: 1100; transition: transform 0.3s; }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ③ 删除确认弹窗 */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-box {
+  background: white; border-radius: 16px; padding: 24px;
+  max-width: 320px; width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.modal-box h3 { margin: 0 0 8px; font-size: 17px; }
+.modal-box p { margin: 0 0 20px; font-size: 14px; color: #555; line-height: 1.5; }
+.modal-actions { display: flex; flex-direction: column; gap: 10px; }
+.modal-actions button {
+  padding: 13px; border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.btn-today-forward { background: #ff9800; color: white; }
+.btn-all { background: #f44336; color: white; }
+.btn-cancel { background: #eee; color: #333; }
 </style>
 </head>
 <body>
@@ -72,6 +133,12 @@ h2 { margin: 0; font-size: 22px; }
   <div class="month-title" id="calendarTitle"></div>
   <div class="calendar-wrapper">
     <div class="calendar" id="calendar"></div>
+  </div>
+  <!-- ① 节假日图例 -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4caf50;"></div><span>全部完成</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff9800;"></div><span>部分完成</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f8bbd0; border:1px solid #f48fb1;"></div><span>日本祝日</span></div>
   </div>
 </div>
 
@@ -110,6 +177,48 @@ let tasks = [];
 let history = {};
 let selectedDate = getDateStr(new Date());
 let currentLang = 'zh';
+
+// ① 日本2025年法定节假日（含振替休日）
+const JAPAN_HOLIDAYS = {
+  '2025-01-01': '元日',
+  '2025-01-13': '成人の日',
+  '2025-02-11': '建国記念の日',
+  '2025-02-23': '天皇誕生日',
+  '2025-02-24': '天皇誕生日（振替）',
+  '2025-03-20': '春分の日',
+  '2025-04-29': '昭和の日',
+  '2025-05-03': '憲法記念日',
+  '2025-05-04': 'みどりの日',
+  '2025-05-05': 'こどもの日',
+  '2025-05-06': 'こどもの日（振替）',
+  '2025-07-21': '海の日',
+  '2025-08-11': '山の日',
+  '2025-09-15': '敬老の日',
+  '2025-09-23': '秋分の日',
+  '2025-10-13': 'スポーツの日',
+  '2025-11-03': '文化の日',
+  '2025-11-23': '勤労感謝の日',
+  '2025-11-24': '勤労感謝の日（振替）',
+  // 2026年も追加
+  '2026-01-01': '元日',
+  '2026-01-12': '成人の日',
+  '2026-02-11': '建国記念の日',
+  '2026-02-23': '天皇誕生日',
+  '2026-03-20': '春分の日',
+  '2026-04-29': '昭和の日',
+  '2026-05-03': '憲法記念日',
+  '2026-05-04': 'みどりの日',
+  '2026-05-05': 'こどもの日',
+  '2026-05-06': 'こどもの日（振替）',
+  '2026-07-20': '海の日',
+  '2026-08-11': '山の日',
+  '2026-09-21': '敬老の日',
+  '2026-09-22': '国民の休日',
+  '2026-09-23': '秋分の日',
+  '2026-10-12': 'スポーツの日',
+  '2026-11-03': '文化の日',
+  '2026-11-23': '勤労感謝の日',
+};
 
 const lang = {
   zh: {
@@ -198,11 +307,6 @@ async function deleteTaskInCloud(id) {
   await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
 }
 
-async function loadTodayTasksFromCloud(date) {
-  const res = await fetch(`${API_BASE}?date=${date}`);
-  return res.json();
-}
-
 async function addTask() {
   const text = document.getElementById('taskInput').value.trim();
   const range = parseInt(document.getElementById('rangeSelect').value, 10);
@@ -235,8 +339,74 @@ async function addTask() {
   }
 }
 
+// ③ 显示删除确认弹窗，返回用户选择的 Promise
+function showDeleteModal(taskText) {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-box">
+        <h3>🗑️ 删除任务</h3>
+        <p>「${escapeHtml(taskText)}」<br>请选择删除范围：</p>
+        <div class="modal-actions">
+          <button class="btn-today-forward">仅删除今天及以后</button>
+          <button class="btn-all">删除所有日期（含已打卡）</button>
+          <button class="btn-cancel">取消</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelector('.btn-today-forward').onclick = () => {
+      document.body.removeChild(modal);
+      resolve('forward');
+    };
+    modal.querySelector('.btn-all').onclick = () => {
+      document.body.removeChild(modal);
+      resolve('all');
+    };
+    modal.querySelector('.btn-cancel').onclick = () => {
+      document.body.removeChild(modal);
+      resolve('cancel');
+    };
+  });
+}
+
 async function deleteTask(id) {
-  await deleteTaskInCloud(id);
+  // 找到这个任务的文本
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  // 找到同名任务中是否有多个日期
+  const sameName = tasks.filter(t => t.text === task.text);
+
+  if (sameName.length <= 1) {
+    // 只有一条记录，直接删除
+    await deleteTaskInCloud(id);
+    await loadTasksFromCloud();
+    return;
+  }
+
+  // 多条记录，弹窗询问
+  const choice = await showDeleteModal(task.text);
+  if (choice === 'cancel') return;
+
+  if (choice === 'forward') {
+    // 仅删除当前选中日期及之后的同名任务（保留已过去的打卡记录）
+    const cutoff = selectedDate;
+    const toDelete = sameName.filter(t => t.date >= cutoff);
+    for (const t of toDelete) {
+      await deleteTaskInCloud(t.id);
+    }
+    showToast(`已删除 ${toDelete.length} 条记录（保留历史打卡）`);
+  } else if (choice === 'all') {
+    // 删除所有同名任务（含历史）
+    for (const t of sameName) {
+      await deleteTaskInCloud(t.id);
+    }
+    showToast(`已删除全部 ${sameName.length} 条记录`);
+  }
+
   await loadTasksFromCloud();
 }
 
@@ -311,6 +481,7 @@ function renderCalendar() {
   document.getElementById('calendarTitle').innerHTML = `📅 ${year}年 ${month + 1}月`;
 
   const weekDays = lang[currentLang].weekDays;
+  // ② 星期头：用 display:flex + justify-content:center 已在CSS里修好，这里直接渲染
   cal.innerHTML = weekDays.map(w => `<div class="day header">${w}</div>`).join('');
 
   const firstDay = new Date(year, month, 1).getDay();
@@ -326,14 +497,21 @@ function renderCalendar() {
     const d = new Date(year, month, i);
     const key = getDateStr(d);
     const div = document.createElement('div');
+    const isHoliday = !!JAPAN_HOLIDAYS[key];
 
-    div.className = `day ${history[key] === 1 ? 'full' : history[key] === 0.5 ? 'partial' : 'empty'}`;
+    // ① 节假日额外加 holiday class
+    let cls = `day ${history[key] === 1 ? 'full' : history[key] === 0.5 ? 'partial' : 'empty'}`;
+    if (isHoliday) cls += ' holiday';
+    if (key === todayStr) cls += ' today';
 
-    if (key === todayStr) {
-      div.classList.add('today');
+    div.className = cls;
+    div.textContent = i;
+
+    // ① 节假日显示 tooltip（手机长按 or PC hover 可见）
+    if (isHoliday) {
+      div.title = JAPAN_HOLIDAYS[key];
     }
 
-    div.textContent = i;
     div.onclick = function() {
       selectedDate = key;
       renderTasks();
