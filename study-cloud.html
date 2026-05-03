@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>学习进度表（云端版）</title>
 <style>
-/* 样式和之前一样，为了节省空间先省略，你可以直接从之前的版本复制样式 */
 * { box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 12px; background: #f5f7fa; min-height: 100vh; }
 .card { background: white; padding: 15px 12px; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); width: 100%; }
@@ -105,23 +104,31 @@ h2 { margin: 0; font-size: 22px; }
 <div class="toast" id="toast"></div>
 
 <script>
-// API 地址（后端运行在本机 8080 端口）
 const API_BASE = 'http://localhost:8080/api/tasks';
 
-// 数据（从云端加载，不再用 localStorage 存任务数据）
 let tasks = [];
 let history = {};
 let selectedDate = getDateStr(new Date());
 let currentLang = 'zh';
 
-// 语言包（简化版）
 const lang = {
-  zh: { appTitle: '📘 学习进度表（云端版）', weekDays: ['日', '一', '二', '三', '四', '五', '六'], noTasks: '✨ 暂无任务，点击上方"添加任务"' },
-  ja: { appTitle: '📘 学習進捗トラッカー（クラウド版）', weekDays: ['日', '月', '火', '水', '木', '金', '土'], noTasks: '✨ タスクがありません、「追加」をクリック' }
+  zh: {
+    appTitle: '📘 学习进度表（云端版）',
+    weekDays: ['日', '一', '二', '三', '四', '五', '六'],
+    noTasks: '✨ 暂无任务，点击上方"添加任务"'
+  },
+  ja: {
+    appTitle: '📘 学習進捗トラッカー（クラウド版）',
+    weekDays: ['日', '月', '火', '水', '木', '金', '土'],
+    noTasks: '✨ タスクがありません、「追加」をクリック'
+  }
 };
 
 function getDateStr(d) {
-  return d.toISOString().split('T')[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function showToast(msg) {
@@ -144,15 +151,12 @@ function toggleLanguage() {
   renderTasks();
 }
 
-// ========== 云端 API 操作 ==========
 async function loadTasksFromCloud() {
   try {
-    // 获取所有任务（热力图用）
     const allRes = await fetch(`${API_BASE}/all`);
     const allTasks = await allRes.json();
     tasks = allTasks;
-    
-    // 重新计算 history
+
     history = {};
     tasks.forEach(task => {
       const date = task.date;
@@ -160,7 +164,7 @@ async function loadTasksFromCloud() {
       history[date].total++;
       if (task.done) history[date].done++;
     });
-    // 转换为 1 或 0.5 格式
+
     const newHistory = {};
     for (const [date, stats] of Object.entries(history)) {
       const ratio = stats.done / stats.total;
@@ -168,7 +172,7 @@ async function loadTasksFromCloud() {
       else if (ratio > 0) newHistory[date] = 0.5;
     }
     history = newHistory;
-    
+
     renderAll();
     console.log('✅ 从云端加载成功，任务数:', tasks.length);
   } catch (err) {
@@ -186,7 +190,7 @@ async function addTaskToCloud(text, date, done = false) {
   return res.json();
 }
 
-async function toggleTaskInCloud(id, currentDone) {
+async function toggleTaskInCloud(id) {
   await fetch(`${API_BASE}/${id}/toggle`, { method: 'PUT' });
 }
 
@@ -199,24 +203,29 @@ async function loadTodayTasksFromCloud(date) {
   return res.json();
 }
 
-// ========== 本地功能（语言/UI 操作）==========
 async function addTask() {
   const text = document.getElementById('taskInput').value.trim();
-  const range = parseInt(document.getElementById('rangeSelect').value);
-  if (!text) { showToast('请输入任务内容'); return; }
-  
+  const range = parseInt(document.getElementById('rangeSelect').value, 10);
+
+  if (!text) {
+    showToast('请输入任务内容');
+    return;
+  }
+
   let added = 0;
+  const baseDate = new Date();
+
   for (let i = 0; i < range; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
+    const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + i);
     const dateStr = getDateStr(d);
     const exists = tasks.some(t => t.text === text && t.date === dateStr);
+
     if (!exists) {
       await addTaskToCloud(text, dateStr, false);
       added++;
     }
   }
-  
+
   if (added > 0) {
     await loadTasksFromCloud();
     document.getElementById('taskInput').value = '';
@@ -232,7 +241,7 @@ async function deleteTask(id) {
 }
 
 async function toggleTask(id, currentDone) {
-  await toggleTaskInCloud(id, currentDone);
+  await toggleTaskInCloud(id);
   await loadTasksFromCloud();
 }
 
@@ -240,23 +249,23 @@ function getTasksByDate(date) {
   return tasks.filter(t => t.date === date);
 }
 
-async function renderTasks() {
+function renderTasks() {
   const list = getTasksByDate(selectedDate);
   const container = document.getElementById('taskList');
   const todayStr = getDateStr(new Date());
-  
+
   if (selectedDate === todayStr) {
     document.getElementById('taskTitle').innerHTML = '📋 今日任务';
   } else {
-    const d = new Date(selectedDate);
-    document.getElementById('taskTitle').innerHTML = `📋 ${d.getMonth()+1}月${d.getDate()}日任务`;
+    const [year, month, day] = selectedDate.split('-');
+    document.getElementById('taskTitle').innerHTML = `📋 ${Number(month)}月${Number(day)}日任务`;
   }
-  
+
   if (list.length === 0) {
     container.innerHTML = `<div class="empty-tasks">${lang[currentLang].noTasks}</div>`;
     return;
   }
-  
+
   container.innerHTML = list.map(task => `
     <div class="task-item">
       <div class="task-left">
@@ -280,33 +289,56 @@ function escapeHtml(str) {
 function renderStats() {
   document.getElementById('totalTasks').textContent = tasks.length;
   document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
-  let streak = 0, d = new Date();
-  while (history[getDateStr(d)] === 1) { streak++; d.setDate(d.getDate() - 1); }
+
+  let streak = 0;
+  const today = new Date();
+  let d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  while (history[getDateStr(d)] === 1) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+
   document.getElementById('streak').textContent = streak;
 }
 
 function renderCalendar() {
   const cal = document.getElementById('calendar');
   const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth();
-  document.getElementById('calendarTitle').innerHTML = `📅 ${year}年 ${month+1}月`;
-  
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  document.getElementById('calendarTitle').innerHTML = `📅 ${year}年 ${month + 1}月`;
+
   const weekDays = lang[currentLang].weekDays;
   cal.innerHTML = weekDays.map(w => `<div class="day header">${w}</div>`).join('');
-  
+
   const firstDay = new Date(year, month, 1).getDay();
   const days = new Date(year, month + 1, 0).getDate();
-  
-  for (let i = 0; i < firstDay; i++) cal.appendChild(document.createElement('div'));
-  
+
+  for (let i = 0; i < firstDay; i++) {
+    cal.appendChild(document.createElement('div'));
+  }
+
+  const todayStr = getDateStr(new Date());
+
   for (let i = 1; i <= days; i++) {
     const d = new Date(year, month, i);
     const key = getDateStr(d);
     const div = document.createElement('div');
+
     div.className = `day ${history[key] === 1 ? 'full' : history[key] === 0.5 ? 'partial' : 'empty'}`;
-    if (key === getDateStr(new Date())) div.classList.add('today');
+
+    if (key === todayStr) {
+      div.classList.add('today');
+    }
+
     div.textContent = i;
-    div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); }; })(key);
+    div.onclick = function() {
+      selectedDate = key;
+      renderTasks();
+    };
+
     cal.appendChild(div);
   }
 }
@@ -317,14 +349,20 @@ function renderAll() {
   renderStats();
 }
 
-// 导出/导入（云端版也用 localStorage 做备份）
 function exportData() {
-  const data = { tasks, history, exportDate: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const data = {
+    tasks,
+    history,
+    exportDate: new Date().toISOString()
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
+
   a.href = URL.createObjectURL(blob);
   a.download = `学習記録_${getDateStr(new Date())}.json`;
   a.click();
+
   showToast('✅ 备份已导出');
 }
 
@@ -335,23 +373,28 @@ function importData() {
 function handleImport(e) {
   const file = e.target.files[0];
   if (!file) return;
+
   const reader = new FileReader();
+
   reader.onload = async function(ev) {
     try {
       const data = JSON.parse(ev.target.result);
-      // 导入时清空云端现有数据
+
       for (const task of tasks) {
         await deleteTaskInCloud(task.id);
       }
+
       for (const task of (data.tasks || [])) {
         await addTaskToCloud(task.text, task.date, task.done);
       }
+
       await loadTasksFromCloud();
       showToast('✅ 导入成功！');
-    } catch(err) {
+    } catch (err) {
       showToast('❌ 文件格式错误');
     }
   };
+
   reader.readAsText(file);
   document.getElementById('importFile').value = '';
 }
@@ -361,17 +404,16 @@ async function clearAllData() {
     for (const task of tasks) {
       await deleteTaskInCloud(task.id);
     }
+
     await loadTasksFromCloud();
     toggleSettings();
     showToast('已清空');
   }
 }
 
-// 启动：从云端加载数据
 loadTasksFromCloud();
 document.getElementById('importFile').addEventListener('change', handleImport);
 
-// 挂载全局函数
 window.toggleLanguage = toggleLanguage;
 window.toggleSettings = toggleSettings;
 window.addTask = addTask;
