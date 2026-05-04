@@ -6,9 +6,7 @@
 <title>学习进度表 · 比例热力图</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -44,38 +42,18 @@ body {
 }
 
 @media (max-width: 480px) {
-  body {
-    padding: 8px;
-  }
-  .card {
-    padding: 12px 10px;
-  }
+  body { padding: 8px; }
+  .card { padding: 12px 10px; }
   .calendar {
     grid-template-columns: repeat(7, minmax(38px, 1fr));
     gap: 3px;
   }
-  .day {
-    font-size: 12px;
-  }
-  .task-text {
-    font-size: 14px;
-  }
-  .delete-task {
-    padding: 4px 10px;
-    font-size: 11px;
-  }
-  .stat-number {
-    font-size: 22px;
-  }
-  .input-group input,
-  .input-group select,
-  .input-group button {
-    padding: 10px;
-  }
-  .holiday-label {
-    font-size: 6px;
-    bottom: 1px;
-  }
+  .day { font-size: 12px; }
+  .task-text { font-size: 14px; }
+  .delete-task { padding: 4px 10px; font-size: 11px; }
+  .stat-number { font-size: 22px; }
+  .input-group input, .input-group select, .input-group button { padding: 10px; }
+  .holiday-label { font-size: 6px; bottom: 1px; }
 }
 
 @media (max-width: 380px) {
@@ -83,52 +61,171 @@ body {
     grid-template-columns: repeat(7, minmax(34px, 1fr));
     gap: 2px;
   }
-  .day {
-    font-size: 10px;
-  }
-  .holiday-label {
-    font-size: 5px;
-  }
+  .day { font-size: 10px; }
+  .holiday-label { font-size: 5px; }
 }
 
+/* ===== 日历格子基础 ===== */
 .day {
   aspect-ratio: 1;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.1s, background 0.2s;
+  transition: transform 0.1s;
   font-weight: 600;
+  font-size: 13px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  color: #555;
+  background: #e0e0e0;
 }
-.day:hover {
-  transform: scale(1.03);
-}
+.day:hover { transform: scale(1.05); }
 
 .day.header {
   background: #d9d9d9;
   cursor: default;
   color: #444;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
   box-shadow: none;
+  border-radius: 8px;
 }
-.day.header:hover {
-  transform: none;
+.day.header:hover { transform: none; }
+
+/* ratio-0: 无任务或0%完成 → 纯灰 */
+.day.ratio-0 {
+  background: #eeeeee;
+  color: #aaa;
 }
 
+/* ratio-100: 全完成 → 纯深绿 */
+.day.ratio-100 {
+  background: #2e7d32;
+  color: white;
+}
+
+/* ratio-50: 50% → 对角线左下绿，右上灰 */
+.day.ratio-50 {
+  background: linear-gradient(135deg, #66bb6a 50%, #e0e0e0 50%);
+  color: #333;
+}
+
+/* ratio-33: ~33% → 左1/3绿，右2/3灰 */
+.day.ratio-33 {
+  background: linear-gradient(to right, #66bb6a 33.3%, #e0e0e0 33.3%);
+  color: #333;
+}
+
+/* ratio-67: ~67% → 左2/3绿，右1/3灰 */
+.day.ratio-67 {
+  background: linear-gradient(to right, #66bb6a 66.6%, #e0e0e0 66.6%);
+  color: #fff;
+}
+
+/* ratio-25: 25% → 田字格，左上1格绿 */
+.day.ratio-25 {
+  background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%);
+  position: relative;
+}
+.day.ratio-25::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  width: 100%; height: 50%;
+  background: #e0e0e0;
+  pointer-events: none;
+}
+
+/* ratio-75: 75% → 田字格，右下1格灰 */
+.day.ratio-75 {
+  background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%);
+  position: relative;
+}
+.day.ratio-75::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  width: 50%; height: 50%;
+  background: #66bb6a;
+  pointer-events: none;
+}
+
+/* 田字格分割线 */
+.day.ratio-25::after,
+.day.ratio-75::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+/* 三分竖线 */
+.day.ratio-33::after,
+.day.ratio-67::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
+    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+/* 今天高亮 */
 .today {
-  border: 2.5px solid #2196f3;
+  outline: 2.5px solid #1565c0;
+  outline-offset: 1px;
   font-weight: bold;
-  box-shadow: 0 0 0 1px white, 0 0 0 3px #2196f3;
+}
+
+/* 选中日期高亮 */
+.day.selected-day {
+  outline: 2.5px solid #e91e63;
+  outline-offset: 1px;
+}
+
+/* 节假日图标（用span避免与::after冲突） */
+.holiday-icon {
+  position: absolute;
+  top: 0px;
+  right: 2px;
+  font-size: 8px;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.holiday-label {
+  position: absolute;
+  bottom: 2px;
+  left: 0; right: 0;
+  font-size: 7px;
+  color: #b13b4a;
+  font-weight: bold;
+  background: rgba(255,255,200,0.85);
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 2px;
+  pointer-events: none;
+  text-align: center;
+  z-index: 10;
+}
+
+.day-num {
+  position: relative;
+  z-index: 5;
+  line-height: 1;
 }
 
 .month-title {
@@ -139,60 +236,34 @@ body {
   color: #333;
 }
 
-/* 完成比例颜色层级 */
-.day.ratio-0 {
-  background: #eeeeee;
-  color: #999;
+/* 图例 */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: center;
+  font-size: 11px;
+  color: #666;
 }
-.day.ratio-25 {
-  background: #ffcc80;
-  color: #5d3a1a;
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-.day.ratio-50 {
-  background: #ffa726;
-  color: white;
-}
-.day.ratio-75 {
-  background: #66bb6a;
-  color: white;
-}
-.day.ratio-100 {
-  background: #2e7d32;
-  color: white;
-  font-weight: bold;
-}
-
-.day.holiday {
-  position: relative;
-}
-.day.holiday::after {
-  content: "🌸";
-  position: absolute;
-  top: 0px;
-  right: 2px;
-  font-size: 8px;
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-.holiday-label {
-  position: absolute;
-  bottom: 2px;
-  left: 0;
-  right: 0;
-  font-size: 7px;
-  color: #b13b4a;
-  font-weight: bold;
-  background: rgba(255,255,200,0.8);
+.legend-dot {
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 2px;
-  pointer-events: none;
-  text-align: center;
+  flex-shrink: 0;
 }
+.legend-dot.l0   { background: #eeeeee; }
+.legend-dot.l25  { background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%); }
+.legend-dot.l50  { background: linear-gradient(135deg, #66bb6a 50%, #e0e0e0 50%); }
+.legend-dot.l75  { background: linear-gradient(to right, #66bb6a 66.6%, #e0e0e0 66.6%); }
+.legend-dot.l100 { background: #2e7d32; }
 
+/* ===== 任务列表 ===== */
 .task-item {
   display: flex;
   justify-content: space-between;
@@ -234,14 +305,9 @@ body {
   font-size: 12px;
   transition: 0.1s;
 }
-.delete-task:hover {
-  background: #cc0000;
-}
-.empty-tasks {
-  text-align: center;
-  color: #999;
-  padding: 25px;
-}
+.delete-task:hover { background: #cc0000; }
+.empty-tasks { text-align: center; color: #999; padding: 25px; }
+
 .input-group {
   display: flex;
   gap: 8px;
@@ -267,6 +333,7 @@ body {
   border-radius: 12px;
   cursor: pointer;
 }
+
 .stats-container {
   display: flex;
   justify-content: space-around;
@@ -284,20 +351,16 @@ body {
   font-weight: bold;
   color: #007bff;
 }
-.stat-label {
-  font-size: 12px;
-  color: #666;
-}
+.stat-label { font-size: 12px; color: #666; }
+
 .header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
 }
-h2 {
-  margin: 0;
-  font-size: 24px;
-}
+h2 { margin: 0; font-size: 24px; }
+
 .settings-btn {
   background: none;
   border: none;
@@ -308,8 +371,7 @@ h2 {
 }
 .settings-panel {
   position: fixed;
-  top: 0;
-  right: -300px;
+  top: 0; right: -300px;
   width: 280px;
   height: 100%;
   background: white;
@@ -318,26 +380,19 @@ h2 {
   z-index: 1000;
   padding: 20px;
 }
-.settings-panel.show {
-  right: 0;
-}
+.settings-panel.show { right: 0; }
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: rgba(0,0,0,0.5);
   z-index: 999;
   display: none;
 }
-.overlay.show {
-  display: block;
-}
+.overlay.show { display: block; }
 .close-settings {
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 10px; right: 15px;
   background: none;
   border: none;
   font-size: 24px;
@@ -361,10 +416,8 @@ h2 {
   font-size: 14px;
   text-align: center;
 }
-.lang-btn.active {
-  background: #007bff;
-  color: white;
-}
+.lang-btn.active { background: #007bff; color: white; }
+
 .toast {
   position: fixed;
   bottom: 30px;
@@ -377,9 +430,7 @@ h2 {
   z-index: 1100;
   transition: transform 0.3s;
 }
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-}
+.toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -399,9 +450,9 @@ h2 {
     <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
     <button class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">🇯🇵 日本語</button>
   </div>
-  <button onclick="exportData()" id="exportBtn" style="background:#28a745; margin-bottom:8px; width:100%;">📤 导出备份</button>
-  <button onclick="importData()" id="importBtn" style="background:#ff9800; margin-bottom:8px; width:100%;">📥 导入备份</button>
-  <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545; width:100%;">🗑️ 清空所有</button>
+  <button onclick="exportData()" id="exportBtn" style="background:#28a745; margin-bottom:8px; width:100%; padding:10px; border:none; border-radius:10px; color:white; cursor:pointer;">📤 导出备份</button>
+  <button onclick="importData()" id="importBtn" style="background:#ff9800; margin-bottom:8px; width:100%; padding:10px; border:none; border-radius:10px; color:white; cursor:pointer;">📥 导入备份</button>
+  <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545; width:100%; padding:10px; border:none; border-radius:10px; color:white; cursor:pointer;">🗑️ 清空所有</button>
 </div>
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
@@ -410,6 +461,7 @@ h2 {
   <div class="calendar-wrapper">
     <div class="calendar" id="calendar"></div>
   </div>
+  <div class="legend" id="legendArea"></div>
 </div>
 
 <div class="card">
@@ -443,150 +495,112 @@ h2 {
 <script>
 // ======================== 日本节假日数据 ========================
 const jpHolidays = {
-  "2025-01-01": "元日", "2025-01-13": "成人の日", "2025-02-11": "建国記念の日", "2025-02-23": "天皇誕生日",
-  "2025-03-20": "春分の日", "2025-04-29": "昭和の日", "2025-05-03": "憲法記念日", "2025-05-04": "みどりの日",
-  "2025-05-05": "こどもの日", "2025-07-21": "海の日", "2025-08-11": "山の日", "2025-09-15": "敬老の日",
-  "2025-09-23": "秋分の日", "2025-10-13": "スポーツの日", "2025-11-03": "文化の日", "2025-11-23": "勤労感謝の日",
-  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日",
-  "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日",
-  "2026-05-05": "こどもの日", "2026-07-20": "海の日", "2026-08-11": "山の日", "2026-09-21": "敬老の日",
-  "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日"
+  "2025-01-01":"元日","2025-01-13":"成人の日","2025-02-11":"建国記念の日","2025-02-23":"天皇誕生日",
+  "2025-03-20":"春分の日","2025-04-29":"昭和の日","2025-05-03":"憲法記念日","2025-05-04":"みどりの日",
+  "2025-05-05":"こどもの日","2025-07-21":"海の日","2025-08-11":"山の日","2025-09-15":"敬老の日",
+  "2025-09-23":"秋分の日","2025-10-13":"スポーツの日","2025-11-03":"文化の日","2025-11-23":"勤労感謝の日",
+  "2026-01-01":"元日","2026-01-12":"成人の日","2026-02-11":"建国記念の日","2026-02-23":"天皇誕生日",
+  "2026-03-20":"春分の日","2026-04-29":"昭和の日","2026-05-03":"憲法記念日","2026-05-04":"みどりの日",
+  "2026-05-05":"こどもの日","2026-07-20":"海の日","2026-08-11":"山の日","2026-09-21":"敬老の日",
+  "2026-09-23":"秋分の日","2026-10-12":"スポーツの日","2026-11-03":"文化の日","2026-11-23":"勤労感謝の日"
 };
-
 function getHolidayName(dateStr) { return jpHolidays[dateStr] || null; }
 
-// ======================== 多语言文本库 ========================
+// ======================== 多语言 ========================
 const locales = {
   zh: {
-    appTitle: "📘 学习进度",
-    settingsTitle: "⚙️ 设置",
-    langLabel: "语言 / Language / 言語",
-    exportBtn: "📤 导出备份",
-    importBtn: "📥 导入备份",
-    clearBtn: "🗑️ 清空所有",
-    calendarMonth: "📅 {year}年 {month}月",
-    weekDays: ["日", "一", "二", "三", "四", "五", "六"],
-    taskToday: "📋 今日任务",
-    taskOther: "📋 {month}月{day}日任务",
-    taskPlaceholder: "输入学习任务...",
-    rangeToday: "今天",
-    range3Days: "最近3天",
-    range7Days: "最近7天",
-    rangeEveryday: "每天",
-    addBtn: "添加",
-    totalLabel: "总任务",
-    completedLabel: "已完成",
-    streakLabel: "连续学习",
-    emptyTasks: "✨ 暂无任务",
-    deleteBtn: "删除",
-    deleteConfirmFuture: (text, count) => `「${text}」\n【确定】删除今天及以后 (${count}个任务)\n【取消】继续选择`,
-    deleteConfirmAll: (text, count) => `是否删除全部「${text}」 (共${count}个任务)？`,
-    deleteCancel: "已取消",
-    deleteFutureSuccess: "已删除今天及以后的任务",
-    deleteAllSuccess: "已全部删除",
-    deleteSingleSuccess: (text) => `已删除「${text}」`,
-    taskEmptyWarning: "请输入任务内容",
-    addSuccess: (range) => range === 999 ? "已添加每天任务" : `已添加${range}天任务`,
-    importSuccess: "导入成功",
-    exportSuccess: "已导出",
-    clearConfirm: "⚠️ 确认清空所有任务记录？",
-    clearSuccess: "已清空",
-    toastDataCleared: "数据已清空"
+    appTitle:"📘 学习进度", settingsTitle:"⚙️ 设置", langLabel:"语言 / Language / 言語",
+    exportBtn:"📤 导出备份", importBtn:"📥 导入备份", clearBtn:"🗑️ 清空所有",
+    calendarMonth:"📅 {year}年 {month}月",
+    weekDays:["日","一","二","三","四","五","六"],
+    taskToday:"📋 今日任务", taskOther:"📋 {month}月{day}日任务",
+    taskPlaceholder:"输入学习任务...",
+    rangeToday:"今天", range3Days:"最近3天", range7Days:"最近7天", rangeEveryday:"每天",
+    addBtn:"添加", totalLabel:"总任务", completedLabel:"已完成", streakLabel:"连续学习",
+    emptyTasks:"✨ 暂无任务", deleteBtn:"删除",
+    deleteConfirmFuture:(text,count)=>`「${text}」\n【确定】删除今天及以后 (${count}个任务)\n【取消】继续选择`,
+    deleteConfirmAll:(text,count)=>`是否删除全部「${text}」 (共${count}个任务)？`,
+    deleteCancel:"已取消", deleteFutureSuccess:"已删除今天及以后的任务",
+    deleteAllSuccess:"已全部删除", deleteSingleSuccess:(text)=>`已删除「${text}」`,
+    taskEmptyWarning:"请输入任务内容",
+    addSuccess:(range)=>range===999?"已添加每天任务":`已添加${range}天任务`,
+    importSuccess:"导入成功", exportSuccess:"已导出",
+    clearConfirm:"⚠️ 确认清空所有任务记录？", clearSuccess:"已清空",
+    legend:["无任务","25%","50%","67%","完成"],
   },
   en: {
-    appTitle: "📘 Study Tracker",
-    settingsTitle: "⚙️ Settings",
-    langLabel: "Language / 语言 / 言語",
-    exportBtn: "📤 Export Backup",
-    importBtn: "📥 Import Backup",
-    clearBtn: "🗑️ Clear All",
-    calendarMonth: "📅 {year}/{month}",
-    weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    taskToday: "📋 Today's Tasks",
-    taskOther: "📋 {month}/{day} Tasks",
-    taskPlaceholder: "Enter learning task...",
-    rangeToday: "Today",
-    range3Days: "Next 3 days",
-    range7Days: "Next 7 days",
-    rangeEveryday: "Everyday",
-    addBtn: "Add",
-    totalLabel: "Total",
-    completedLabel: "Completed",
-    streakLabel: "Streak",
-    emptyTasks: "✨ No tasks",
-    deleteBtn: "Delete",
-    deleteConfirmFuture: (text, count) => `「${text}」\n[OK] Delete today & future (${count} tasks)\n[Cancel] More options`,
-    deleteConfirmAll: (text, count) => `Delete ALL 「${text}」 (${count} tasks)?`,
-    deleteCancel: "Cancelled",
-    deleteFutureSuccess: "Deleted today & future tasks",
-    deleteAllSuccess: "Deleted all tasks",
-    deleteSingleSuccess: (text) => `Deleted 「${text}」`,
-    taskEmptyWarning: "Please enter task content",
-    addSuccess: (range) => range === 999 ? "Added everyday task" : `Added ${range} days task`,
-    importSuccess: "Import successful",
-    exportSuccess: "Exported",
-    clearConfirm: "⚠️ Clear all tasks?",
-    clearSuccess: "Cleared",
-    toastDataCleared: "Data cleared"
+    appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
+    exportBtn:"📤 Export Backup", importBtn:"📥 Import Backup", clearBtn:"🗑️ Clear All",
+    calendarMonth:"📅 {year}/{month}",
+    weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    taskToday:"📋 Today's Tasks", taskOther:"📋 {month}/{day} Tasks",
+    taskPlaceholder:"Enter learning task...",
+    rangeToday:"Today", range3Days:"Next 3 days", range7Days:"Next 7 days", rangeEveryday:"Everyday",
+    addBtn:"Add", totalLabel:"Total", completedLabel:"Completed", streakLabel:"Streak",
+    emptyTasks:"✨ No tasks", deleteBtn:"Delete",
+    deleteConfirmFuture:(text,count)=>`「${text}」\n[OK] Delete today & future (${count} tasks)\n[Cancel] More options`,
+    deleteConfirmAll:(text,count)=>`Delete ALL 「${text}」 (${count} tasks)?`,
+    deleteCancel:"Cancelled", deleteFutureSuccess:"Deleted today & future tasks",
+    deleteAllSuccess:"Deleted all tasks", deleteSingleSuccess:(text)=>`Deleted 「${text}」`,
+    taskEmptyWarning:"Please enter task content",
+    addSuccess:(range)=>range===999?"Added everyday task":`Added ${range} days task`,
+    importSuccess:"Import successful", exportSuccess:"Exported",
+    clearConfirm:"⚠️ Clear all tasks?", clearSuccess:"Cleared",
+    legend:["None","25%","50%","67%","Done"],
   },
   ja: {
-    appTitle: "📘 学習進捗",
-    settingsTitle: "⚙️ 設定",
-    langLabel: "言語 / Language / 语言",
-    exportBtn: "📤 バックアップ出力",
-    importBtn: "📥 バックアップ読込",
-    clearBtn: "🗑️ 全削除",
-    calendarMonth: "📅 {year}年 {month}月",
-    weekDays: ["日", "月", "火", "水", "木", "金", "土"],
-    taskToday: "📋 今日のタスク",
-    taskOther: "📋 {month}月{day}日タスク",
-    taskPlaceholder: "学習タスクを入力...",
-    rangeToday: "今日だけ",
-    range3Days: "3日間",
-    range7Days: "7日間",
-    rangeEveryday: "毎日",
-    addBtn: "追加",
-    totalLabel: "総タスク",
-    completedLabel: "完了済み",
-    streakLabel: "連続学習",
-    emptyTasks: "✨ タスクがありません",
-    deleteBtn: "削除",
-    deleteConfirmFuture: (text, count) => `「${text}」\n【OK】今日以降(${count}件)削除\n【キャンセル】全削除選択へ`,
-    deleteConfirmAll: (text, count) => `全ての「${text}」(${count}件)を削除しますか？`,
-    deleteCancel: "キャンセル",
-    deleteFutureSuccess: "今日以降のタスクを削除",
-    deleteAllSuccess: "全て削除しました",
-    deleteSingleSuccess: (text) => `「${text}」を削除`,
-    taskEmptyWarning: "タスクを入力してください",
-    addSuccess: (range) => range === 999 ? "毎日タスクを追加" : `${range}日間追加`,
-    importSuccess: "インポート成功",
-    exportSuccess: "エクスポート完了",
-    clearConfirm: "全てのデータを削除しますか？",
-    clearSuccess: "データクリア",
-    toastDataCleared: "データをクリアしました"
+    appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
+    exportBtn:"📤 バックアップ出力", importBtn:"📥 バックアップ読込", clearBtn:"🗑️ 全削除",
+    calendarMonth:"📅 {year}年 {month}月",
+    weekDays:["日","月","火","水","木","金","土"],
+    taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
+    taskPlaceholder:"学習タスクを入力...",
+    rangeToday:"今日だけ", range3Days:"3日間", range7Days:"7日間", rangeEveryday:"毎日",
+    addBtn:"追加", totalLabel:"総タスク", completedLabel:"完了済み", streakLabel:"連続学習",
+    emptyTasks:"✨ タスクがありません", deleteBtn:"削除",
+    deleteConfirmFuture:(text,count)=>`「${text}」\n【OK】今日以降(${count}件)削除\n【キャンセル】全削除選択へ`,
+    deleteConfirmAll:(text,count)=>`全ての「${text}」(${count}件)を削除しますか？`,
+    deleteCancel:"キャンセル", deleteFutureSuccess:"今日以降のタスクを削除",
+    deleteAllSuccess:"全て削除しました", deleteSingleSuccess:(text)=>`「${text}」を削除`,
+    taskEmptyWarning:"タスクを入力してください",
+    addSuccess:(range)=>range===999?"毎日タスクを追加":`${range}日間追加`,
+    importSuccess:"インポート成功", exportSuccess:"エクスポート完了",
+    clearConfirm:"全てのデータを削除しますか？", clearSuccess:"データクリア",
+    legend:["なし","25%","50%","67%","完了"],
   }
 };
 
 let currentLang = 'zh';
 let tasks = [];
-let selectedDate = getDateStr(new Date());
 
-function getDateStr(d) { 
-  return d.toISOString().split("T")[0]; 
+// ★ 本地时区日期字符串，避免时区偏移
+function getDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
-// 关键修复：获取完成比例（精确到 0%, 25%, 50%, 75%, 100%）
-function getCompletionRatio(dateStr) {
+let selectedDate = getDateStr(new Date());
+
+// ======================== 完成比例 → CSS 类名 ========================
+function getRatioClass(dateStr) {
   const dayTasks = tasks.filter(t => t.date === dateStr);
-  if (dayTasks.length === 0) return 0;
+  if (dayTasks.length === 0) return 'ratio-0';
   const doneCount = dayTasks.filter(t => t.done).length;
   const ratio = doneCount / dayTasks.length;
-  // 按比例分级显示热力图颜色
-  if (ratio === 0) return 0;
-  if (ratio <= 0.25) return 0.25;
-  if (ratio <= 0.5) return 0.5;
-  if (ratio < 1) return 0.75;
-  return 1;
+  if (ratio === 0)   return 'ratio-0';
+  if (ratio === 1)   return 'ratio-100';
+  if (ratio <= 0.30) return 'ratio-25';
+  if (ratio <= 0.58) return 'ratio-50';
+  if (ratio <= 0.83) return 'ratio-67';
+  return 'ratio-75';
+}
+
+function isFullDone(dateStr) {
+  const dayTasks = tasks.filter(t => t.date === dateStr);
+  if (dayTasks.length === 0) return false;
+  return dayTasks.every(t => t.done);
 }
 
 function showToast(msg) {
@@ -601,7 +615,9 @@ function toggleSettings() {
   document.getElementById('overlay').classList.toggle('show');
 }
 
-function saveToLocal() { localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, lang: currentLang })); }
+function saveToLocal() {
+  localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, lang: currentLang }));
+}
 function loadFromLocal() {
   const saved = localStorage.getItem('study_tracker_data');
   if (saved) {
@@ -613,7 +629,7 @@ function loadFromLocal() {
 
 function exportData() {
   const data = { tasks, lang: currentLang };
-  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `study_tracker_${getDateStr(new Date())}.json`;
@@ -629,9 +645,7 @@ function handleImport(e) {
     const data = JSON.parse(ev.target.result);
     tasks = data.tasks || [];
     if (data.lang) currentLang = data.lang;
-    saveToLocal();
-    applyLanguage();
-    renderAll();
+    saveToLocal(); applyLanguage(); renderAll();
     showToast(locales[currentLang].importSuccess);
   };
   reader.readAsText(file);
@@ -639,21 +653,16 @@ function handleImport(e) {
 function clearAllData() {
   if (confirm(locales[currentLang].clearConfirm)) {
     tasks = [];
-    saveToLocal();
-    renderAll();
-    toggleSettings();
+    saveToLocal(); renderAll(); toggleSettings();
     showToast(locales[currentLang].clearSuccess);
   }
 }
 
 function setLanguage(lang) {
   currentLang = lang;
-  saveToLocal();
-  applyLanguage();
-  renderAll();
+  saveToLocal(); applyLanguage(); renderAll();
   document.querySelectorAll('.lang-btn').forEach(btn => {
-    if (btn.dataset.lang === lang) btn.classList.add('active');
-    else btn.classList.remove('active');
+    btn.classList.toggle('active', btn.dataset.lang === lang);
   });
 }
 
@@ -670,11 +679,11 @@ function applyLanguage() {
   document.getElementById('streakLabel').innerText = t.streakLabel;
   document.getElementById('taskInput').placeholder = t.taskPlaceholder;
   document.getElementById('addBtn').innerText = t.addBtn;
-  const rangeSelect = document.getElementById('rangeSelect');
-  rangeSelect.options[0].text = t.rangeToday;
-  rangeSelect.options[1].text = t.range3Days;
-  rangeSelect.options[2].text = t.range7Days;
-  rangeSelect.options[3].text = t.rangeEveryday;
+  const sel = document.getElementById('rangeSelect');
+  sel.options[0].text = t.rangeToday;
+  sel.options[1].text = t.range3Days;
+  sel.options[2].text = t.range7Days;
+  sel.options[3].text = t.rangeEveryday;
 }
 
 function addTask() {
@@ -683,16 +692,15 @@ function addTask() {
   const t = locales[currentLang];
   if (!text) { showToast(t.taskEmptyWarning); return; }
   for (let i = 0; i < range; i++) {
-    const d = new Date(); 
+    const d = new Date();
     d.setDate(d.getDate() + i);
     const dateStr = getDateStr(d);
     if (!tasks.some(task => task.text === text && task.date === dateStr)) {
       tasks.push({ id: Date.now() + '-' + i + '-' + Math.random(), text, date: dateStr, done: false });
     }
   }
-  saveToLocal(); 
-  renderAll(); 
-  document.getElementById("taskInput").value = ''; 
+  saveToLocal(); renderAll();
+  document.getElementById("taskInput").value = '';
   showToast(t.addSuccess(range));
 }
 
@@ -718,30 +726,31 @@ function deleteTaskWithDialog(taskId) {
     } else showToast(t.deleteCancel);
   }
 }
-function deleteTaskHandler(id) { deleteTaskWithDialog(id); }
-function toggleTask(id) { 
-  const task = tasks.find(t => t.id === id); 
-  if (task) { 
-    task.done = !task.done; 
-    saveToLocal(); 
-    renderAll(); 
-  } 
+
+function toggleTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (task) { task.done = !task.done; saveToLocal(); renderAll(); }
 }
 
+// ★ 修复：直接用 selectedDate 字符串，拆分月日，不经过 Date 对象
 function renderTasks() {
-  // 关键修复：确保 selectedDate 对应的任务正确显示
   const list = tasks.filter(t => t.date === selectedDate);
   const container = document.getElementById('taskList');
   const todayStr = getDateStr(new Date());
   const t = locales[currentLang];
+
   if (selectedDate === todayStr) {
     document.getElementById('taskTitle').innerHTML = t.taskToday;
   } else {
-    const d = new Date(selectedDate);
-    document.getElementById('taskTitle').innerHTML = t.taskOther.replace('{month}', d.getMonth()+1).replace('{day}', d.getDate());
+    const parts = selectedDate.split('-');
+    const m = parseInt(parts[1]);
+    const d = parseInt(parts[2]);
+    document.getElementById('taskTitle').innerHTML =
+      t.taskOther.replace('{month}', m).replace('{day}', d);
   }
+
   if (list.length === 0) {
-    container.innerHTML = `<div class="empty-tasks">✨ ${t.emptyTasks}</div>`;
+    container.innerHTML = `<div class="empty-tasks">${t.emptyTasks}</div>`;
     return;
   }
   container.innerHTML = list.map(task => `
@@ -750,32 +759,39 @@ function renderTasks() {
         <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
         <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
       </div>
-      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">${t.deleteBtn}</button>
+      <button class="delete-task" onclick="deleteTaskWithDialog('${task.id}')">${t.deleteBtn}</button>
     </div>
   `).join('');
 }
 
-function escapeHtml(str) { 
-  return str.replace(/[&<>]/g, function(m) { 
-    if (m === '&') return '&amp;'; 
-    if (m === '<') return '&lt;'; 
-    if (m === '>') return '&gt;'; 
-    return m; 
-  }); 
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 }
 
 function renderStats() {
   document.getElementById('totalTasks').textContent = tasks.length;
   document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
-  let streak = 0, d = new Date();
+  let streak = 0;
+  let d = new Date();
   while (true) {
-    const ratio = getCompletionRatio(getDateStr(d));
-    if (ratio === 1) { 
-      streak++; 
-      d.setDate(d.getDate() - 1); 
-    } else break;
+    if (isFullDone(getDateStr(d))) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
   }
   document.getElementById('streak').textContent = streak;
+}
+
+function renderLegend() {
+  const t = locales[currentLang];
+  const items = [
+    { cls: 'l0',   label: t.legend[0] },
+    { cls: 'l25',  label: t.legend[1] },
+    { cls: 'l50',  label: t.legend[2] },
+    { cls: 'l75',  label: t.legend[3] },
+    { cls: 'l100', label: t.legend[4] },
+  ];
+  document.getElementById('legendArea').innerHTML = items.map(i =>
+    `<div class="legend-item"><div class="legend-dot ${i.cls}"></div><span>${i.label}</span></div>`
+  ).join('');
 }
 
 function renderCalendar() {
@@ -783,46 +799,59 @@ function renderCalendar() {
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth();
   const t = locales[currentLang];
-  document.getElementById('calendarTitle').innerHTML = t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
+  const todayStr = getDateStr(now);
+
+  document.getElementById('calendarTitle').innerHTML =
+    t.calendarMonth.replace('{year}', year).replace('{month}', month + 1);
+
   cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
+
   const firstDay = new Date(year, month, 1).getDay();
-  const days = new Date(year, month + 1, 0).getDate();
-  for (let i = 0; i < firstDay; i++) { 
-    const emptyDiv = document.createElement('div'); 
-    emptyDiv.className = 'day ratio-0'; 
-    cal.appendChild(emptyDiv); 
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'day ratio-0';
+    cal.appendChild(empty);
   }
-  for (let i = 1; i <= days; i++) {
-    const d = new Date(year, month, i);
-    const key = getDateStr(d);
-    const ratio = getCompletionRatio(key);
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    // ★ 修复：直接拼字符串，不经过 Date 转换，彻底避免时区偏移
+    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+    const ratioClass = getRatioClass(key);
     const holidayName = getHolidayName(key);
+
     const div = document.createElement('div');
-    div.className = 'day';
-    let ratioClass = 'ratio-0';
-    if (ratio === 0) ratioClass = 'ratio-0';
-    else if (ratio === 0.25) ratioClass = 'ratio-25';
-    else if (ratio === 0.5) ratioClass = 'ratio-50';
-    else if (ratio === 0.75) ratioClass = 'ratio-75';
-    else if (ratio === 1) ratioClass = 'ratio-100';
-    div.classList.add(ratioClass);
-    div.textContent = i;
+    div.className = `day ${ratioClass}`;
+
     if (holidayName) {
       div.classList.add('holiday');
-      const labelSpan = document.createElement('span');
-      labelSpan.className = 'holiday-label';
-      labelSpan.textContent = holidayName;
-      div.appendChild(labelSpan);
+      const icon = document.createElement('span');
+      icon.className = 'holiday-icon';
+      icon.textContent = '🌸';
+      div.appendChild(icon);
+      const label = document.createElement('span');
+      label.className = 'holiday-label';
+      label.textContent = holidayName;
+      div.appendChild(label);
     }
-    if (key === getDateStr(new Date())) div.classList.add('today');
-    // 关键修复：使用闭包正确捕获 key，确保点击跳转到正确日期
-    div.onclick = (function(dateKey) { 
-      return function() { 
-        selectedDate = dateKey; 
-        renderTasks(); 
-        renderCalendar(); 
-      }; 
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'day-num';
+    numSpan.textContent = i;
+    div.appendChild(numSpan);
+
+    if (key === todayStr) div.classList.add('today');
+    if (key === selectedDate) div.classList.add('selected-day');
+
+    div.onclick = (function(dateKey) {
+      return function() {
+        selectedDate = dateKey;
+        renderTasks();
+        renderCalendar();
+      };
     })(key);
+
     cal.appendChild(div);
   }
 }
@@ -831,9 +860,10 @@ function renderAll() {
   renderCalendar();
   renderTasks();
   renderStats();
+  renderLegend();
 }
 
-// 初始化
+// ======================== 初始化 ========================
 loadFromLocal();
 if (tasks.length === 0) {
   const today = getDateStr(new Date());
@@ -843,7 +873,7 @@ if (tasks.length === 0) {
 }
 applyLanguage();
 document.querySelectorAll('.lang-btn').forEach(btn => {
-  if (btn.dataset.lang === currentLang) btn.classList.add('active');
+  btn.classList.toggle('active', btn.dataset.lang === currentLang);
 });
 renderAll();
 document.getElementById('importFile').addEventListener('change', handleImport);
