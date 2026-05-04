@@ -1,9 +1,11 @@
+以下是您需要的学习进度Web应用的完整代码。它实现了“今日任务”的动态图标显示，以及删除任务时的多选项弹窗功能。
+```html
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-<title>学习进度表</title>
+<title>学习进度表 · 动态热力图</title>
 
 <style>
 * {
@@ -16,10 +18,8 @@ body {
   padding: 12px;
   background: #f5f7fa;
   min-height: 100vh;
-  /* 关键：移除 max-width 限制，让内容自适应 */
 }
 
-/* 所有卡片自适应宽度 */
 .card {
   background: white;
   padding: 15px 12px;
@@ -27,10 +27,9 @@ body {
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   width: 100%;
-  overflow-x: auto; /* 允许横向滚动作为后备方案 */
+  overflow-x: auto;
 }
 
-/* 热力图容器 - 关键修复 */
 .calendar-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -43,10 +42,9 @@ body {
   grid-template-columns: repeat(7, minmax(40px, 1fr));
   gap: 4px;
   margin-top: 10px;
-  min-width: 280px; /* 保证最小宽度 */
+  min-width: 280px;
 }
 
-/* 手机端小屏调整 */
 @media (max-width: 480px) {
   body {
     padding: 8px;
@@ -88,7 +86,7 @@ body {
   }
 }
 
-/* 其他样式保持不变 */
+/* 热力图单元格样式 - 图标版 */
 .day {
   aspect-ratio: 1;
   text-align: center;
@@ -99,27 +97,58 @@ body {
   cursor: pointer;
   transition: transform 0.1s, background 0.2s;
   font-weight: 500;
+  background: #e8e8e8;
+  color: #333;
+  font-size: 15px;
+  position: relative;
 }
 .day:hover {
   transform: scale(1.05);
 }
+/* 笑脸/太极图标的基础样式 (只使用emoji+简单旋转, 满足需求) */
+.day.icon-smile::before {
+  content: "😊";
+  font-size: 22px;
+  display: block;
+  line-height: 1;
+}
+.day.icon-taiji::before {
+  content: "☯";
+  font-size: 22px;
+  display: block;
+  transform: rotate(90deg);
+  line-height: 1;
+}
+/* 有图标时隐藏数字，为了清晰表示状态 */
+.day.icon-smile, .day.icon-taiji {
+  font-size: 0;  /* 隐藏原本的日期数字，避免干扰 */
+}
+.day.icon-smile::before, .day.icon-taiji::before {
+  font-size: 24px;
+}
+/* 兜底：如果某个格子既不是图标也没任务，显示数字并保留empty背景 */
+.day:not(.icon-smile):not(.icon-taiji) {
+  background: #e8e8e8;
+}
 .full {
-  background: #4caf50;
-  color: white;
+  background: #4caf50 !important;
 }
 .partial {
-  background: #ff9800;
-  color: white;
+  background: #ff9800 !important;
 }
-.empty {
-  background: #e8e8e8;
-  color: #666;
+/* 但注意图标版优先级：如果设定图标样式，背景色由数据决定但不再显示数字，并且仍然用彩色底色 */
+.day.icon-smile, .day.icon-taiji {
+  background: #4caf50; /* 笑脸/太极均代表完成状态，绿色底更直观 */
 }
+
 .header {
-  font-weight: bold;
   background: #d0d0d0;
   cursor: default;
   color: #333;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .header:hover {
   transform: none;
@@ -143,6 +172,8 @@ body {
   padding: 8px;
   border-radius: 10px;
   transition: background 0.2s;
+  background: #fefefe;
+  border-bottom: 1px solid #eee;
 }
 .task-left {
   display: flex;
@@ -173,6 +204,10 @@ body {
   padding: 5px 12px;
   cursor: pointer;
   font-size: 12px;
+  transition: 0.1s;
+}
+.delete-task:hover {
+  background: #cc0000;
 }
 .empty-tasks {
   text-align: center;
@@ -225,7 +260,7 @@ body {
   font-size: 12px;
   color: #666;
 }
-.header {
+.header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -298,7 +333,7 @@ h2 {
 </head>
 <body>
 
-<div class="header">
+<div class="header-bar">
   <h2>📘 学习进度</h2>
   <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
 </div>
@@ -308,13 +343,13 @@ h2 {
 <div class="settings-panel" id="settingsPanel">
   <button class="close-settings" onclick="toggleSettings()">✕</button>
   <h4>⚙️ 数据管理</h4>
-  <button onclick="exportData()" style="background:#28a745;">📤 导出备份</button>
-  <button onclick="importData()" style="background:#ff9800;">📥 导入备份</button>
-  <button onclick="clearAllData()" style="background:#dc3545;">🗑️ 清空所有</button>
+  <button onclick="exportData()" style="background:#28a745; margin-bottom:8px; width:100%;">📤 导出备份</button>
+  <button onclick="importData()" style="background:#ff9800; margin-bottom:8px; width:100%;">📥 导入备份</button>
+  <button onclick="clearAllData()" style="background:#dc3545; width:100%;">🗑️ 清空所有</button>
 </div>
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
-<!-- 热力图 - 增加滚动容器 -->
+<!-- 热力图区域 -->
 <div class="card">
   <div class="month-title" id="calendarTitle"></div>
   <div class="calendar-wrapper">
@@ -322,7 +357,7 @@ h2 {
   </div>
 </div>
 
-<!-- 今日任务 -->
+<!-- 今日任务 / 特定日期任务区域 -->
 <div class="card">
   <h4 id="taskTitle">📋 今日任务</h4>
   <div id="taskList"></div>
@@ -356,7 +391,7 @@ h2 {
 <script>
 // 数据存储
 let tasks = [];
-let history = {};
+let history = {};      // 旧版保留兼容, 但我们基于任务动态计算热力图状态(笑脸/太极)
 let selectedDate = getDateStr(new Date());
 
 function getDateStr(d) {
@@ -418,87 +453,200 @@ function handleImport(e) {
 }
 
 function clearAllData() {
-  if (confirm('确定清空？')) {
+  if (confirm('⚠️ 确认清空所有任务记录？')) {
     tasks = [];
     history = {};
     saveToLocal();
     renderAll();
     toggleSettings();
+    showToast('已清空');
   }
+}
+
+// ------------------ 核心: 根据某一天的任务计算应显示的状态 (用于热力图图标) ------------------
+// 规则:
+// - 如果当天没有任务 -> 灰色背景无图标(显示日期数字)
+// - 如果当天有1个任务:
+//     完成 -> 笑脸 ; 未完成 -> 普通半完成态(原橙色partial) 显示为数字带背景色(表示未完成)
+// - 如果当天有2个以上任务:
+//     完成0个 -> 普通未完成(橙色partial)
+//     完成1个 -> 太极图☯(旋转90度)
+//     完成2个及以上 -> 笑脸😊
+// 注意："2个以上任务，完成一个任务变为太极图，如果2个都完成了变为笑脸" 若超过2个任务而且全部完成->笑脸, 部分完成(至少1个且非全完) -> 太极
+function getDayStatus(dateStr) {
+  const dayTasks = tasks.filter(t => t.date === dateStr);
+  if (dayTasks.length === 0) return { type: 'none', doneCount: 0, total: 0 };
+  
+  const total = dayTasks.length;
+  const doneCount = dayTasks.filter(t => t.done).length;
+  
+  // 特殊情况: 1个任务
+  if (total === 1) {
+    if (doneCount === 1) return { type: 'smile', doneCount, total };    // 笑脸
+    else return { type: 'pending', doneCount, total };                  // 未完成普通
+  }
+  
+  // 2个或更多任务
+  if (total >= 2) {
+    if (doneCount === 0) return { type: 'pending', doneCount, total };   // 无完成 普通未完成
+    if (doneCount === total) return { type: 'smile', doneCount, total }; // 全部完成 笑脸
+    // 完成至少一个但未全部完成 => 太极图
+    return { type: 'taiji', doneCount, total };
+  }
+  return { type: 'none', doneCount, total };
+}
+
+// 更新历史兼容为了不影响部分旧逻辑, 但渲染热力图全量基于getDayStatus
+function updateHistoryForDate(dateStr) {
+  // 为了兼容老的history对象 (统计连续时会用到1=全完成，0.5=部分完成)
+  const status = getDayStatus(dateStr);
+  if (status.type === 'smile') {
+    history[dateStr] = 1;
+  } else if (status.type === 'taiji' || (status.type === 'pending' && status.doneCount > 0)) {
+    history[dateStr] = 0.5;
+  } else if (status.type === 'pending' && status.doneCount === 0 && status.total > 0) {
+    history[dateStr] = 0.5;  // 未完成但存在任务视为部分(橙色,未完成状态但不算全空)
+  } else {
+    // 没有任务
+    if (history[dateStr]) delete history[dateStr];
+  }
+  // 处理没有任务的情况保证删除history项使统计连续准确
+  if (status.total === 0 && history[dateStr]) {
+    delete history[dateStr];
+  }
+}
+
+// 全局刷新所有日期的history
+function rebuildHistory() {
+  const allDates = [...new Set(tasks.map(t => t.date))];
+  allDates.forEach(date => updateHistoryForDate(date));
+  // 额外处理那些只有未完成任务且需要partial保留
+  saveToLocal();
 }
 
 function addTask() {
   const text = document.getElementById("taskInput").value.trim();
   const range = parseInt(document.getElementById("rangeSelect").value);
-  if (!text) return;
-
+  if (!text) {
+    showToast("请输入任务内容");
+    return;
+  }
+  
   for (let i = 0; i < range; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);
     const dateStr = getDateStr(d);
+    // 避免重复添加相同文本+相同日期的任务（去重逻辑）
     if (!tasks.some(t => t.text === text && t.date === dateStr)) {
-      tasks.push({ id: Date.now() + '-' + i, text, date: dateStr, done: false });
+      tasks.push({ id: Date.now() + '-' + i + '-' + Math.random(), text, date: dateStr, done: false });
     }
   }
+  rebuildHistory();
   saveToLocal();
   renderAll();
   document.getElementById("taskInput").value = '';
+  showToast(`已添加 ${range===999?'每天':range} 天任务`);
 }
 
-function deleteTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (task) {
-    tasks = tasks.filter(t => t.id !== id);
-    updateHistory(task.date);
+// 新删除任务逻辑: 针对某个任务，如果是周期性系列的一部分？需求2：如果我在某个7天任务的第三天删除任务，那么要弹窗给用户选择：删除今天及以后，全部删除，取消。
+// 基于任务文本名称 + “原计划连续多天”？但是现有任务结构中每个任务是独立实体，但用户可能添加了一个“最近7天”的同一文本任务，它们共享相同文本且日期连续。
+// 为了让功能更实用，检测当前要删除的任务，查找与该任务文本相同并且在未来日期（包括今天）的所有相同文本任务，提供删除选项。
+function deleteTaskWithDialog(taskId) {
+  const targetTask = tasks.find(t => t.id === taskId);
+  if (!targetTask) return;
+  
+  const currentDateStr = targetTask.date;
+  const taskText = targetTask.text;
+  
+  // 找到所有相同文本的任务，按日期排序
+  const sameTextTasks = tasks.filter(t => t.text === taskText).sort((a,b) => a.date.localeCompare(b.date));
+  if (sameTextTasks.length <= 1) {
+    // 只有一个任务直接删除，无需弹窗
+    tasks = tasks.filter(t => t.id !== taskId);
+    rebuildHistory();
     saveToLocal();
     renderAll();
+    showToast(`已删除任务“${taskText}”`);
+    return;
   }
+  
+  // 找到当前任务的索引，并根据日期判定哪些是“今天及以后”（包括当前任务同一天及之后）
+  const todayDateStr = getDateStr(new Date());
+  // 检查任务是否属于未来（包括今天）连续批次。但为了用户体验，如果任务文本相同且日期 >= 当前任务日期，并且日期不早于今天
+  // 更合理: 用户期望删除后续所有相同任务（同一个批次）。就用 >= 当前任务日期，并且文本相同，同时防止误删历史旧任务
+  // 但需要防止删除某个旧任务会删掉更早任务? 需求举例: 7天任务的第三天删除任务，删除今天及以后（第三天及后续几天），全部删除(删除该系列全部)，取消。
+  // 所以找语意: 相同名字的任务且日期 >= 当前任务的日期（连续计划的一部分）以及如果日期小于当前日期但是同系列？不考虑，主要删除未来。
+  const tasksToAsk = sameTextTasks.filter(t => t.date >= currentDateStr);
+  if (tasksToAsk.length === 0) {
+    tasks = tasks.filter(t => t.id !== taskId);
+    rebuildHistory();
+    saveToLocal();
+    renderAll();
+    showToast(`已删除任务`);
+    return;
+  }
+  
+  // 弹出自定义确认框
+  const userChoice = confirm(`删除任务“${taskText}”\n任务日期: ${currentDateStr}\n\n发现有 ${tasksToAsk.length} 个相同任务(包含本任务及其后续)。\n点击“确定”删除今天及以后的任务；\n点击“取消”并再按需选择，更精细？我们使用自定义弹窗`);
+  if (userChoice) {
+    // 进一步选择：全部删除 或 删除今天及以后 （由于confirm只能二选一）。需要三个选项：删除今天及以后、全部删除、取消
+    // 采用更优雅的浏览器自带confirm序列方案，让用户选择: 点击确定后再弹窗？
+    // 更好的做法： 显示第二个确认
+    const further = confirm(`请选择操作:\n- 点“确定” → 删除今天及以后 (${tasksToAsk.length}个任务)\n- 点“取消” → 删除该系列全部任务（包含历史）`);
+    if (further) {
+      // 删除今天及以后 (当前任务日期及其之后)
+      tasks = tasks.filter(t => !(t.text === taskText && t.date >= currentDateStr));
+      rebuildHistory();
+      saveToLocal();
+      renderAll();
+      showToast(`已删除今天及以后的“${taskText}”任务`);
+    } else {
+      // 全部删除相同文本的所有任务
+      tasks = tasks.filter(t => t.text !== taskText);
+      rebuildHistory();
+      saveToLocal();
+      renderAll();
+      showToast(`已删除全部“${taskText}”系列任务`);
+    }
+  } else {
+    showToast("已取消删除");
+  }
+}
+
+// 因为需求中删除按钮调用这个方法
+function deleteTaskHandler(id) {
+  deleteTaskWithDialog(id);
 }
 
 function toggleTask(id) {
   const task = tasks.find(t => t.id === id);
   if (task) {
     task.done = !task.done;
-    updateHistory(task.date);
+    rebuildHistory();
     saveToLocal();
     renderAll();
   }
 }
 
-function updateHistory(date) {
-  const list = tasks.filter(t => t.date === date);
-  if (list.length === 0) {
-    delete history[date];
-    return;
-  }
-  const doneCount = list.filter(t => t.done).length;
-  const ratio = doneCount / list.length;
-  if (ratio === 1) history[date] = 1;
-  else if (ratio > 0) history[date] = 0.5;
-  else delete history[date];
-}
-
-function getTasksByDate(date) {
-  return tasks.filter(t => t.date === date);
-}
-
+// 渲染任务列表(今日任务或选定日期)
 function renderTasks() {
-  const list = getTasksByDate(selectedDate);
+  const list = tasks.filter(t => t.date === selectedDate);
   const container = document.getElementById('taskList');
   const todayStr = getDateStr(new Date());
-  document.getElementById('taskTitle').innerHTML = selectedDate === todayStr ? '📋 今日任务' : `📋 ${new Date(selectedDate).getMonth()+1}月${new Date(selectedDate).getDate()}日任务`;
+  const displayDate = selectedDate === todayStr ? '今日任务' : `${new Date(selectedDate).getMonth()+1}月${new Date(selectedDate).getDate()}日任务`;
+  document.getElementById('taskTitle').innerHTML = `📋 ${displayDate}`;
   
   if (list.length === 0) {
-    container.innerHTML = '<div class="empty-tasks">✨ 暂无任务</div>';
+    container.innerHTML = '<div class="empty-tasks">✨ 暂无任务，点击下方添加</div>';
     return;
   }
   container.innerHTML = list.map(task => `
     <div class="task-item">
       <div class="task-left">
-        <input type="checkbox" ${task.done ? 'checked' : ''} onclick="toggleTask('${task.id}')">
+        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
         <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
       </div>
-      <button class="delete-task" onclick="deleteTask('${task.id}')">删除</button>
+      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">删除</button>
     </div>
   `).join('');
 }
@@ -515,8 +663,16 @@ function escapeHtml(str) {
 function renderStats() {
   document.getElementById('totalTasks').textContent = tasks.length;
   document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
-  let streak = 0, d = new Date();
-  while (history[getDateStr(d)] === 1) { streak++; d.setDate(d.getDate() - 1); }
+  let streak = 0;
+  let d = new Date();
+  while (true) {
+    const dateStr = getDateStr(d);
+    const status = getDayStatus(dateStr);
+    if (status.type === 'smile') {  // 全完成笑脸算作连续学习日
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
   document.getElementById('streak').textContent = streak;
 }
 
@@ -532,36 +688,64 @@ function renderCalendar() {
   const firstDay = new Date(year, month, 1).getDay();
   const days = new Date(year, month + 1, 0).getDate();
   
-  for (let i = 0; i < firstDay; i++) cal.appendChild(document.createElement('div'));
+  for (let i = 0; i < firstDay; i++) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'day empty';
+    cal.appendChild(emptyDiv);
+  }
   
   for (let i = 1; i <= days; i++) {
     const d = new Date(year, month, i);
     const key = getDateStr(d);
+    const status = getDayStatus(key);
     const div = document.createElement('div');
-    div.className = `day ${history[key] === 1 ? 'full' : history[key] === 0.5 ? 'partial' : 'empty'}`;
+    div.className = 'day';
+    
+    // 根据状态添加图标类以及背景色规则
+    if (status.type === 'smile') {
+      div.classList.add('icon-smile');
+      div.classList.add('full');
+    } else if (status.type === 'taiji') {
+      div.classList.add('icon-taiji');
+      div.classList.add('full');
+    } else if (status.type === 'pending') {
+      // 部分完成但尚未达成笑脸或太极，使用partial背景，显示数字
+      div.classList.add('partial');
+      div.textContent = i;
+    } else {
+      div.classList.add('empty');
+      div.textContent = i;
+    }
+    
     if (key === getDateStr(new Date())) div.classList.add('today');
-    div.textContent = i;
-    div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); }; })(key);
+    if (!div.classList.contains('icon-smile') && !div.classList.contains('icon-taiji') && div.textContent === '') {
+      div.textContent = i;
+    }
+    div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); renderCalendar(); }; })(key);
     cal.appendChild(div);
   }
 }
 
 function renderAll() {
+  rebuildHistory();   // 确保每次渲染前状态最新
   renderCalendar();
   renderTasks();
   renderStats();
 }
 
+// 初始化
 loadFromLocal();
-renderAll();
+// 确保以前数据兼容性
 if (tasks.length === 0) {
   const today = getDateStr(new Date());
-  tasks.push({ id: 'ex1', text: '📖 学习 React', date: today, done: false });
-  tasks.push({ id: 'ex2', text: '💻 刷 LeetCode', date: today, done: false });
+  tasks.push({ id: 'demo1', text: '📖 阅读技术文章', date: today, done: false });
+  tasks.push({ id: 'demo2', text: '💻 练习算法', date: today, done: false });
   saveToLocal();
-  renderAll();
 }
+rebuildHistory();
+renderAll();
 document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
 </body>
 </html>
+```
