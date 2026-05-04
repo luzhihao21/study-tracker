@@ -44,91 +44,54 @@ body {
 }
 
 @media (max-width: 480px) {
-  body {
-    padding: 8px;
-  }
-  .card {
-    padding: 12px 10px;
-  }
-  .calendar {
-    grid-template-columns: repeat(7, minmax(38px, 1fr));
-    gap: 3px;
-  }
-  .day {
-    font-size: 12px;
-  }
-  .task-text {
-    font-size: 14px;
-  }
-  .delete-task {
-    padding: 4px 10px;
-    font-size: 11px;
-  }
-  .stat-number {
-    font-size: 22px;
-  }
-  .input-group input,
-  .input-group select,
-  .input-group button {
-    padding: 10px;
-  }
-  .holiday-label {
-    font-size: 6px;
-    bottom: 1px;
-  }
-}
-
-@media (max-width: 380px) {
-  .calendar {
-    grid-template-columns: repeat(7, minmax(34px, 1fr));
-    gap: 2px;
-  }
-  .day {
-    font-size: 10px;
-  }
-  .holiday-label {
-    font-size: 5px;
-  }
+  body { padding: 8px; }
+  .card { padding: 12px 10px; }
+  .calendar { grid-template-columns: repeat(7, minmax(38px, 1fr)); gap: 3px; }
+  .day { font-size: 12px; }
+  .task-text { font-size: 14px; }
+  .stat-number { font-size: 22px; }
+  .input-group input, .input-group select, .input-group button { padding: 10px; }
 }
 
 .day {
   aspect-ratio: 1;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 10px; /* 稍微减小圆角，让分割效果更明显 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.1s, background 0.2s;
+  transition: transform 0.1s;
   font-weight: 600;
   position: relative;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.day:hover {
-  transform: scale(1.03);
+  background: #eeeeee; /* 默认底色 */
+  color: #444;
 }
 
+/* 选中日期的样式 */
+.day.selected {
+  outline: 2px solid #007bff;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.day:hover { transform: scale(1.05); }
+
 .day.header {
-  background: #d9d9d9;
+  background: #d9d9d9 !important;
   cursor: default;
   color: #444;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
   box-shadow: none;
 }
-.day.header:hover {
-  transform: none;
-}
+.day.header:hover { transform: none; }
 
 .today {
-  border: 2.5px solid #2196f3;
+  border: 2px solid #2196f3;
   font-weight: bold;
-  box-shadow: 0 0 0 1px white, 0 0 0 3px #2196f3;
 }
 
 .month-title {
@@ -139,40 +102,13 @@ body {
   color: #333;
 }
 
-/* 完成比例颜色层级 */
-.day.ratio-0 {
-  background: #eeeeee;
-  color: #999;
-}
-.day.ratio-25 {
-  background: #ffcc80;
-  color: #5d3a1a;
-}
-.day.ratio-50 {
-  background: #ffa726;
-  color: white;
-}
-.day.ratio-75 {
-  background: #66bb6a;
-  color: white;
-}
-.day.ratio-100 {
-  background: #2e7d32;
-  color: white;
-  font-weight: bold;
-}
-
-.day.holiday {
-  position: relative;
-}
 .day.holiday::after {
   content: "🌸";
   position: absolute;
-  top: 0px;
+  top: 1px;
   right: 2px;
   font-size: 8px;
   opacity: 0.8;
-  pointer-events: none;
 }
 
 .holiday-label {
@@ -182,14 +118,10 @@ body {
   right: 0;
   font-size: 7px;
   color: #b13b4a;
-  font-weight: bold;
-  background: rgba(255,255,200,0.8);
-  border-radius: 4px;
+  background: rgba(255,255,255,0.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 2px;
-  pointer-events: none;
   text-align: center;
 }
 
@@ -203,205 +135,52 @@ body {
   background: #fefefe;
   border-bottom: 1px solid #eee;
 }
-.task-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
-.task-left input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-.task-text {
-  font-size: 15px;
-  word-break: break-word;
-  flex: 1;
-  cursor: pointer;
-}
-.task-text.done {
-  text-decoration: line-through;
-  color: #999;
-}
-.delete-task {
-  background: #ff4444;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 5px 12px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: 0.1s;
-}
-.delete-task:hover {
-  background: #cc0000;
-}
-.empty-tasks {
-  text-align: center;
-  color: #999;
-  padding: 25px;
-}
-.input-group {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.input-group input {
-  flex: 2;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  font-size: 14px;
-}
-.input-group select {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-}
-.input-group button {
-  padding: 12px 20px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-}
-.stats-container {
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
-  gap: 10px;
-}
-.stat-card {
-  flex: 1;
-  background: #f8f9fa;
-  padding: 12px;
-  border-radius: 14px;
-}
-.stat-number {
-  font-size: 28px;
-  font-weight: bold;
-  color: #007bff;
-}
-.stat-label {
-  font-size: 12px;
-  color: #666;
-}
-.header-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-h2 {
-  margin: 0;
-  font-size: 24px;
-}
-.settings-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-}
-.settings-panel {
-  position: fixed;
-  top: 0;
-  right: -300px;
-  width: 280px;
-  height: 100%;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-  transition: right 0.3s ease;
-  z-index: 1000;
-  padding: 20px;
-}
-.settings-panel.show {
-  right: 0;
-}
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-  display: none;
-}
-.overlay.show {
-  display: block;
-}
-.close-settings {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-}
-.language-selector {
-  margin: 20px 0;
-  padding: 10px 0;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-}
-.lang-btn {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  background: #f0f0f0;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  text-align: center;
-}
-.lang-btn.active {
-  background: #007bff;
-  color: white;
-}
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: #333;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 30px;
-  z-index: 1100;
-  transition: transform 0.3s;
-}
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-}
+.task-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.task-left input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+.task-text { font-size: 15px; word-break: break-word; flex: 1; cursor: pointer; }
+.task-text.done { text-decoration: line-through; color: #999; }
+.delete-task { background: #ff4444; color: white; border: none; border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 12px; }
+
+.input-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.input-group input { flex: 2; padding: 12px; border: 1px solid #ddd; border-radius: 12px; }
+.input-group select { padding: 12px; border: 1px solid #ddd; border-radius: 12px; }
+.input-group button { padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 12px; }
+
+.stats-container { display: flex; justify-content: space-around; text-align: center; gap: 10px; }
+.stat-card { flex: 1; background: #f8f9fa; padding: 12px; border-radius: 14px; }
+.stat-number { font-size: 28px; font-weight: bold; color: #007bff; }
+.stat-label { font-size: 12px; color: #666; }
+
+.header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.settings-panel { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); transition: right 0.3s; z-index: 1000; padding: 20px; }
+.settings-panel.show { right: 0; }
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+.overlay.show { display: block; }
+.lang-btn { display: block; width: 100%; padding: 10px; margin: 5px 0; background: #f0f0f0; border: none; border-radius: 10px; cursor: pointer; }
+.lang-btn.active { background: #007bff; color: white; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 10px 20px; border-radius: 30px; z-index: 1100; transition: transform 0.3s; }
+.toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
 <div class="header-bar">
   <h2 id="appTitle">📘 学习进度</h2>
-  <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+  <button onclick="toggleSettings()" style="background:none; border:none; font-size:24px;">⚙️</button>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
-  <button class="close-settings" onclick="toggleSettings()">✕</button>
+  <button onclick="toggleSettings()" style="float:right; background:none; border:none; font-size:20px;">✕</button>
   <h4 id="settingsTitle">⚙️ 设置</h4>
   <div class="language-selector">
-    <div id="langLabel" style="margin-bottom: 8px; font-weight: bold;">语言 / Language / 言語</div>
     <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">🇨🇳 中文</button>
     <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
     <button class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">🇯🇵 日本語</button>
   </div>
-  <button onclick="exportData()" id="exportBtn" style="background:#28a745; margin-bottom:8px; width:100%;">📤 导出备份</button>
-  <button onclick="importData()" id="importBtn" style="background:#ff9800; margin-bottom:8px; width:100%;">📥 导入备份</button>
-  <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545; width:100%;">🗑️ 清空所有</button>
+  <button onclick="exportData()" id="exportBtn" style="background:#28a745; color:white; border:none; padding:10px; width:100%; border-radius:10px; margin-bottom:8px;">📤 导出备份</button>
+  <button onclick="importData()" id="importBtn" style="background:#ff9800; color:white; border:none; padding:10px; width:100%; border-radius:10px; margin-bottom:8px;">📥 导入备份</button>
+  <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545; color:white; border:none; padding:10px; width:100%; border-radius:10px;">🗑️ 清空所有</button>
 </div>
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
@@ -441,390 +220,170 @@ h2 {
 <div class="toast" id="toast"></div>
 
 <script>
-// ======================== 日本节假日数据 ========================
+// ======================== 数据与配置 ========================
 const jpHolidays = {
   "2025-01-01": "元日", "2025-01-13": "成人の日", "2025-02-11": "建国記念の日", "2025-02-23": "天皇誕生日",
   "2025-03-20": "春分の日", "2025-04-29": "昭和の日", "2025-05-03": "憲法記念日", "2025-05-04": "みどりの日",
   "2025-05-05": "こどもの日", "2025-07-21": "海の日", "2025-08-11": "山の日", "2025-09-15": "敬老の日",
-  "2025-09-23": "秋分の日", "2025-10-13": "スポーツの日", "2025-11-03": "文化の日", "2025-11-23": "勤労感謝の日",
-  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日",
-  "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日",
-  "2026-05-05": "こどもの日", "2026-07-20": "海の日", "2026-08-11": "山の日", "2026-09-21": "敬老の日",
-  "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日"
+  "2025-09-23": "秋分の日", "2025-10-13": "スポーツの日", "2025-11-03": "文化の日", "2025-11-23": "勤劳感謝の日",
+  "2026-05-05": "こどもの日" // 确保包含当前年份
 };
 
-function getHolidayName(dateStr) { return jpHolidays[dateStr] || null; }
-
-// ======================== 多语言文本库 ========================
 const locales = {
-  zh: {
-    appTitle: "📘 学习进度",
-    settingsTitle: "⚙️ 设置",
-    langLabel: "语言 / Language / 言語",
-    exportBtn: "📤 导出备份",
-    importBtn: "📥 导入备份",
-    clearBtn: "🗑️ 清空所有",
-    calendarMonth: "📅 {year}年 {month}月",
-    weekDays: ["日", "一", "二", "三", "四", "五", "六"],
-    taskToday: "📋 今日任务",
-    taskOther: "📋 {month}月{day}日任务",
-    taskPlaceholder: "输入学习任务...",
-    rangeToday: "今天",
-    range3Days: "最近3天",
-    range7Days: "最近7天",
-    rangeEveryday: "每天",
-    addBtn: "添加",
-    totalLabel: "总任务",
-    completedLabel: "已完成",
-    streakLabel: "连续学习",
-    emptyTasks: "✨ 暂无任务",
-    deleteBtn: "删除",
-    deleteConfirmFuture: (text, count) => `「${text}」\n【确定】删除今天及以后 (${count}个任务)\n【取消】继续选择`,
-    deleteConfirmAll: (text, count) => `是否删除全部「${text}」 (共${count}个任务)？`,
-    deleteCancel: "已取消",
-    deleteFutureSuccess: "已删除今天及以后的任务",
-    deleteAllSuccess: "已全部删除",
-    deleteSingleSuccess: (text) => `已删除「${text}」`,
-    taskEmptyWarning: "请输入任务内容",
-    addSuccess: (range) => range === 999 ? "已添加每天任务" : `已添加${range}天任务`,
-    importSuccess: "导入成功",
-    exportSuccess: "已导出",
-    clearConfirm: "⚠️ 确认清空所有任务记录？",
-    clearSuccess: "已清空",
-    toastDataCleared: "数据已清空"
-  },
-  en: {
-    appTitle: "📘 Study Tracker",
-    settingsTitle: "⚙️ Settings",
-    langLabel: "Language / 语言 / 言語",
-    exportBtn: "📤 Export Backup",
-    importBtn: "📥 Import Backup",
-    clearBtn: "🗑️ Clear All",
-    calendarMonth: "📅 {year}/{month}",
-    weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    taskToday: "📋 Today's Tasks",
-    taskOther: "📋 {month}/{day} Tasks",
-    taskPlaceholder: "Enter learning task...",
-    rangeToday: "Today",
-    range3Days: "Next 3 days",
-    range7Days: "Next 7 days",
-    rangeEveryday: "Everyday",
-    addBtn: "Add",
-    totalLabel: "Total",
-    completedLabel: "Completed",
-    streakLabel: "Streak",
-    emptyTasks: "✨ No tasks",
-    deleteBtn: "Delete",
-    deleteConfirmFuture: (text, count) => `「${text}」\n[OK] Delete today & future (${count} tasks)\n[Cancel] More options`,
-    deleteConfirmAll: (text, count) => `Delete ALL 「${text}」 (${count} tasks)?`,
-    deleteCancel: "Cancelled",
-    deleteFutureSuccess: "Deleted today & future tasks",
-    deleteAllSuccess: "Deleted all tasks",
-    deleteSingleSuccess: (text) => `Deleted 「${text}」`,
-    taskEmptyWarning: "Please enter task content",
-    addSuccess: (range) => range === 999 ? "Added everyday task" : `Added ${range} days task`,
-    importSuccess: "Import successful",
-    exportSuccess: "Exported",
-    clearConfirm: "⚠️ Clear all tasks?",
-    clearSuccess: "Cleared",
-    toastDataCleared: "Data cleared"
-  },
-  ja: {
-    appTitle: "📘 学習進捗",
-    settingsTitle: "⚙️ 設定",
-    langLabel: "言語 / Language / 语言",
-    exportBtn: "📤 バックアップ出力",
-    importBtn: "📥 バックアップ読込",
-    clearBtn: "🗑️ 全削除",
-    calendarMonth: "📅 {year}年 {month}月",
-    weekDays: ["日", "月", "火", "水", "木", "金", "土"],
-    taskToday: "📋 今日のタスク",
-    taskOther: "📋 {month}月{day}日タスク",
-    taskPlaceholder: "学習タスクを入力...",
-    rangeToday: "今日だけ",
-    range3Days: "3日間",
-    range7Days: "7日間",
-    rangeEveryday: "毎日",
-    addBtn: "追加",
-    totalLabel: "総タスク",
-    completedLabel: "完了済み",
-    streakLabel: "連続学習",
-    emptyTasks: "✨ タスクがありません",
-    deleteBtn: "削除",
-    deleteConfirmFuture: (text, count) => `「${text}」\n【OK】今日以降(${count}件)削除\n【キャンセル】全削除選択へ`,
-    deleteConfirmAll: (text, count) => `全ての「${text}」(${count}件)を削除しますか？`,
-    deleteCancel: "キャンセル",
-    deleteFutureSuccess: "今日以降のタスクを削除",
-    deleteAllSuccess: "全て削除しました",
-    deleteSingleSuccess: (text) => `「${text}」を削除`,
-    taskEmptyWarning: "タスクを入力してください",
-    addSuccess: (range) => range === 999 ? "毎日タスクを追加" : `${range}日間追加`,
-    importSuccess: "インポート成功",
-    exportSuccess: "エクスポート完了",
-    clearConfirm: "全てのデータを削除しますか？",
-    clearSuccess: "データクリア",
-    toastDataCleared: "データをクリアしました"
-  }
+  zh: { appTitle: "📘 学习进度", calendarMonth: "📅 {year}年 {month}月", weekDays: ["日", "一", "二", "三", "四", "五", "六"], taskToday: "📋 今日任务", taskOther: "📋 {month}月{day}日任务", totalLabel: "总任务", completedLabel: "已完成", streakLabel: "连续学习", emptyTasks: "✨ 暂无任务", addSuccess: (r)=>`已添加${r==999?'每天':r+'天'}任务` },
+  en: { appTitle: "📘 Study Tracker", calendarMonth: "📅 {year}/{month}", weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], taskToday: "📋 Today", taskOther: "📋 {month}/{day}", totalLabel: "Total", completedLabel: "Done", streakLabel: "Streak", emptyTasks: "✨ No tasks", addSuccess: (r)=>"Task Added" },
+  ja: { appTitle: "📘 学習進捗", calendarMonth: "📅 {year}年 {month}月", weekDays: ["日", "月", "火", "水", "木", "金", "土"], taskToday: "📋 今日", taskOther: "📋 {month}月{day}日", totalLabel: "総数", completedLabel: "完了", streakLabel: "継続", emptyTasks: "✨ タスクなし", addSuccess: (r)=>"追加しました" }
 };
 
 let currentLang = 'zh';
 let tasks = [];
-let selectedDate = getDateStr(new Date());
+let selectedDate = new Date().toISOString().split("T")[0];
 
-function getDateStr(d) { 
-  return d.toISOString().split("T")[0]; 
-}
-
-// 关键修复：获取完成比例（精确到 0%, 25%, 50%, 75%, 100%）
-function getCompletionRatio(dateStr) {
-  const dayTasks = tasks.filter(t => t.date === dateStr);
-  if (dayTasks.length === 0) return 0;
-  const doneCount = dayTasks.filter(t => t.done).length;
-  const ratio = doneCount / dayTasks.length;
-  // 按比例分级显示热力图颜色
-  if (ratio === 0) return 0;
-  if (ratio <= 0.25) return 0.25;
-  if (ratio <= 0.5) return 0.5;
-  if (ratio < 1) return 0.75;
-  return 1;
-}
-
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
-}
-
-function toggleSettings() {
-  document.getElementById('settingsPanel').classList.toggle('show');
-  document.getElementById('overlay').classList.toggle('show');
-}
-
-function saveToLocal() { localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, lang: currentLang })); }
-function loadFromLocal() {
-  const saved = localStorage.getItem('study_tracker_data');
-  if (saved) {
-    const data = JSON.parse(saved);
-    tasks = data.tasks || [];
-    if (data.lang) currentLang = data.lang;
-  }
-}
-
-function exportData() {
-  const data = { tasks, lang: currentLang };
-  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `study_tracker_${getDateStr(new Date())}.json`;
-  a.click();
-  showToast(locales[currentLang].exportSuccess);
-}
-function importData() { document.getElementById('importFile').click(); }
-function handleImport(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const data = JSON.parse(ev.target.result);
-    tasks = data.tasks || [];
-    if (data.lang) currentLang = data.lang;
-    saveToLocal();
-    applyLanguage();
-    renderAll();
-    showToast(locales[currentLang].importSuccess);
-  };
-  reader.readAsText(file);
-}
-function clearAllData() {
-  if (confirm(locales[currentLang].clearConfirm)) {
-    tasks = [];
-    saveToLocal();
-    renderAll();
-    toggleSettings();
-    showToast(locales[currentLang].clearSuccess);
-  }
-}
-
-function setLanguage(lang) {
-  currentLang = lang;
-  saveToLocal();
-  applyLanguage();
-  renderAll();
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    if (btn.dataset.lang === lang) btn.classList.add('active');
-    else btn.classList.remove('active');
-  });
-}
-
-function applyLanguage() {
-  const t = locales[currentLang];
-  document.getElementById('appTitle').innerText = t.appTitle;
-  document.getElementById('settingsTitle').innerText = t.settingsTitle;
-  document.getElementById('langLabel').innerText = t.langLabel;
-  document.getElementById('exportBtn').innerText = t.exportBtn;
-  document.getElementById('importBtn').innerText = t.importBtn;
-  document.getElementById('clearBtn').innerText = t.clearBtn;
-  document.getElementById('totalLabel').innerText = t.totalLabel;
-  document.getElementById('completedLabel').innerText = t.completedLabel;
-  document.getElementById('streakLabel').innerText = t.streakLabel;
-  document.getElementById('taskInput').placeholder = t.taskPlaceholder;
-  document.getElementById('addBtn').innerText = t.addBtn;
-  const rangeSelect = document.getElementById('rangeSelect');
-  rangeSelect.options[0].text = t.rangeToday;
-  rangeSelect.options[1].text = t.range3Days;
-  rangeSelect.options[2].text = t.range7Days;
-  rangeSelect.options[3].text = t.rangeEveryday;
-}
-
-function addTask() {
-  const text = document.getElementById("taskInput").value.trim();
-  const range = parseInt(document.getElementById("rangeSelect").value);
-  const t = locales[currentLang];
-  if (!text) { showToast(t.taskEmptyWarning); return; }
-  for (let i = 0; i < range; i++) {
-    const d = new Date(); 
-    d.setDate(d.getDate() + i);
-    const dateStr = getDateStr(d);
-    if (!tasks.some(task => task.text === text && task.date === dateStr)) {
-      tasks.push({ id: Date.now() + '-' + i + '-' + Math.random(), text, date: dateStr, done: false });
-    }
-  }
-  saveToLocal(); 
-  renderAll(); 
-  document.getElementById("taskInput").value = ''; 
-  showToast(t.addSuccess(range));
-}
-
-function deleteTaskWithDialog(taskId) {
-  const targetTask = tasks.find(t => t.id === taskId);
-  if (!targetTask) return;
-  const t = locales[currentLang];
-  const sameTextTasks = tasks.filter(t => t.text === targetTask.text).sort((a,b) => a.date.localeCompare(b.date));
-  if (sameTextTasks.length <= 1) {
-    tasks = tasks.filter(t => t.id !== taskId);
-    saveToLocal(); renderAll(); showToast(t.deleteSingleSuccess(targetTask.text));
-    return;
-  }
-  const futureTasks = sameTextTasks.filter(t => t.date >= targetTask.date);
-  const choice = confirm(t.deleteConfirmFuture(targetTask.text, futureTasks.length));
-  if (choice) {
-    tasks = tasks.filter(t => !(t.text === targetTask.text && t.date >= targetTask.date));
-    saveToLocal(); renderAll(); showToast(t.deleteFutureSuccess);
-  } else {
-    if (confirm(t.deleteConfirmAll(targetTask.text, sameTextTasks.length))) {
-      tasks = tasks.filter(t => t.text !== targetTask.text);
-      saveToLocal(); renderAll(); showToast(t.deleteAllSuccess);
-    } else showToast(t.deleteCancel);
-  }
-}
-function deleteTaskHandler(id) { deleteTaskWithDialog(id); }
-function toggleTask(id) { 
-  const task = tasks.find(t => t.id === id); 
-  if (task) { 
-    task.done = !task.done; 
-    saveToLocal(); 
-    renderAll(); 
-  } 
-}
-
-function renderTasks() {
-  // 关键修复：确保 selectedDate 对应的任务正确显示
-  const list = tasks.filter(t => t.date === selectedDate);
-  const container = document.getElementById('taskList');
-  const todayStr = getDateStr(new Date());
-  const t = locales[currentLang];
-  if (selectedDate === todayStr) {
-    document.getElementById('taskTitle').innerHTML = t.taskToday;
-  } else {
-    const d = new Date(selectedDate);
-    document.getElementById('taskTitle').innerHTML = t.taskOther.replace('{month}', d.getMonth()+1).replace('{day}', d.getDate());
-  }
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-tasks">✨ ${t.emptyTasks}</div>`;
-    return;
-  }
-  container.innerHTML = list.map(task => `
-    <div class="task-item">
-      <div class="task-left">
-        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
-        <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
-      </div>
-      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">${t.deleteBtn}</button>
-    </div>
-  `).join('');
-}
-
-function escapeHtml(str) { 
-  return str.replace(/[&<>]/g, function(m) { 
-    if (m === '&') return '&amp;'; 
-    if (m === '<') return '&lt;'; 
-    if (m === '>') return '&gt;'; 
-    return m; 
-  }); 
-}
-
-function renderStats() {
-  document.getElementById('totalTasks').textContent = tasks.length;
-  document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
-  let streak = 0, d = new Date();
-  while (true) {
-    const ratio = getCompletionRatio(getDateStr(d));
-    if (ratio === 1) { 
-      streak++; 
-      d.setDate(d.getDate() - 1); 
-    } else break;
-  }
-  document.getElementById('streak').textContent = streak;
-}
+// ======================== 核心逻辑修复 ========================
 
 function renderCalendar() {
   const cal = document.getElementById('calendar');
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth();
   const t = locales[currentLang];
+  
   document.getElementById('calendarTitle').innerHTML = t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
   cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
+
   const firstDay = new Date(year, month, 1).getDay();
-  const days = new Date(year, month + 1, 0).getDate();
-  for (let i = 0; i < firstDay; i++) { 
-    const emptyDiv = document.createElement('div'); 
-    emptyDiv.className = 'day ratio-0'; 
-    cal.appendChild(emptyDiv); 
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'day header'; // 占位符
+    emptyDiv.style.background = "transparent";
+    cal.appendChild(emptyDiv);
   }
-  for (let i = 1; i <= days; i++) {
+
+  for (let i = 1; i <= daysInMonth; i++) {
     const d = new Date(year, month, i);
-    const key = getDateStr(d);
-    const ratio = getCompletionRatio(key);
-    const holidayName = getHolidayName(key);
+    const dateStr = d.toISOString().split("T")[0];
+    const dayTasks = tasks.filter(tk => tk.date === dateStr);
+    const doneCount = dayTasks.filter(tk => tk.done).length;
+    
+    // 【修改点 2】：实现方块分割效果 (使用线性渐变)
+    let fillPercent = 0;
+    if (dayTasks.length > 0) {
+      fillPercent = (doneCount / dayTasks.length) * 100;
+    }
+
     const div = document.createElement('div');
     div.className = 'day';
-    let ratioClass = 'ratio-0';
-    if (ratio === 0) ratioClass = 'ratio-0';
-    else if (ratio === 0.25) ratioClass = 'ratio-25';
-    else if (ratio === 0.5) ratioClass = 'ratio-50';
-    else if (ratio === 0.75) ratioClass = 'ratio-75';
-    else if (ratio === 1) ratioClass = 'ratio-100';
-    div.classList.add(ratioClass);
+    if (dateStr === selectedDate) div.classList.add('selected');
+    if (dateStr === new Date().toISOString().split("T")[0]) div.classList.add('today');
+    
+    // 渐变效果：从下往上填满绿色。#66bb6a 是任务完成的绿色，#eeeeee 是背景灰色
+    div.style.background = `linear-gradient(to top, #66bb6a ${fillPercent}%, #eeeeee ${fillPercent}%)`;
+    // 如果完成度很高，改变文字颜色
+    if (fillPercent > 50) div.style.color = "white";
+
     div.textContent = i;
+
+    // 节假日处理
+    const holidayName = jpHolidays[dateStr];
     if (holidayName) {
       div.classList.add('holiday');
-      const labelSpan = document.createElement('span');
-      labelSpan.className = 'holiday-label';
-      labelSpan.textContent = holidayName;
-      div.appendChild(labelSpan);
+      const label = document.createElement('span');
+      label.className = 'holiday-label';
+      label.textContent = holidayName;
+      div.appendChild(label);
     }
-    if (key === getDateStr(new Date())) div.classList.add('today');
-    // 关键修复：使用闭包正确捕获 key，确保点击跳转到正确日期
-    div.onclick = (function(dateKey) { 
-      return function() { 
-        selectedDate = dateKey; 
-        renderTasks(); 
-        renderCalendar(); 
-      }; 
-    })(key);
+
+    // 【修改点 1】：点击事件确保 selectedDate 同步更新并重新渲染
+    div.onclick = () => {
+      selectedDate = dateStr;
+      renderAll(); 
+    };
+
     cal.appendChild(div);
   }
+}
+
+function renderTasks() {
+  const container = document.getElementById('taskList');
+  const t = locales[currentLang];
+  const dayTasks = tasks.filter(tk => tk.date === selectedDate);
+  
+  // 更新标题日期
+  const d = new Date(selectedDate);
+  const todayStr = new Date().toISOString().split("T")[0];
+  if (selectedDate === todayStr) {
+    document.getElementById('taskTitle').innerText = t.taskToday;
+  } else {
+    document.getElementById('taskTitle').innerText = t.taskOther.replace('{month}', d.getMonth()+1).replace('{day}', d.getDate());
+  }
+
+  if (dayTasks.length === 0) {
+    container.innerHTML = `<div style="text-align:center;color:#999;padding:20px;">${t.emptyTasks}</div>`;
+    return;
+  }
+
+  container.innerHTML = dayTasks.map(task => `
+    <div class="task-item">
+      <div class="task-left">
+        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+        <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${task.text}</span>
+      </div>
+      <button class="delete-task" onclick="deleteTask('${task.id}')">删除</button>
+    </div>
+  `).join('');
+}
+
+// ======================== 其他辅助功能 ========================
+
+function addTask() {
+  const input = document.getElementById('taskInput');
+  const text = input.value.trim();
+  const range = parseInt(document.getElementById('rangeSelect').value);
+  if (!text) return;
+
+  const baseDate = new Date(selectedDate); // 基于当前选中的日期添加
+  for (let i = 0; i < (range === 999 ? 30 : range); i++) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + i);
+    const dStr = d.toISOString().split("T")[0];
+    tasks.push({ id: Date.now() + Math.random(), text, date: dStr, done: false });
+  }
+  input.value = '';
+  saveToLocal();
+  renderAll();
+  showToast(locales[currentLang].addSuccess(range));
+}
+
+function toggleTask(id) {
+  const task = tasks.find(tk => tk.id == id);
+  if (task) task.done = !task.done;
+  saveToLocal();
+  renderAll();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(tk => tk.id != id);
+  saveToLocal();
+  renderAll();
+}
+
+function renderStats() {
+  document.getElementById('totalTasks').innerText = tasks.length;
+  document.getElementById('completedTasks').innerText = tasks.filter(tk => tk.done).length;
+  
+  // 简单连续学习算法（全完成的天数）
+  let streak = 0;
+  let d = new Date();
+  while(true) {
+    const dStr = d.toISOString().split("T")[0];
+    const dayTasks = tasks.filter(tk => tk.date === dStr);
+    if (dayTasks.length > 0 && dayTasks.every(tk => tk.done)) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  document.getElementById('streak').innerText = streak;
 }
 
 function renderAll() {
@@ -833,20 +392,55 @@ function renderAll() {
   renderStats();
 }
 
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('show');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  saveToLocal();
+  location.reload();
+}
+
+function saveToLocal() { localStorage.setItem('study_tracker_v2', JSON.stringify({tasks, currentLang})); }
+function loadFromLocal() {
+  const data = JSON.parse(localStorage.getItem('study_tracker_v2'));
+  if (data) {
+    tasks = data.tasks || [];
+    currentLang = data.currentLang || 'zh';
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerText = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(tasks)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'study_backup.json';
+  a.click();
+}
+
+function importData() { document.getElementById('importFile').click(); }
+document.getElementById('importFile').onchange = (e) => {
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    tasks = JSON.parse(ev.target.result);
+    saveToLocal(); renderAll();
+  };
+  reader.readAsText(e.target.files[0]);
+};
+
+function clearAllData() { if(confirm("确定清空吗？")) { tasks = []; saveToLocal(); renderAll(); } }
+
 // 初始化
 loadFromLocal();
-if (tasks.length === 0) {
-  const today = getDateStr(new Date());
-  tasks.push({ id: 'demo1', text: '📖 读书', date: today, done: false });
-  tasks.push({ id: 'demo2', text: '💻 编程练习', date: today, done: false });
-  saveToLocal();
-}
-applyLanguage();
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  if (btn.dataset.lang === currentLang) btn.classList.add('active');
-});
 renderAll();
-document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
 </body>
 </html>
