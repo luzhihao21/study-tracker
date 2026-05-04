@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-<title>学习进度表 · 比例热力图</title>
+<title>学习进度表 · 多语言热力图</title>
 
 <style>
 * {
@@ -91,7 +91,6 @@ body {
   }
 }
 
-/* 热力图单元格样式 */
 .day {
   aspect-ratio: 1;
   text-align: center;
@@ -111,7 +110,6 @@ body {
   transform: scale(1.03);
 }
 
-/* 星期表头 */
 .day.header {
   background: #d9d9d9;
   cursor: default;
@@ -141,35 +139,29 @@ body {
   color: #333;
 }
 
-/* 完成比例背景色 - 采用渐变/纯色表示密度 */
+/* 完成比例颜色层级 */
 .day.ratio-0 {
   background: #eeeeee;
   color: #999;
 }
 .day.ratio-25 {
-  background: #ffcc80;  /* 1/4 浅橙 */
+  background: #ffcc80;
   color: #5d3a1a;
 }
 .day.ratio-50 {
-  background: #ffa726;  /* 1/2 橙 */
+  background: #ffa726;
   color: white;
 }
 .day.ratio-75 {
-  background: #66bb6a;  /* 3/4 浅绿 */
+  background: #66bb6a;
   color: white;
 }
 .day.ratio-100 {
-  background: #2e7d32;  /* 全绿深绿 */
+  background: #2e7d32;
   color: white;
   font-weight: bold;
 }
-/* 半完成特殊处理 */
-.day.ratio-partial {
-  background: #ff9800;
-  color: white;
-}
 
-/* 节假日粉红色背景优先级稍低但叠加显示（如果同时存在任务比例则以比例背景为主，但加粉色边框或小标志）*/
 .day.holiday {
   position: relative;
 }
@@ -201,7 +193,6 @@ body {
   text-align: center;
 }
 
-/* 任务列表样式 */
 .task-item {
   display: flex;
   justify-content: space-between;
@@ -350,6 +341,29 @@ h2 {
   background: none;
   border: none;
   font-size: 24px;
+  cursor: pointer;
+}
+.language-selector {
+  margin: 20px 0;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.lang-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+}
+.lang-btn.active {
+  background: #007bff;
+  color: white;
 }
 .toast {
   position: fixed;
@@ -371,17 +385,23 @@ h2 {
 <body>
 
 <div class="header-bar">
-  <h2>📘 学習進捗</h2>
+  <h2 id="appTitle">📘 学习进度</h2>
   <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
   <button class="close-settings" onclick="toggleSettings()">✕</button>
-  <h4>⚙️ データ管理</h4>
-  <button onclick="exportData()" style="background:#28a745; margin-bottom:8px; width:100%;">📤 导出备份</button>
-  <button onclick="importData()" style="background:#ff9800; margin-bottom:8px; width:100%;">📥 导入备份</button>
-  <button onclick="clearAllData()" style="background:#dc3545; width:100%;">🗑️ 清空所有</button>
+  <h4 id="settingsTitle">⚙️ 设置</h4>
+  <div class="language-selector">
+    <div id="langLabel" style="margin-bottom: 8px; font-weight: bold;">语言 / Language / 言語</div>
+    <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">🇨🇳 中文</button>
+    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
+    <button class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">🇯🇵 日本語</button>
+  </div>
+  <button onclick="exportData()" id="exportBtn" style="background:#28a745; margin-bottom:8px; width:100%;">📤 导出备份</button>
+  <button onclick="importData()" id="importBtn" style="background:#ff9800; margin-bottom:8px; width:100%;">📥 导入备份</button>
+  <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545; width:100%;">🗑️ 清空所有</button>
 </div>
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
@@ -393,35 +413,35 @@ h2 {
 </div>
 
 <div class="card">
-  <h4 id="taskTitle">📋 今日のタスク</h4>
+  <h4 id="taskTitle">📋 今日任务</h4>
   <div id="taskList"></div>
 </div>
 
 <div class="card">
   <div class="input-group">
-    <input id="taskInput" placeholder="学習タスクを入力..." onkeypress="if(event.key==='Enter') addTask()">
+    <input id="taskInput" placeholder="输入学习任务..." onkeypress="if(event.key==='Enter') addTask()">
     <select id="rangeSelect">
-      <option value="1">今日だけ</option>
-      <option value="3">3日間</option>
-      <option value="7">7日間</option>
-      <option value="999">毎日</option>
+      <option value="1">今天</option>
+      <option value="3">最近3天</option>
+      <option value="7">最近7天</option>
+      <option value="999">每天</option>
     </select>
-    <button onclick="addTask()">追加</button>
+    <button onclick="addTask()" id="addBtn">添加</button>
   </div>
 </div>
 
 <div class="card">
   <div class="stats-container">
-    <div class="stat-card"><div class="stat-number" id="totalTasks">0</div><div class="stat-label">総タスク</div></div>
-    <div class="stat-card"><div class="stat-number" id="completedTasks">0</div><div class="stat-label">完了済み</div></div>
-    <div class="stat-card"><div class="stat-number" id="streak">0</div><div class="stat-label">連続学習</div></div>
+    <div class="stat-card"><div class="stat-number" id="totalTasks">0</div><div class="stat-label" id="totalLabel">总任务</div></div>
+    <div class="stat-card"><div class="stat-number" id="completedTasks">0</div><div class="stat-label" id="completedLabel">已完成</div></div>
+    <div class="stat-card"><div class="stat-number" id="streak">0</div><div class="stat-label" id="streakLabel">连续学习</div></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// 日本节假日数据 (简单版本)
+// ======================== 日本节假日数据 ========================
 const jpHolidays = {
   "2025-01-01": "元日", "2025-01-13": "成人の日", "2025-02-11": "建国記念の日", "2025-02-23": "天皇誕生日",
   "2025-03-20": "春分の日", "2025-04-29": "昭和の日", "2025-05-03": "憲法記念日", "2025-05-04": "みどりの日",
@@ -435,36 +455,230 @@ const jpHolidays = {
 
 function getHolidayName(dateStr) { return jpHolidays[dateStr] || null; }
 
+// ======================== 多语言文本库 ========================
+const locales = {
+  zh: {
+    appTitle: "📘 学习进度",
+    settingsTitle: "⚙️ 设置",
+    langLabel: "语言 / Language / 言語",
+    exportBtn: "📤 导出备份",
+    importBtn: "📥 导入备份",
+    clearBtn: "🗑️ 清空所有",
+    calendarMonth: "📅 {year}年 {month}月",
+    weekDays: ["日", "一", "二", "三", "四", "五", "六"],
+    taskToday: "📋 今日任务",
+    taskOther: "📋 {month}月{day}日任务",
+    taskPlaceholder: "输入学习任务...",
+    rangeToday: "今天",
+    range3Days: "最近3天",
+    range7Days: "最近7天",
+    rangeEveryday: "每天",
+    addBtn: "添加",
+    totalLabel: "总任务",
+    completedLabel: "已完成",
+    streakLabel: "连续学习",
+    emptyTasks: "✨ 暂无任务",
+    deleteConfirmFuture: (text, count) => `「${text}」\n【确定】删除今天及以后 (${count}个任务)\n【取消】继续选择`,
+    deleteConfirmAll: (text, count) => `是否删除全部「${text}」 (共${count}个任务)？`,
+    deleteCancel: "已取消",
+    deleteFutureSuccess: "已删除今天及以后的任务",
+    deleteAllSuccess: "已全部删除",
+    deleteSingleSuccess: (text) => `已删除「${text}」`,
+    taskEmptyWarning: "请输入任务内容",
+    addSuccess: (range) => range === 999 ? "已添加每天任务" : `已添加${range}天任务`,
+    importSuccess: "导入成功",
+    exportSuccess: "已导出",
+    clearConfirm: "⚠️ 确认清空所有任务记录？",
+    clearSuccess: "已清空",
+    holidayPrefix: "",
+    toastDataCleared: "数据已清空"
+  },
+  en: {
+    appTitle: "📘 Study Tracker",
+    settingsTitle: "⚙️ Settings",
+    langLabel: "Language / 语言 / 言語",
+    exportBtn: "📤 Export Backup",
+    importBtn: "📥 Import Backup",
+    clearBtn: "🗑️ Clear All",
+    calendarMonth: "📅 {year}/{month}",
+    weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    taskToday: "📋 Today's Tasks",
+    taskOther: "📋 {month}/{day} Tasks",
+    taskPlaceholder: "Enter learning task...",
+    rangeToday: "Today",
+    range3Days: "Next 3 days",
+    range7Days: "Next 7 days",
+    rangeEveryday: "Everyday",
+    addBtn: "Add",
+    totalLabel: "Total",
+    completedLabel: "Completed",
+    streakLabel: "Streak",
+    emptyTasks: "✨ No tasks",
+    deleteConfirmFuture: (text, count) => `「${text}」\n[OK] Delete today & future (${count} tasks)\n[Cancel] More options`,
+    deleteConfirmAll: (text, count) => `Delete ALL 「${text}」 (${count} tasks)?`,
+    deleteCancel: "Cancelled",
+    deleteFutureSuccess: "Deleted today & future tasks",
+    deleteAllSuccess: "Deleted all tasks",
+    deleteSingleSuccess: (text) => `Deleted 「${text}」`,
+    taskEmptyWarning: "Please enter task content",
+    addSuccess: (range) => range === 999 ? "Added everyday task" : `Added ${range} days task`,
+    importSuccess: "Import successful",
+    exportSuccess: "Exported",
+    clearConfirm: "⚠️ Clear all tasks?",
+    clearSuccess: "Cleared",
+    holidayPrefix: "",
+    toastDataCleared: "Data cleared"
+  },
+  ja: {
+    appTitle: "📘 学習進捗",
+    settingsTitle: "⚙️ 設定",
+    langLabel: "言語 / Language / 语言",
+    exportBtn: "📤 バックアップ出力",
+    importBtn: "📥 バックアップ読込",
+    clearBtn: "🗑️ 全削除",
+    calendarMonth: "📅 {year}年 {month}月",
+    weekDays: ["日", "月", "火", "水", "木", "金", "土"],
+    taskToday: "📋 今日のタスク",
+    taskOther: "📋 {month}月{day}日タスク",
+    taskPlaceholder: "学習タスクを入力...",
+    rangeToday: "今日だけ",
+    range3Days: "3日間",
+    range7Days: "7日間",
+    rangeEveryday: "毎日",
+    addBtn: "追加",
+    totalLabel: "総タスク",
+    completedLabel: "完了済み",
+    streakLabel: "連続学習",
+    emptyTasks: "✨ タスクがありません",
+    deleteConfirmFuture: (text, count) => `「${text}」\n【OK】今日以降(${count}件)削除\n【キャンセル】全削除選択へ`,
+    deleteConfirmAll: (text, count) => `全ての「${text}」(${count}件)を削除しますか？`,
+    deleteCancel: "キャンセル",
+    deleteFutureSuccess: "今日以降のタスクを削除",
+    deleteAllSuccess: "全て削除しました",
+    deleteSingleSuccess: (text) => `「${text}」を削除`,
+    taskEmptyWarning: "タスクを入力してください",
+    addSuccess: (range) => range === 999 ? "毎日タスクを追加" : `${range}日間追加`,
+    importSuccess: "インポート成功",
+    exportSuccess: "エクスポート完了",
+    clearConfirm: "全てのデータを削除しますか？",
+    clearSuccess: "データクリア",
+    holidayPrefix: "",
+    toastDataCleared: "データをクリアしました"
+  }
+};
+
+let currentLang = 'zh';
 let tasks = [];
 let selectedDate = getDateStr(new Date());
 
 function getDateStr(d) { return d.toISOString().split("T")[0]; }
-function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
-function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('show'); document.getElementById('overlay').classList.toggle('show'); }
-function saveToLocal() { localStorage.setItem('study_tracker_data', JSON.stringify({ tasks })); }
-function loadFromLocal() { const saved = localStorage.getItem('study_tracker_data'); if (saved) { const data = JSON.parse(saved); tasks = data.tasks || []; } }
-function exportData() { const blob = new Blob([JSON.stringify({ tasks })], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `学習記録_${getDateStr(new Date())}.json`; a.click(); showToast('エクスポート完了'); }
-function importData() { document.getElementById('importFile').click(); }
-function handleImport(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(ev) { const data = JSON.parse(ev.target.result); tasks = data.tasks || []; saveToLocal(); renderAll(); showToast('インポート成功'); }; reader.readAsText(file); }
-function clearAllData() { if (confirm('全てのデータを削除しますか？')) { tasks = []; saveToLocal(); renderAll(); toggleSettings(); showToast('データクリア'); } }
 
-// 计算某一天的完成比例 (返回 0, 0.25, 0.5, 0.75, 1)
 function getCompletionRatio(dateStr) {
   const dayTasks = tasks.filter(t => t.date === dateStr);
   if (dayTasks.length === 0) return 0;
   const doneCount = dayTasks.filter(t => t.done).length;
   const ratio = doneCount / dayTasks.length;
   if (ratio === 0) return 0;
-  if (ratio <= 0.3) return 0.25;   // 三分之一及以下 -> 1/4
-  if (ratio <= 0.6) return 0.5;    // 半完成
-  if (ratio < 1) return 0.75;      // 三分之二 ~ 四分之三
+  if (ratio <= 0.3) return 0.25;
+  if (ratio <= 0.6) return 0.5;
+  if (ratio < 1) return 0.75;
   return 1;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('show');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function saveToLocal() { localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, lang: currentLang })); }
+function loadFromLocal() {
+  const saved = localStorage.getItem('study_tracker_data');
+  if (saved) {
+    const data = JSON.parse(saved);
+    tasks = data.tasks || [];
+    if (data.lang) currentLang = data.lang;
+  }
+}
+
+function exportData() {
+  const data = { tasks, lang: currentLang };
+  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `study_tracker_${getDateStr(new Date())}.json`;
+  a.click();
+  showToast(locales[currentLang].exportSuccess);
+}
+function importData() { document.getElementById('importFile').click(); }
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const data = JSON.parse(ev.target.result);
+    tasks = data.tasks || [];
+    if (data.lang) currentLang = data.lang;
+    saveToLocal();
+    applyLanguage();
+    renderAll();
+    showToast(locales[currentLang].importSuccess);
+  };
+  reader.readAsText(file);
+}
+function clearAllData() {
+  if (confirm(locales[currentLang].clearConfirm)) {
+    tasks = [];
+    saveToLocal();
+    renderAll();
+    toggleSettings();
+    showToast(locales[currentLang].clearSuccess);
+  }
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  saveToLocal();
+  applyLanguage();
+  renderAll();
+  // 更新设置面板中激活按钮样式
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    if (btn.dataset.lang === lang) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+function applyLanguage() {
+  const t = locales[currentLang];
+  document.getElementById('appTitle').innerText = t.appTitle;
+  document.getElementById('settingsTitle').innerText = t.settingsTitle;
+  document.getElementById('langLabel').innerText = t.langLabel;
+  document.getElementById('exportBtn').innerText = t.exportBtn;
+  document.getElementById('importBtn').innerText = t.importBtn;
+  document.getElementById('clearBtn').innerText = t.clearBtn;
+  document.getElementById('totalLabel').innerText = t.totalLabel;
+  document.getElementById('completedLabel').innerText = t.completedLabel;
+  document.getElementById('streakLabel').innerText = t.streakLabel;
+  document.getElementById('taskInput').placeholder = t.taskPlaceholder;
+  document.getElementById('addBtn').innerText = t.addBtn;
+  const rangeSelect = document.getElementById('rangeSelect');
+  rangeSelect.options[0].text = t.rangeToday;
+  rangeSelect.options[1].text = t.range3Days;
+  rangeSelect.options[2].text = t.range7Days;
+  rangeSelect.options[3].text = t.rangeEveryday;
 }
 
 function addTask() {
   const text = document.getElementById("taskInput").value.trim();
   const range = parseInt(document.getElementById("rangeSelect").value);
-  if (!text) { showToast("タスクを入力してください"); return; }
+  const t = locales[currentLang];
+  if (!text) { showToast(t.taskEmptyWarning); return; }
   for (let i = 0; i < range; i++) {
     const d = new Date(); d.setDate(d.getDate() + i);
     const dateStr = getDateStr(d);
@@ -472,60 +686,131 @@ function addTask() {
       tasks.push({ id: Date.now() + '-' + i + '-' + Math.random(), text, date: dateStr, done: false });
     }
   }
-  saveToLocal(); renderAll(); document.getElementById("taskInput").value = ''; showToast(range===999 ? '毎日タスク追加' : `${range}日間追加`);
+  saveToLocal(); renderAll(); document.getElementById("taskInput").value = ''; showToast(t.addSuccess(range));
 }
 
 function deleteTaskWithDialog(taskId) {
   const targetTask = tasks.find(t => t.id === taskId);
   if (!targetTask) return;
+  const t = locales[currentLang];
   const sameTextTasks = tasks.filter(t => t.text === targetTask.text).sort((a,b) => a.date.localeCompare(b.date));
   if (sameTextTasks.length <= 1) {
     tasks = tasks.filter(t => t.id !== taskId);
-    saveToLocal(); renderAll(); showToast(`「${targetTask.text}」を削除`);
+    saveToLocal(); renderAll(); showToast(t.deleteSingleSuccess(targetTask.text));
     return;
   }
   const futureTasks = sameTextTasks.filter(t => t.date >= targetTask.date);
-  const choice = confirm(`「${targetTask.text}」\n【OK】今日以降(${futureTasks.length}件)削除\n【キャンセル】全削除選択へ`);
+  const choice = confirm(t.deleteConfirmFuture(targetTask.text, futureTasks.length));
   if (choice) {
     tasks = tasks.filter(t => !(t.text === targetTask.text && t.date >= targetTask.date));
-    saveToLocal(); renderAll(); showToast(`今日以降のタスクを削除`);
+    saveToLocal(); renderAll(); showToast(t.deleteFutureSuccess);
   } else {
-    if (confirm(`全ての「${targetTask.text}」(${sameTextTasks.length}件)を削除しますか？`)) {
+    if (confirm(t.deleteConfirmAll(targetTask.text, sameTextTasks.length))) {
       tasks = tasks.filter(t => t.text !== targetTask.text);
-      saveToLocal(); renderAll(); showToast(`全て削除しました`);
-    } else showToast("キャンセル");
+      saveToLocal(); renderAll(); showToast(t.deleteAllSuccess);
+    } else showToast(t.deleteCancel);
   }
 }
 function deleteTaskHandler(id) { deleteTaskWithDialog(id); }
 function toggleTask(id) { const task = tasks.find(t => t.id === id); if (task) { task.done = !task.done; saveToLocal(); renderAll(); } }
-function renderTasks() { const list = tasks.filter(t => t.date === selectedDate); const container = document.getElementById('taskList'); const todayStr = getDateStr(new Date()); document.getElementById('taskTitle').innerHTML = selectedDate === todayStr ? '📋 今日のタスク' : `📋 ${new Date(selectedDate).getMonth()+1}/${new Date(selectedDate).getDate()}`; if (list.length === 0) { container.innerHTML = '<div class="empty-tasks">✨ タスクがありません</div>'; return; } container.innerHTML = list.map(task => `<div class="task-item"><div class="task-left"><input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')"><span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span></div><button class="delete-task" onclick="deleteTaskHandler('${task.id}')">削除</button></div>`).join(''); }
+
+function renderTasks() {
+  const list = tasks.filter(t => t.date === selectedDate);
+  const container = document.getElementById('taskList');
+  const todayStr = getDateStr(new Date());
+  const t = locales[currentLang];
+  if (selectedDate === todayStr) {
+    document.getElementById('taskTitle').innerHTML = t.taskToday;
+  } else {
+    const d = new Date(selectedDate);
+    document.getElementById('taskTitle').innerHTML = t.taskOther.replace('{month}', d.getMonth()+1).replace('{day}', d.getDate());
+  }
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-tasks">✨ ${t.emptyTasks}</div>`;
+    return;
+  }
+  container.innerHTML = list.map(task => `
+    <div class="task-item">
+      <div class="task-left">
+        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+        <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
+      </div>
+      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">${t.deleteBtn || '删除'}</button>
+    </div>
+  `).join('');
+}
+
 function escapeHtml(str) { return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
-function renderStats() { document.getElementById('totalTasks').textContent = tasks.length; document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length; let streak = 0, d = new Date(); while (true) { const ratio = getCompletionRatio(getDateStr(d)); if (ratio === 1) { streak++; d.setDate(d.getDate() - 1); } else break; } document.getElementById('streak').textContent = streak; }
+
+function renderStats() {
+  document.getElementById('totalTasks').textContent = tasks.length;
+  document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
+  let streak = 0, d = new Date();
+  while (true) {
+    const ratio = getCompletionRatio(getDateStr(d));
+    if (ratio === 1) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  document.getElementById('streak').textContent = streak;
+}
 
 function renderCalendar() {
-  const cal = document.getElementById('calendar'); const now = new Date(); const year = now.getFullYear(), month = now.getMonth();
-  document.getElementById('calendarTitle').innerHTML = `📅 ${year}年 ${month+1}月`;
-  const week = ['日', '月', '火', '水', '木', '金', '土'];
-  cal.innerHTML = week.map(w => `<div class="day header">${w}</div>`).join('');
-  const firstDay = new Date(year, month, 1).getDay(); const days = new Date(year, month + 1, 0).getDate();
+  const cal = document.getElementById('calendar');
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const t = locales[currentLang];
+  document.getElementById('calendarTitle').innerHTML = t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
+  cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
+  const firstDay = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
   for (let i = 0; i < firstDay; i++) { const emptyDiv = document.createElement('div'); emptyDiv.className = 'day ratio-0'; cal.appendChild(emptyDiv); }
   for (let i = 1; i <= days; i++) {
-    const d = new Date(year, month, i); const key = getDateStr(d); const ratio = getCompletionRatio(key); const holidayName = getHolidayName(key);
-    const div = document.createElement('div'); div.className = 'day';
-    let ratioClass = 'ratio-0'; if (ratio === 0) ratioClass = 'ratio-0'; else if (ratio === 0.25) ratioClass = 'ratio-25'; else if (ratio === 0.5) ratioClass = 'ratio-50'; else if (ratio === 0.75) ratioClass = 'ratio-75'; else if (ratio === 1) ratioClass = 'ratio-100';
+    const d = new Date(year, month, i);
+    const key = getDateStr(d);
+    const ratio = getCompletionRatio(key);
+    const holidayName = getHolidayName(key);
+    const div = document.createElement('div');
+    div.className = 'day';
+    let ratioClass = 'ratio-0';
+    if (ratio === 0) ratioClass = 'ratio-0';
+    else if (ratio === 0.25) ratioClass = 'ratio-25';
+    else if (ratio === 0.5) ratioClass = 'ratio-50';
+    else if (ratio === 0.75) ratioClass = 'ratio-75';
+    else if (ratio === 1) ratioClass = 'ratio-100';
     div.classList.add(ratioClass);
     div.textContent = i;
-    if (holidayName) { div.classList.add('holiday'); const labelSpan = document.createElement('span'); labelSpan.className = 'holiday-label'; labelSpan.textContent = holidayName; div.appendChild(labelSpan); }
+    if (holidayName) {
+      div.classList.add('holiday');
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'holiday-label';
+      labelSpan.textContent = holidayName;
+      div.appendChild(labelSpan);
+    }
     if (key === getDateStr(new Date())) div.classList.add('today');
     div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); renderCalendar(); }; })(key);
     cal.appendChild(div);
   }
 }
 
-function renderAll() { renderCalendar(); renderTasks(); renderStats(); }
+function renderAll() {
+  renderCalendar();
+  renderTasks();
+  renderStats();
+}
 
+// 初始化
 loadFromLocal();
-if (tasks.length === 0) { const today = getDateStr(new Date()); tasks.push({ id: 'demo1', text: '📖 読書', date: today, done: false }, { id: 'demo2', text: '💻 プログラミング', date: today, done: false }); saveToLocal(); }
+if (tasks.length === 0) {
+  const today = getDateStr(new Date());
+  tasks.push({ id: 'demo1', text: '📖 读书', date: today, done: false });
+  tasks.push({ id: 'demo2', text: '💻 编程练习', date: today, done: false });
+  saveToLocal();
+}
+applyLanguage();
+// 设置激活语言按钮样式
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  if (btn.dataset.lang === currentLang) btn.classList.add('active');
+});
 renderAll();
 document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
