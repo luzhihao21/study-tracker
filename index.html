@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-<title>学习进度表 · 日本节日版</title>
+<title>学习进度表 · 比例热力图</title>
 
 <style>
 * {
@@ -37,10 +37,10 @@ body {
 
 .calendar {
   display: grid;
-  grid-template-columns: repeat(7, minmax(40px, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(7, minmax(44px, 1fr));
+  gap: 5px;
   margin-top: 10px;
-  min-width: 280px;
+  min-width: 300px;
 }
 
 @media (max-width: 480px) {
@@ -51,11 +51,11 @@ body {
     padding: 12px 10px;
   }
   .calendar {
-    grid-template-columns: repeat(7, minmax(36px, 1fr));
+    grid-template-columns: repeat(7, minmax(38px, 1fr));
     gap: 3px;
   }
   .day {
-    font-size: 11px;
+    font-size: 12px;
   }
   .task-text {
     font-size: 14px;
@@ -73,21 +73,21 @@ body {
     padding: 10px;
   }
   .holiday-label {
-    font-size: 7px;
+    font-size: 6px;
     bottom: 1px;
   }
 }
 
 @media (max-width: 380px) {
   .calendar {
-    grid-template-columns: repeat(7, minmax(32px, 1fr));
+    grid-template-columns: repeat(7, minmax(34px, 1fr));
     gap: 2px;
   }
   .day {
     font-size: 10px;
   }
   .holiday-label {
-    font-size: 6px;
+    font-size: 5px;
   }
 }
 
@@ -95,85 +95,42 @@ body {
 .day {
   aspect-ratio: 1;
   text-align: center;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.1s, background 0.2s;
-  font-weight: 500;
-  background: #e8e8e8;
-  color: #333;
-  font-size: 15px;
+  font-weight: 600;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 .day:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
-/* 节假日粉红色背景 */
-.day.holiday {
-  background: #ffb7c5 !important;
-}
-
-/* 图标样式 - 笑脸和太极图（满足任务条件后取代数字） */
-.day.icon-smile {
-  background: #4caf50 !important;
-  font-size: 0;
-}
-.day.icon-smile::before {
-  content: "😊";
-  font-size: 24px;
-  display: block;
-  line-height: 1;
-}
-
-.day.icon-taiji {
-  background: #4caf50 !important;
-  font-size: 0;
-}
-.day.icon-taiji::before {
-  content: "☯";
-  font-size: 24px;
-  display: block;
-  transform: rotate(90deg);
-  line-height: 1;
-}
-
-/* 普通完成/未完成底色 */
-.day.full {
-  background: #4caf50;
-  color: white;
-}
-.day.partial {
-  background: #ff9800;
-  color: white;
-}
-.day.empty {
-  background: #e8e8e8;
-  color: #666;
-}
-
-/* 星期表头强制居中 */
+/* 星期表头 */
 .day.header {
-  background: #d0d0d0;
+  background: #d9d9d9;
   cursor: default;
-  color: #333;
+  color: #444;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  box-shadow: none;
 }
 .day.header:hover {
   transform: none;
 }
 
 .today {
-  border: 2px solid #2196f3;
+  border: 2.5px solid #2196f3;
   font-weight: bold;
+  box-shadow: 0 0 0 1px white, 0 0 0 3px #2196f3;
 }
 
 .month-title {
@@ -184,7 +141,48 @@ body {
   color: #333;
 }
 
-/* 节假日小标签 */
+/* 完成比例背景色 - 采用渐变/纯色表示密度 */
+.day.ratio-0 {
+  background: #eeeeee;
+  color: #999;
+}
+.day.ratio-25 {
+  background: #ffcc80;  /* 1/4 浅橙 */
+  color: #5d3a1a;
+}
+.day.ratio-50 {
+  background: #ffa726;  /* 1/2 橙 */
+  color: white;
+}
+.day.ratio-75 {
+  background: #66bb6a;  /* 3/4 浅绿 */
+  color: white;
+}
+.day.ratio-100 {
+  background: #2e7d32;  /* 全绿深绿 */
+  color: white;
+  font-weight: bold;
+}
+/* 半完成特殊处理 */
+.day.ratio-partial {
+  background: #ff9800;
+  color: white;
+}
+
+/* 节假日粉红色背景优先级稍低但叠加显示（如果同时存在任务比例则以比例背景为主，但加粉色边框或小标志）*/
+.day.holiday {
+  position: relative;
+}
+.day.holiday::after {
+  content: "🌸";
+  position: absolute;
+  top: 0px;
+  right: 2px;
+  font-size: 8px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
 .holiday-label {
   position: absolute;
   bottom: 2px;
@@ -193,7 +191,7 @@ body {
   font-size: 7px;
   color: #b13b4a;
   font-weight: bold;
-  background: rgba(255,255,200,0.7);
+  background: rgba(255,255,200,0.8);
   border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -211,7 +209,6 @@ body {
   margin: 10px 0;
   padding: 8px;
   border-radius: 10px;
-  transition: background 0.2s;
   background: #fefefe;
   border-bottom: 1px solid #eee;
 }
@@ -374,11 +371,10 @@ h2 {
 <body>
 
 <div class="header-bar">
-  <h2>📘 学习进度</h2>
+  <h2>📘 学習進捗</h2>
   <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
 </div>
 
-<!-- 设置面板 -->
 <div class="overlay" id="overlay" onclick="toggleSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
   <button class="close-settings" onclick="toggleSettings()">✕</button>
@@ -389,7 +385,6 @@ h2 {
 </div>
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
-<!-- 热力图区域 -->
 <div class="card">
   <div class="month-title" id="calendarTitle"></div>
   <div class="calendar-wrapper">
@@ -397,13 +392,11 @@ h2 {
   </div>
 </div>
 
-<!-- 今日任务 / 特定日期任务区域 -->
 <div class="card">
-  <h4 id="taskTitle">📋 今日任务</h4>
+  <h4 id="taskTitle">📋 今日のタスク</h4>
   <div id="taskList"></div>
 </div>
 
-<!-- 添加任务 -->
 <div class="card">
   <div class="input-group">
     <input id="taskInput" placeholder="学習タスクを入力..." onkeypress="if(event.key==='Enter') addTask()">
@@ -417,7 +410,6 @@ h2 {
   </div>
 </div>
 
-<!-- 统计 -->
 <div class="card">
   <div class="stats-container">
     <div class="stat-card"><div class="stat-number" id="totalTasks">0</div><div class="stat-label">総タスク</div></div>
@@ -429,413 +421,111 @@ h2 {
 <div class="toast" id="toast"></div>
 
 <script>
-// ======================== 日本节假日数据 (2024-2026简单覆盖, 可扩展) ========================
-// 格式: "YYYY-MM-DD": "節日名"
+// 日本节假日数据 (简单版本)
 const jpHolidays = {
-  // 2024年
-  "2024-01-01": "元日",
-  "2024-01-08": "成人の日",
-  "2024-02-11": "建国記念の日",
-  "2024-02-23": "天皇誕生日",
-  "2024-03-20": "春分の日",
-  "2024-04-29": "昭和の日",
-  "2024-05-03": "憲法記念日",
-  "2024-05-04": "みどりの日",
-  "2024-05-05": "こどもの日",
-  "2024-07-15": "海の日",
-  "2024-08-11": "山の日",
-  "2024-09-16": "敬老の日",
-  "2024-09-22": "秋分の日",
-  "2024-10-14": "スポーツの日",
-  "2024-11-03": "文化の日",
-  "2024-11-23": "勤労感謝の日",
-  // 2025年
-  "2025-01-01": "元日",
-  "2025-01-13": "成人の日",
-  "2025-02-11": "建国記念の日",
-  "2025-02-23": "天皇誕生日",
-  "2025-03-20": "春分の日",
-  "2025-04-29": "昭和の日",
-  "2025-05-03": "憲法記念日",
-  "2025-05-04": "みどりの日",
-  "2025-05-05": "こどもの日",
-  "2025-07-21": "海の日",
-  "2025-08-11": "山の日",
-  "2025-09-15": "敬老の日",
-  "2025-09-23": "秋分の日",
-  "2025-10-13": "スポーツの日",
-  "2025-11-03": "文化の日",
-  "2025-11-23": "勤労感謝の日",
-  // 2026年
-  "2026-01-01": "元日",
-  "2026-01-12": "成人の日",
-  "2026-02-11": "建国記念の日",
-  "2026-02-23": "天皇誕生日",
-  "2026-03-20": "春分の日",
-  "2026-04-29": "昭和の日",
-  "2026-05-03": "憲法記念日",
-  "2026-05-04": "みどりの日",
-  "2026-05-05": "こどもの日",
-  "2026-07-20": "海の日",
-  "2026-08-11": "山の日",
-  "2026-09-21": "敬老の日",
-  "2026-09-23": "秋分の日",
-  "2026-10-12": "スポーツの日",
-  "2026-11-03": "文化の日",
-  "2026-11-23": "勤労感謝の日"
+  "2025-01-01": "元日", "2025-01-13": "成人の日", "2025-02-11": "建国記念の日", "2025-02-23": "天皇誕生日",
+  "2025-03-20": "春分の日", "2025-04-29": "昭和の日", "2025-05-03": "憲法記念日", "2025-05-04": "みどりの日",
+  "2025-05-05": "こどもの日", "2025-07-21": "海の日", "2025-08-11": "山の日", "2025-09-15": "敬老の日",
+  "2025-09-23": "秋分の日", "2025-10-13": "スポーツの日", "2025-11-03": "文化の日", "2025-11-23": "勤労感謝の日",
+  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日",
+  "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日",
+  "2026-05-05": "こどもの日", "2026-07-20": "海の日", "2026-08-11": "山の日", "2026-09-21": "敬老の日",
+  "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日"
 };
 
-function getHolidayName(dateStr) {
-  return jpHolidays[dateStr] || null;
-}
+function getHolidayName(dateStr) { return jpHolidays[dateStr] || null; }
 
-// 数据存储
 let tasks = [];
-let history = {};      // 兼容旧结构，但动态基于任务计算图标状态
 let selectedDate = getDateStr(new Date());
 
-function getDateStr(d) {
-  return d.toISOString().split("T")[0];
-}
+function getDateStr(d) { return d.toISOString().split("T")[0]; }
+function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('show'); document.getElementById('overlay').classList.toggle('show'); }
+function saveToLocal() { localStorage.setItem('study_tracker_data', JSON.stringify({ tasks })); }
+function loadFromLocal() { const saved = localStorage.getItem('study_tracker_data'); if (saved) { const data = JSON.parse(saved); tasks = data.tasks || []; } }
+function exportData() { const blob = new Blob([JSON.stringify({ tasks })], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `学習記録_${getDateStr(new Date())}.json`; a.click(); showToast('エクスポート完了'); }
+function importData() { document.getElementById('importFile').click(); }
+function handleImport(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(ev) { const data = JSON.parse(ev.target.result); tasks = data.tasks || []; saveToLocal(); renderAll(); showToast('インポート成功'); }; reader.readAsText(file); }
+function clearAllData() { if (confirm('全てのデータを削除しますか？')) { tasks = []; saveToLocal(); renderAll(); toggleSettings(); showToast('データクリア'); } }
 
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
-}
-
-function toggleSettings() {
-  document.getElementById('settingsPanel').classList.toggle('show');
-  document.getElementById('overlay').classList.toggle('show');
-}
-
-function saveToLocal() {
-  localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, history }));
-}
-
-function loadFromLocal() {
-  const saved = localStorage.getItem('study_tracker_data');
-  if (saved) {
-    const data = JSON.parse(saved);
-    tasks = data.tasks || [];
-    history = data.history || {};
-  }
-}
-
-function exportData() {
-  const data = { tasks, history };
-  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `学習記録_${getDateStr(new Date())}.json`;
-  a.click();
-  showToast('エクスポート完了');
-}
-
-function importData() {
-  document.getElementById('importFile').click();
-}
-
-function handleImport(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const data = JSON.parse(ev.target.result);
-    tasks = data.tasks || [];
-    history = data.history || {};
-    saveToLocal();
-    renderAll();
-    showToast('インポート成功');
-  };
-  reader.readAsText(file);
-}
-
-function clearAllData() {
-  if (confirm('⚠️ 全てのデータを削除しますか？')) {
-    tasks = [];
-    history = {};
-    saveToLocal();
-    renderAll();
-    toggleSettings();
-    showToast('データをクリアしました');
-  }
-}
-
-// ---------- 核心状态: 根据某一天的任务计算应显示的图标准则 ----------
-// 规则:
-// - 当天没有任务 -> 普通无图标
-// - 当天有1个任务: 完成则显示笑脸😊；未完成显示橙色背景数字
-// - 当天有2个及以上任务: 
-//     完成0个 -> 橙色背景数字
-//     完成1个（且非全部完成） -> 太极图☯ (旋转90度)
-//     完成2个及以上且全部完成 -> 笑脸😊
-//     完成部分且完成数量>=1但未全部完成 -> 太极图
-function getDayStatus(dateStr) {
+// 计算某一天的完成比例 (返回 0, 0.25, 0.5, 0.75, 1)
+function getCompletionRatio(dateStr) {
   const dayTasks = tasks.filter(t => t.date === dateStr);
-  if (dayTasks.length === 0) return { type: 'none', doneCount: 0, total: 0 };
-  
-  const total = dayTasks.length;
+  if (dayTasks.length === 0) return 0;
   const doneCount = dayTasks.filter(t => t.done).length;
-  
-  // 单个任务逻辑
-  if (total === 1) {
-    if (doneCount === 1) return { type: 'smile', doneCount, total };
-    else return { type: 'pending', doneCount, total };
-  }
-  
-  // 多个任务(>=2)
-  if (doneCount === 0) return { type: 'pending', doneCount, total };
-  if (doneCount === total) return { type: 'smile', doneCount, total };
-  // 至少完成一个但不是全部完成 -> 太极
-  return { type: 'taiji', doneCount, total };
-}
-
-// 更新history兼容连续学习计算
-function rebuildHistory() {
-  const allDates = [...new Set(tasks.map(t => t.date))];
-  allDates.forEach(date => {
-    const status = getDayStatus(date);
-    if (status.type === 'smile') {
-      history[date] = 1;
-    } else if (status.type === 'taiji' || (status.type === 'pending' && status.doneCount > 0)) {
-      history[date] = 0.5;
-    } else if (status.type === 'pending' && status.doneCount === 0 && status.total > 0) {
-      history[date] = 0.5;
-    } else {
-      if (history[date]) delete history[date];
-    }
-  });
-  // 清理无任务日期
-  Object.keys(history).forEach(date => {
-    if (tasks.filter(t => t.date === date).length === 0) delete history[date];
-  });
+  const ratio = doneCount / dayTasks.length;
+  if (ratio === 0) return 0;
+  if (ratio <= 0.3) return 0.25;   // 三分之一及以下 -> 1/4
+  if (ratio <= 0.6) return 0.5;    // 半完成
+  if (ratio < 1) return 0.75;      // 三分之二 ~ 四分之三
+  return 1;
 }
 
 function addTask() {
   const text = document.getElementById("taskInput").value.trim();
   const range = parseInt(document.getElementById("rangeSelect").value);
-  if (!text) {
-    showToast("タスクを入力してください");
-    return;
-  }
-  
+  if (!text) { showToast("タスクを入力してください"); return; }
   for (let i = 0; i < range; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
+    const d = new Date(); d.setDate(d.getDate() + i);
     const dateStr = getDateStr(d);
     if (!tasks.some(t => t.text === text && t.date === dateStr)) {
       tasks.push({ id: Date.now() + '-' + i + '-' + Math.random(), text, date: dateStr, done: false });
     }
   }
-  rebuildHistory();
-  saveToLocal();
-  renderAll();
-  document.getElementById("taskInput").value = '';
-  showToast(range===999 ? '毎日タスクを追加' : `${range}日間タスク追加`);
+  saveToLocal(); renderAll(); document.getElementById("taskInput").value = ''; showToast(range===999 ? '毎日タスク追加' : `${range}日間追加`);
 }
 
-// 删除任务进阶: 弹窗选择 删除今天及以后 / 全部删除 / 取消
 function deleteTaskWithDialog(taskId) {
   const targetTask = tasks.find(t => t.id === taskId);
   if (!targetTask) return;
-  
-  const currentDateStr = targetTask.date;
-  const taskText = targetTask.text;
-  
-  // 寻找相同文本的所有任务，按日期排序
-  const sameTextTasks = tasks.filter(t => t.text === taskText).sort((a,b) => a.date.localeCompare(b.date));
+  const sameTextTasks = tasks.filter(t => t.text === targetTask.text).sort((a,b) => a.date.localeCompare(b.date));
   if (sameTextTasks.length <= 1) {
     tasks = tasks.filter(t => t.id !== taskId);
-    rebuildHistory();
-    saveToLocal();
-    renderAll();
-    showToast(`「${taskText}」を削除しました`);
+    saveToLocal(); renderAll(); showToast(`「${targetTask.text}」を削除`);
     return;
   }
-  
-  // 找到日期 >= 当前任务日期的相同任务（今天及以后）
-  const futureTasks = sameTextTasks.filter(t => t.date >= currentDateStr);
-  if (futureTasks.length === 0) {
-    tasks = tasks.filter(t => t.id !== taskId);
-    rebuildHistory();
-    saveToLocal();
-    renderAll();
-    showToast(`「${taskText}」を削除`);
-    return;
-  }
-  
-  // 使用原生confirm模拟三个选项: 先弹第一个询问，选择后再决定真实操作
-  const choice = confirm(`「${taskText}」の削除オプション:\n\n【OK】今日以降の ${futureTasks.length}件 を削除\n【キャンセル】さらに選択肢へ`);
+  const futureTasks = sameTextTasks.filter(t => t.date >= targetTask.date);
+  const choice = confirm(`「${targetTask.text}」\n【OK】今日以降(${futureTasks.length}件)削除\n【キャンセル】全削除選択へ`);
   if (choice) {
-    // 删除今天及以后所有相同任务
-    tasks = tasks.filter(t => !(t.text === taskText && t.date >= currentDateStr));
-    rebuildHistory();
-    saveToLocal();
-    renderAll();
-    showToast(`今日以降の「${taskText}」を削除しました`);
+    tasks = tasks.filter(t => !(t.text === targetTask.text && t.date >= targetTask.date));
+    saveToLocal(); renderAll(); showToast(`今日以降のタスクを削除`);
   } else {
-    // 第二层选择: 全部删除 或 取消
-    const delAll = confirm(`全ての「${taskText}」タスクを削除しますか？\n(全${sameTextTasks.length}件)\n\nOK → 全部削除\nキャンセル → 削除中止`);
-    if (delAll) {
-      tasks = tasks.filter(t => t.text !== taskText);
-      rebuildHistory();
-      saveToLocal();
-      renderAll();
-      showToast(`全ての「${taskText}」を削除しました`);
-    } else {
-      showToast("削除キャンセル");
-    }
+    if (confirm(`全ての「${targetTask.text}」(${sameTextTasks.length}件)を削除しますか？`)) {
+      tasks = tasks.filter(t => t.text !== targetTask.text);
+      saveToLocal(); renderAll(); showToast(`全て削除しました`);
+    } else showToast("キャンセル");
   }
 }
-
-function deleteTaskHandler(id) {
-  deleteTaskWithDialog(id);
-}
-
-function toggleTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (task) {
-    task.done = !task.done;
-    rebuildHistory();
-    saveToLocal();
-    renderAll();
-  }
-}
-
-function renderTasks() {
-  const list = tasks.filter(t => t.date === selectedDate);
-  const container = document.getElementById('taskList');
-  const todayStr = getDateStr(new Date());
-  const displayDate = selectedDate === todayStr ? '📋 今日のタスク' : `📋 ${new Date(selectedDate).getMonth()+1}月${new Date(selectedDate).getDate()}日タスク`;
-  document.getElementById('taskTitle').innerHTML = displayDate;
-  
-  if (list.length === 0) {
-    container.innerHTML = '<div class="empty-tasks">✨ タスクがありません。追加してください</div>';
-    return;
-  }
-  container.innerHTML = list.map(task => `
-    <div class="task-item">
-      <div class="task-left">
-        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
-        <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
-      </div>
-      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">削除</button>
-    </div>
-  `).join('');
-}
-
-function escapeHtml(str) {
-  return str.replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
-}
-
-function renderStats() {
-  document.getElementById('totalTasks').textContent = tasks.length;
-  document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
-  let streak = 0;
-  let d = new Date();
-  while (true) {
-    const dateStr = getDateStr(d);
-    const status = getDayStatus(dateStr);
-    if (status.type === 'smile') {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    } else break;
-  }
-  document.getElementById('streak').textContent = streak;
-}
+function deleteTaskHandler(id) { deleteTaskWithDialog(id); }
+function toggleTask(id) { const task = tasks.find(t => t.id === id); if (task) { task.done = !task.done; saveToLocal(); renderAll(); } }
+function renderTasks() { const list = tasks.filter(t => t.date === selectedDate); const container = document.getElementById('taskList'); const todayStr = getDateStr(new Date()); document.getElementById('taskTitle').innerHTML = selectedDate === todayStr ? '📋 今日のタスク' : `📋 ${new Date(selectedDate).getMonth()+1}/${new Date(selectedDate).getDate()}`; if (list.length === 0) { container.innerHTML = '<div class="empty-tasks">✨ タスクがありません</div>'; return; } container.innerHTML = list.map(task => `<div class="task-item"><div class="task-left"><input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')"><span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span></div><button class="delete-task" onclick="deleteTaskHandler('${task.id}')">削除</button></div>`).join(''); }
+function escapeHtml(str) { return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+function renderStats() { document.getElementById('totalTasks').textContent = tasks.length; document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length; let streak = 0, d = new Date(); while (true) { const ratio = getCompletionRatio(getDateStr(d)); if (ratio === 1) { streak++; d.setDate(d.getDate() - 1); } else break; } document.getElementById('streak').textContent = streak; }
 
 function renderCalendar() {
-  const cal = document.getElementById('calendar');
-  const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth();
+  const cal = document.getElementById('calendar'); const now = new Date(); const year = now.getFullYear(), month = now.getMonth();
   document.getElementById('calendarTitle').innerHTML = `📅 ${year}年 ${month+1}月`;
-  
   const week = ['日', '月', '火', '水', '木', '金', '土'];
   cal.innerHTML = week.map(w => `<div class="day header">${w}</div>`).join('');
-  
-  const firstDay = new Date(year, month, 1).getDay();
-  const days = new Date(year, month + 1, 0).getDate();
-  
-  for (let i = 0; i < firstDay; i++) {
-    const emptyDiv = document.createElement('div');
-    emptyDiv.className = 'day empty';
-    cal.appendChild(emptyDiv);
-  }
-  
+  const firstDay = new Date(year, month, 1).getDay(); const days = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < firstDay; i++) { const emptyDiv = document.createElement('div'); emptyDiv.className = 'day ratio-0'; cal.appendChild(emptyDiv); }
   for (let i = 1; i <= days; i++) {
-    const d = new Date(year, month, i);
-    const key = getDateStr(d);
-    const status = getDayStatus(key);
-    const holidayName = getHolidayName(key);
-    const div = document.createElement('div');
-    div.className = 'day';
-    
-    // ========== 优先处理任务图标规则 (笑脸/太极) ==========
-    if (status.type === 'smile') {
-      div.classList.add('icon-smile');
-      div.classList.add('full');
-    } else if (status.type === 'taiji') {
-      div.classList.add('icon-taiji');
-      div.classList.add('full');
-    } else if (status.type === 'pending') {
-      div.classList.add('partial');
-      div.textContent = i;
-    } else {
-      div.classList.add('empty');
-      div.textContent = i;
-    }
-    
-    // 如果图标模式挤掉了数字，要保证标题没有多余文本
-    if ((status.type === 'smile' || status.type === 'taiji') && div.textContent) {
-      div.textContent = '';
-    }
-    
-    // 添加节假日粉红背景 (优先级: 保持图标底色基础上再覆盖节假日粉红，但如果已经绿底笑脸可保留粉红叠加? 为了视觉，粉色作为节日提醒)
-    if (holidayName) {
-      div.classList.add('holiday');
-      // 如果单元格还不是图标模式也没有数字的空白情况，需要补数字
-      if (!div.textContent && !div.classList.contains('icon-smile') && !div.classList.contains('icon-taiji')) {
-        div.textContent = i;
-      }
-      const labelSpan = document.createElement('span');
-      labelSpan.className = 'holiday-label';
-      labelSpan.textContent = holidayName;
-      div.appendChild(labelSpan);
-    }
-    
+    const d = new Date(year, month, i); const key = getDateStr(d); const ratio = getCompletionRatio(key); const holidayName = getHolidayName(key);
+    const div = document.createElement('div'); div.className = 'day';
+    let ratioClass = 'ratio-0'; if (ratio === 0) ratioClass = 'ratio-0'; else if (ratio === 0.25) ratioClass = 'ratio-25'; else if (ratio === 0.5) ratioClass = 'ratio-50'; else if (ratio === 0.75) ratioClass = 'ratio-75'; else if (ratio === 1) ratioClass = 'ratio-100';
+    div.classList.add(ratioClass);
+    div.textContent = i;
+    if (holidayName) { div.classList.add('holiday'); const labelSpan = document.createElement('span'); labelSpan.className = 'holiday-label'; labelSpan.textContent = holidayName; div.appendChild(labelSpan); }
     if (key === getDateStr(new Date())) div.classList.add('today');
-    if (!div.classList.contains('icon-smile') && !div.classList.contains('icon-taiji') && !div.textContent) {
-      div.textContent = i;
-    }
-    
     div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); renderCalendar(); }; })(key);
     cal.appendChild(div);
   }
 }
 
-function renderAll() {
-  rebuildHistory();
-  renderCalendar();
-  renderTasks();
-  renderStats();
-}
+function renderAll() { renderCalendar(); renderTasks(); renderStats(); }
 
-// ========== 初始化示例任务 ==========
 loadFromLocal();
-if (tasks.length === 0) {
-  const today = getDateStr(new Date());
-  tasks.push({ id: 'demo1', text: '📖 読書', date: today, done: false });
-  tasks.push({ id: 'demo2', text: '💻 プログラミング練習', date: today, done: false });
-  saveToLocal();
-}
-rebuildHistory();
+if (tasks.length === 0) { const today = getDateStr(new Date()); tasks.push({ id: 'demo1', text: '📖 読書', date: today, done: false }, { id: 'demo2', text: '💻 プログラミング', date: today, done: false }); saveToLocal(); }
 renderAll();
 document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
