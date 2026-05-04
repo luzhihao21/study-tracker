@@ -82,7 +82,7 @@ body {
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   color: #555;
-  background: #e0e0e0;
+  background: #eeeeee;
 }
 .day:hover { transform: scale(1.05); }
 
@@ -96,90 +96,6 @@ body {
 }
 .day.header:hover { transform: none; }
 
-/* ratio-0: 无任务或0%完成 → 纯灰 */
-.day.ratio-0 {
-  background: #eeeeee;
-  color: #aaa;
-}
-
-/* ratio-100: 全完成 → 纯深绿 */
-.day.ratio-100 {
-  background: #2e7d32;
-  color: white;
-}
-
-/* ratio-50: 50% → 对角线左下绿，右上灰 */
-.day.ratio-50 {
-  background: linear-gradient(135deg, #66bb6a 50%, #e0e0e0 50%);
-  color: #333;
-}
-
-/* ratio-33: ~33% → 左1/3绿，右2/3灰 */
-.day.ratio-33 {
-  background: linear-gradient(to right, #66bb6a 33.3%, #e0e0e0 33.3%);
-  color: #333;
-}
-
-/* ratio-67: ~67% → 左2/3绿，右1/3灰 */
-.day.ratio-67 {
-  background: linear-gradient(to right, #66bb6a 66.6%, #e0e0e0 66.6%);
-  color: #fff;
-}
-
-/* ratio-25: 25% → 田字格，左上1格绿 */
-.day.ratio-25 {
-  background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%);
-  position: relative;
-}
-.day.ratio-25::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 50%;
-  width: 100%; height: 50%;
-  background: #e0e0e0;
-  pointer-events: none;
-}
-
-/* ratio-75: 75% → 田字格，右下1格灰 */
-.day.ratio-75 {
-  background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%);
-  position: relative;
-}
-.day.ratio-75::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 50%;
-  width: 50%; height: 50%;
-  background: #66bb6a;
-  pointer-events: none;
-}
-
-/* 田字格分割线 */
-.day.ratio-25::after,
-.day.ratio-75::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
-  pointer-events: none;
-  border-radius: 10px;
-}
-
-/* 三分竖线 */
-.day.ratio-33::after,
-.day.ratio-67::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
-    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
-  pointer-events: none;
-  border-radius: 10px;
-}
-
 /* 今天高亮 */
 .today {
   outline: 2.5px solid #1565c0;
@@ -187,13 +103,43 @@ body {
   font-weight: bold;
 }
 
-/* 选中日期高亮 */
+/* 选中日期 */
 .day.selected-day {
   outline: 2.5px solid #e91e63;
   outline-offset: 1px;
 }
 
-/* 节假日图标（用span避免与::after冲突） */
+/* 全完成 */
+.day.ratio-100 {
+  background: #2e7d32 !important;
+  color: white;
+}
+
+/* 无任务 */
+.day.ratio-0 {
+  background: #eeeeee;
+  color: #aaa;
+}
+
+/* 进度条填充层（::before） */
+.day .progress-fill {
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  background: #66bb6a;
+  border-radius: 10px 0 0 10px;
+  z-index: 0;
+  transition: width 0.3s ease;
+}
+
+/* 4个以内：分格线（::after） */
+.day.split-2 .progress-fill,
+.day.split-3 .progress-fill,
+.day.split-4 .progress-fill {
+  border-radius: 10px 0 0 10px;
+}
+
+/* 节假日图标 */
 .holiday-icon {
   position: absolute;
   top: 0px;
@@ -222,10 +168,21 @@ body {
   z-index: 10;
 }
 
+/* 分格线叠加层 */
+.day .split-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+/* 日期数字 */
 .day-num {
   position: relative;
   z-index: 5;
   line-height: 1;
+  mix-blend-mode: normal;
 }
 
 .month-title {
@@ -252,15 +209,20 @@ body {
   gap: 4px;
 }
 .legend-dot {
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 14px;
   border-radius: 4px;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  background: #eeeeee;
 }
-.legend-dot.l0   { background: #eeeeee; }
-.legend-dot.l25  { background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%); }
-.legend-dot.l50  { background: linear-gradient(135deg, #66bb6a 50%, #e0e0e0 50%); }
-.legend-dot.l75  { background: linear-gradient(to right, #66bb6a 66.6%, #e0e0e0 66.6%); }
+.legend-dot .ld-fill {
+  position: absolute;
+  left: 0; top: 0; height: 100%;
+  background: #66bb6a;
+  border-radius: 4px 0 0 4px;
+}
 .legend-dot.l100 { background: #2e7d32; }
 
 /* ===== 任务列表 ===== */
@@ -526,7 +488,7 @@ const locales = {
     addSuccess:(range)=>range===999?"已添加每天任务":`已添加${range}天任务`,
     importSuccess:"导入成功", exportSuccess:"已导出",
     clearConfirm:"⚠️ 确认清空所有任务记录？", clearSuccess:"已清空",
-    legend:["无任务","25%","50%","67%","完成"],
+    legend:["无任务","进行中","完成"],
   },
   en: {
     appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
@@ -546,7 +508,7 @@ const locales = {
     addSuccess:(range)=>range===999?"Added everyday task":`Added ${range} days task`,
     importSuccess:"Import successful", exportSuccess:"Exported",
     clearConfirm:"⚠️ Clear all tasks?", clearSuccess:"Cleared",
-    legend:["None","25%","50%","67%","Done"],
+    legend:["None","In progress","Done"],
   },
   ja: {
     appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
@@ -566,14 +528,13 @@ const locales = {
     addSuccess:(range)=>range===999?"毎日タスクを追加":`${range}日間追加`,
     importSuccess:"インポート成功", exportSuccess:"エクスポート完了",
     clearConfirm:"全てのデータを削除しますか？", clearSuccess:"データクリア",
-    legend:["なし","25%","50%","67%","完了"],
+    legend:["なし","進行中","完了"],
   }
 };
 
 let currentLang = 'zh';
 let tasks = [];
 
-// ★ 本地时区日期字符串，避免时区偏移
 function getDateStr(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -583,24 +544,111 @@ function getDateStr(d) {
 
 let selectedDate = getDateStr(new Date());
 
-// ======================== 完成比例 → CSS 类名 ========================
-function getRatioClass(dateStr) {
+// ======================== 核心：计算完成比例和任务数 ========================
+function getDayInfo(dateStr) {
   const dayTasks = tasks.filter(t => t.date === dateStr);
-  if (dayTasks.length === 0) return 'ratio-0';
-  const doneCount = dayTasks.filter(t => t.done).length;
-  const ratio = doneCount / dayTasks.length;
-  if (ratio === 0)   return 'ratio-0';
-  if (ratio === 1)   return 'ratio-100';
-  if (ratio <= 0.30) return 'ratio-25';
-  if (ratio <= 0.58) return 'ratio-50';
-  if (ratio <= 0.83) return 'ratio-67';
-  return 'ratio-75';
+  const total = dayTasks.length;
+  if (total === 0) return { total: 0, done: 0, ratio: 0 };
+  const done = dayTasks.filter(t => t.done).length;
+  return { total, done, ratio: done / total };
 }
 
 function isFullDone(dateStr) {
-  const dayTasks = tasks.filter(t => t.date === dateStr);
-  if (dayTasks.length === 0) return false;
-  return dayTasks.every(t => t.done);
+  const { total, done } = getDayInfo(dateStr);
+  return total > 0 && done === total;
+}
+
+// ======================== 渲染单个日历格子 ========================
+function buildDayCell(key, dayNum, todayStr) {
+  const { total, done, ratio } = getDayInfo(key);
+  const holidayName = getHolidayName(key);
+
+  const div = document.createElement('div');
+  div.className = 'day';
+
+  if (total === 0) {
+    // 无任务：纯灰
+    div.classList.add('ratio-0');
+  } else if (ratio === 1) {
+    // 全完成：纯深绿
+    div.classList.add('ratio-100');
+  } else if (total <= 4) {
+    // ≤4个任务：分格线视觉（用进度条 + 分格线叠加）
+    div.style.background = '#eeeeee';
+
+    // 进度条填充
+    const fill = document.createElement('div');
+    fill.className = 'progress-fill';
+    fill.style.width = (ratio * 100) + '%';
+    // 完成0格时不显示填充
+    if (done === 0) fill.style.width = '0%';
+    div.appendChild(fill);
+
+    // 分格线（SVG inline）
+    const linesDiv = document.createElement('div');
+    linesDiv.className = 'split-lines';
+    const positions = [];
+    for (let i = 1; i < total; i++) {
+      positions.push(((i / total) * 100).toFixed(1) + '%');
+    }
+    // 用 SVG 画竖线
+    const svgLines = positions.map(p =>
+      `<line x1="${p}" y1="0" x2="${p}" y2="100%" stroke="rgba(255,255,255,0.75)" stroke-width="1.2"/>`
+    ).join('');
+    linesDiv.innerHTML = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">${svgLines}</svg>`;
+    div.appendChild(linesDiv);
+
+  } else {
+    // >4个任务：纯进度条，无分格线
+    div.style.background = '#eeeeee';
+    const fill = document.createElement('div');
+    fill.className = 'progress-fill';
+    fill.style.width = (ratio * 100) + '%';
+    if (done > 0 && ratio < 1) {
+      // 右侧圆角去掉，左侧保留
+      fill.style.borderRadius = '10px 0 0 10px';
+    }
+    div.appendChild(fill);
+  }
+
+  // 节假日
+  if (holidayName) {
+    const icon = document.createElement('span');
+    icon.className = 'holiday-icon';
+    icon.textContent = '🌸';
+    div.appendChild(icon);
+    const label = document.createElement('span');
+    label.className = 'holiday-label';
+    label.textContent = holidayName;
+    div.appendChild(label);
+  }
+
+  // 日期数字
+  const numSpan = document.createElement('span');
+  numSpan.className = 'day-num';
+  numSpan.textContent = dayNum;
+  // 深色背景时文字白色
+  if (ratio === 1) {
+    numSpan.style.color = 'white';
+  } else if (ratio >= 0.6) {
+    numSpan.style.color = 'white';
+  } else {
+    numSpan.style.color = '#444';
+  }
+  div.appendChild(numSpan);
+
+  if (key === todayStr) div.classList.add('today');
+  if (key === selectedDate) div.classList.add('selected-day');
+
+  div.onclick = (function(dateKey) {
+    return function() {
+      selectedDate = dateKey;
+      renderTasks();
+      renderCalendar();
+    };
+  })(key);
+
+  return div;
 }
 
 function showToast(msg) {
@@ -732,7 +780,6 @@ function toggleTask(id) {
   if (task) { task.done = !task.done; saveToLocal(); renderAll(); }
 }
 
-// ★ 修复：直接用 selectedDate 字符串，拆分月日，不经过 Date 对象
 function renderTasks() {
   const list = tasks.filter(t => t.date === selectedDate);
   const container = document.getElementById('taskList');
@@ -782,16 +829,22 @@ function renderStats() {
 
 function renderLegend() {
   const t = locales[currentLang];
-  const items = [
-    { cls: 'l0',   label: t.legend[0] },
-    { cls: 'l25',  label: t.legend[1] },
-    { cls: 'l50',  label: t.legend[2] },
-    { cls: 'l75',  label: t.legend[3] },
-    { cls: 'l100', label: t.legend[4] },
-  ];
-  document.getElementById('legendArea').innerHTML = items.map(i =>
-    `<div class="legend-item"><div class="legend-dot ${i.cls}"></div><span>${i.label}</span></div>`
-  ).join('');
+  document.getElementById('legendArea').innerHTML = `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#eeeeee;"></div>
+      <span>${t.legend[0]}</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#eeeeee; position:relative; overflow:hidden;">
+        <div class="ld-fill" style="width:50%;"></div>
+      </div>
+      <span>${t.legend[1]}</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#2e7d32;"></div>
+      <span>${t.legend[2]}</span>
+    </div>
+  `;
 }
 
 function renderCalendar() {
@@ -816,43 +869,8 @@ function renderCalendar() {
   }
 
   for (let i = 1; i <= daysInMonth; i++) {
-    // ★ 修复：直接拼字符串，不经过 Date 转换，彻底避免时区偏移
     const key = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-    const ratioClass = getRatioClass(key);
-    const holidayName = getHolidayName(key);
-
-    const div = document.createElement('div');
-    div.className = `day ${ratioClass}`;
-
-    if (holidayName) {
-      div.classList.add('holiday');
-      const icon = document.createElement('span');
-      icon.className = 'holiday-icon';
-      icon.textContent = '🌸';
-      div.appendChild(icon);
-      const label = document.createElement('span');
-      label.className = 'holiday-label';
-      label.textContent = holidayName;
-      div.appendChild(label);
-    }
-
-    const numSpan = document.createElement('span');
-    numSpan.className = 'day-num';
-    numSpan.textContent = i;
-    div.appendChild(numSpan);
-
-    if (key === todayStr) div.classList.add('today');
-    if (key === selectedDate) div.classList.add('selected-day');
-
-    div.onclick = (function(dateKey) {
-      return function() {
-        selectedDate = dateKey;
-        renderTasks();
-        renderCalendar();
-      };
-    })(key);
-
-    cal.appendChild(div);
+    cal.appendChild(buildDayCell(key, i, todayStr));
   }
 }
 
