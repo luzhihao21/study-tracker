@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-<title>学习进度表 · 多语言热力图</title>
+<title>学习进度表 · 比例热力图</title>
 
 <style>
 * {
@@ -478,6 +478,7 @@ const locales = {
     completedLabel: "已完成",
     streakLabel: "连续学习",
     emptyTasks: "✨ 暂无任务",
+    deleteBtn: "删除",
     deleteConfirmFuture: (text, count) => `「${text}」\n【确定】删除今天及以后 (${count}个任务)\n【取消】继续选择`,
     deleteConfirmAll: (text, count) => `是否删除全部「${text}」 (共${count}个任务)？`,
     deleteCancel: "已取消",
@@ -490,7 +491,6 @@ const locales = {
     exportSuccess: "已导出",
     clearConfirm: "⚠️ 确认清空所有任务记录？",
     clearSuccess: "已清空",
-    holidayPrefix: "",
     toastDataCleared: "数据已清空"
   },
   en: {
@@ -514,6 +514,7 @@ const locales = {
     completedLabel: "Completed",
     streakLabel: "Streak",
     emptyTasks: "✨ No tasks",
+    deleteBtn: "Delete",
     deleteConfirmFuture: (text, count) => `「${text}」\n[OK] Delete today & future (${count} tasks)\n[Cancel] More options`,
     deleteConfirmAll: (text, count) => `Delete ALL 「${text}」 (${count} tasks)?`,
     deleteCancel: "Cancelled",
@@ -526,7 +527,6 @@ const locales = {
     exportSuccess: "Exported",
     clearConfirm: "⚠️ Clear all tasks?",
     clearSuccess: "Cleared",
-    holidayPrefix: "",
     toastDataCleared: "Data cleared"
   },
   ja: {
@@ -550,6 +550,7 @@ const locales = {
     completedLabel: "完了済み",
     streakLabel: "連続学習",
     emptyTasks: "✨ タスクがありません",
+    deleteBtn: "削除",
     deleteConfirmFuture: (text, count) => `「${text}」\n【OK】今日以降(${count}件)削除\n【キャンセル】全削除選択へ`,
     deleteConfirmAll: (text, count) => `全ての「${text}」(${count}件)を削除しますか？`,
     deleteCancel: "キャンセル",
@@ -562,7 +563,6 @@ const locales = {
     exportSuccess: "エクスポート完了",
     clearConfirm: "全てのデータを削除しますか？",
     clearSuccess: "データクリア",
-    holidayPrefix: "",
     toastDataCleared: "データをクリアしました"
   }
 };
@@ -571,16 +571,20 @@ let currentLang = 'zh';
 let tasks = [];
 let selectedDate = getDateStr(new Date());
 
-function getDateStr(d) { return d.toISOString().split("T")[0]; }
+function getDateStr(d) { 
+  return d.toISOString().split("T")[0]; 
+}
 
+// 关键修复：获取完成比例（精确到 0%, 25%, 50%, 75%, 100%）
 function getCompletionRatio(dateStr) {
   const dayTasks = tasks.filter(t => t.date === dateStr);
   if (dayTasks.length === 0) return 0;
   const doneCount = dayTasks.filter(t => t.done).length;
   const ratio = doneCount / dayTasks.length;
+  // 按比例分级显示热力图颜色
   if (ratio === 0) return 0;
-  if (ratio <= 0.3) return 0.25;
-  if (ratio <= 0.6) return 0.5;
+  if (ratio <= 0.25) return 0.25;
+  if (ratio <= 0.5) return 0.5;
   if (ratio < 1) return 0.75;
   return 1;
 }
@@ -647,7 +651,6 @@ function setLanguage(lang) {
   saveToLocal();
   applyLanguage();
   renderAll();
-  // 更新设置面板中激活按钮样式
   document.querySelectorAll('.lang-btn').forEach(btn => {
     if (btn.dataset.lang === lang) btn.classList.add('active');
     else btn.classList.remove('active');
@@ -680,13 +683,17 @@ function addTask() {
   const t = locales[currentLang];
   if (!text) { showToast(t.taskEmptyWarning); return; }
   for (let i = 0; i < range; i++) {
-    const d = new Date(); d.setDate(d.getDate() + i);
+    const d = new Date(); 
+    d.setDate(d.getDate() + i);
     const dateStr = getDateStr(d);
-    if (!tasks.some(t => t.text === text && t.date === dateStr)) {
+    if (!tasks.some(task => task.text === text && task.date === dateStr)) {
       tasks.push({ id: Date.now() + '-' + i + '-' + Math.random(), text, date: dateStr, done: false });
     }
   }
-  saveToLocal(); renderAll(); document.getElementById("taskInput").value = ''; showToast(t.addSuccess(range));
+  saveToLocal(); 
+  renderAll(); 
+  document.getElementById("taskInput").value = ''; 
+  showToast(t.addSuccess(range));
 }
 
 function deleteTaskWithDialog(taskId) {
@@ -712,9 +719,17 @@ function deleteTaskWithDialog(taskId) {
   }
 }
 function deleteTaskHandler(id) { deleteTaskWithDialog(id); }
-function toggleTask(id) { const task = tasks.find(t => t.id === id); if (task) { task.done = !task.done; saveToLocal(); renderAll(); } }
+function toggleTask(id) { 
+  const task = tasks.find(t => t.id === id); 
+  if (task) { 
+    task.done = !task.done; 
+    saveToLocal(); 
+    renderAll(); 
+  } 
+}
 
 function renderTasks() {
+  // 关键修复：确保 selectedDate 对应的任务正确显示
   const list = tasks.filter(t => t.date === selectedDate);
   const container = document.getElementById('taskList');
   const todayStr = getDateStr(new Date());
@@ -735,12 +750,19 @@ function renderTasks() {
         <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask('${task.id}')">
         <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
       </div>
-      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">${t.deleteBtn || '删除'}</button>
+      <button class="delete-task" onclick="deleteTaskHandler('${task.id}')">${t.deleteBtn}</button>
     </div>
   `).join('');
 }
 
-function escapeHtml(str) { return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+function escapeHtml(str) { 
+  return str.replace(/[&<>]/g, function(m) { 
+    if (m === '&') return '&amp;'; 
+    if (m === '<') return '&lt;'; 
+    if (m === '>') return '&gt;'; 
+    return m; 
+  }); 
+}
 
 function renderStats() {
   document.getElementById('totalTasks').textContent = tasks.length;
@@ -748,8 +770,10 @@ function renderStats() {
   let streak = 0, d = new Date();
   while (true) {
     const ratio = getCompletionRatio(getDateStr(d));
-    if (ratio === 1) { streak++; d.setDate(d.getDate() - 1); }
-    else break;
+    if (ratio === 1) { 
+      streak++; 
+      d.setDate(d.getDate() - 1); 
+    } else break;
   }
   document.getElementById('streak').textContent = streak;
 }
@@ -763,7 +787,11 @@ function renderCalendar() {
   cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
   const firstDay = new Date(year, month, 1).getDay();
   const days = new Date(year, month + 1, 0).getDate();
-  for (let i = 0; i < firstDay; i++) { const emptyDiv = document.createElement('div'); emptyDiv.className = 'day ratio-0'; cal.appendChild(emptyDiv); }
+  for (let i = 0; i < firstDay; i++) { 
+    const emptyDiv = document.createElement('div'); 
+    emptyDiv.className = 'day ratio-0'; 
+    cal.appendChild(emptyDiv); 
+  }
   for (let i = 1; i <= days; i++) {
     const d = new Date(year, month, i);
     const key = getDateStr(d);
@@ -787,7 +815,14 @@ function renderCalendar() {
       div.appendChild(labelSpan);
     }
     if (key === getDateStr(new Date())) div.classList.add('today');
-    div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); renderCalendar(); }; })(key);
+    // 关键修复：使用闭包正确捕获 key，确保点击跳转到正确日期
+    div.onclick = (function(dateKey) { 
+      return function() { 
+        selectedDate = dateKey; 
+        renderTasks(); 
+        renderCalendar(); 
+      }; 
+    })(key);
     cal.appendChild(div);
   }
 }
@@ -807,7 +842,6 @@ if (tasks.length === 0) {
   saveToLocal();
 }
 applyLanguage();
-// 设置激活语言按钮样式
 document.querySelectorAll('.lang-btn').forEach(btn => {
   if (btn.dataset.lang === currentLang) btn.classList.add('active');
 });
