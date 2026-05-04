@@ -6,7 +6,9 @@
 <title>学习进度表</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -14,8 +16,10 @@ body {
   padding: 12px;
   background: #f5f7fa;
   min-height: 100vh;
+  /* 关键：移除 max-width 限制，让内容自适应 */
 }
 
+/* 所有卡片自适应宽度 */
 .card {
   background: white;
   padding: 15px 12px;
@@ -23,9 +27,10 @@ body {
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   width: 100%;
-  overflow-x: auto;
+  overflow-x: auto; /* 允许横向滚动作为后备方案 */
 }
 
+/* 热力图容器 - 关键修复 */
 .calendar-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -38,9 +43,52 @@ body {
   grid-template-columns: repeat(7, minmax(40px, 1fr));
   gap: 4px;
   margin-top: 10px;
-  min-width: 280px;
+  min-width: 280px; /* 保证最小宽度 */
 }
 
+/* 手机端小屏调整 */
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+  .card {
+    padding: 12px 10px;
+  }
+  .calendar {
+    grid-template-columns: repeat(7, minmax(36px, 1fr));
+    gap: 3px;
+  }
+  .day {
+    font-size: 11px;
+  }
+  .task-text {
+    font-size: 14px;
+  }
+  .delete-task {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  .stat-number {
+    font-size: 22px;
+  }
+  .input-group input,
+  .input-group select,
+  .input-group button {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .calendar {
+    grid-template-columns: repeat(7, minmax(32px, 1fr));
+    gap: 2px;
+  }
+  .day {
+    font-size: 10px;
+  }
+}
+
+/* 其他样式保持不变 */
 .day {
   aspect-ratio: 1;
   text-align: center;
@@ -52,37 +100,41 @@ body {
   transition: transform 0.1s, background 0.2s;
   font-weight: 500;
 }
-
-.day:hover { transform: scale(1.05); }
-
-.full { background: #4caf50; color: white; }
-.partial { background: #ff9800; color: white; }
-.empty { background: #e8e8e8; color: #666; }
-
+.day:hover {
+  transform: scale(1.05);
+}
+.full {
+  background: #4caf50;
+  color: white;
+}
+.partial {
+  background: #ff9800;
+  color: white;
+}
+.empty {
+  background: #e8e8e8;
+  color: #666;
+}
 .header {
   font-weight: bold;
   background: #d0d0d0;
-  color: #333;
   cursor: default;
-
-  /* ⭐关键修复：居中 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #333;
 }
-
+.header:hover {
+  transform: none;
+}
 .today {
   border: 2px solid #2196f3;
   font-weight: bold;
 }
-
-/* 🇯🇵 节假日 */
-.holiday {
-  background: #ffebee !important;
-  color: #d32f2f !important;
+.month-title {
+  text-align: center;
+  font-size: 16px;
   font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
 }
-
 .task-item {
   display: flex;
   justify-content: space-between;
@@ -90,27 +142,29 @@ body {
   margin: 10px 0;
   padding: 8px;
   border-radius: 10px;
+  transition: background 0.2s;
 }
-
 .task-left {
   display: flex;
   align-items: center;
   gap: 10px;
   flex: 1;
 }
-
+.task-left input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
 .task-text {
   font-size: 15px;
   word-break: break-word;
   flex: 1;
   cursor: pointer;
 }
-
 .task-text.done {
   text-decoration: line-through;
   color: #999;
 }
-
 .delete-task {
   background: #ff4444;
   color: white;
@@ -118,234 +172,396 @@ body {
   border-radius: 8px;
   padding: 5px 12px;
   cursor: pointer;
+  font-size: 12px;
 }
-
+.empty-tasks {
+  text-align: center;
+  color: #999;
+  padding: 25px;
+}
 .input-group {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-
 .input-group input {
   flex: 2;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 12px;
+  font-size: 14px;
 }
-
 .input-group select {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 12px;
 }
-
 .input-group button {
   padding: 12px 20px;
   background: #007bff;
   color: white;
   border: none;
   border-radius: 12px;
+  cursor: pointer;
 }
-
+.stats-container {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  gap: 10px;
+}
+.stat-card {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 14px;
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #007bff;
+}
+.stat-label {
+  font-size: 12px;
+  color: #666;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.settings-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+}
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+}
+.settings-panel.show {
+  right: 0;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  display: none;
+}
+.overlay.show {
+  display: block;
+}
+.close-settings {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+}
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  z-index: 1100;
+  transition: transform 0.3s;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
 </style>
 </head>
-
 <body>
 
-<div class="card">
-  <h3>📘 学习进度表</h3>
+<div class="header">
+  <h2>📘 学习进度</h2>
+  <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
 </div>
 
+<!-- 设置面板 -->
+<div class="overlay" id="overlay" onclick="toggleSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <button class="close-settings" onclick="toggleSettings()">✕</button>
+  <h4>⚙️ 数据管理</h4>
+  <button onclick="exportData()" style="background:#28a745;">📤 导出备份</button>
+  <button onclick="importData()" style="background:#ff9800;">📥 导入备份</button>
+  <button onclick="clearAllData()" style="background:#dc3545;">🗑️ 清空所有</button>
+</div>
+<input type="file" id="importFile" style="display:none;" accept=".json">
+
+<!-- 热力图 - 增加滚动容器 -->
 <div class="card">
+  <div class="month-title" id="calendarTitle"></div>
   <div class="calendar-wrapper">
     <div class="calendar" id="calendar"></div>
   </div>
 </div>
 
+<!-- 今日任务 -->
 <div class="card">
-  <h4 id="taskTitle">任务</h4>
+  <h4 id="taskTitle">📋 今日任务</h4>
   <div id="taskList"></div>
 </div>
 
+<!-- 添加任务 -->
 <div class="card">
   <div class="input-group">
-    <input id="taskInput" placeholder="输入任务..." onkeypress="if(event.key==='Enter') addTask()">
+    <input id="taskInput" placeholder="输入学习任务..." onkeypress="if(event.key==='Enter') addTask()">
     <select id="rangeSelect">
       <option value="1">今天</option>
-      <option value="3">3天</option>
-      <option value="7">7天</option>
+      <option value="3">最近3天</option>
+      <option value="7">最近7天</option>
+      <option value="999">每天</option>
     </select>
     <button onclick="addTask()">添加</button>
   </div>
 </div>
 
-<script>
+<!-- 统计 -->
+<div class="card">
+  <div class="stats-container">
+    <div class="stat-card"><div class="stat-number" id="totalTasks">0</div><div class="stat-label">总任务</div></div>
+    <div class="stat-card"><div class="stat-number" id="completedTasks">0</div><div class="stat-label">已完成</div></div>
+    <div class="stat-card"><div class="stat-number" id="streak">0</div><div class="stat-label">连续学习</div></div>
+  </div>
+</div>
 
+<div class="toast" id="toast"></div>
+
+<script>
+// 数据存储
 let tasks = [];
 let history = {};
-let holidays = {};
 let selectedDate = getDateStr(new Date());
 
-function getDateStr(d){
-  return d.toISOString().split('T')[0];
+function getDateStr(d) {
+  return d.toISOString().split("T")[0];
 }
 
-/* ================= 节假日 ================= */
-async function loadHolidays(){
-  const res = await fetch('https://holidays-jp.github.io/api/v1/date.json');
-  holidays = await res.json();
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-/* ================= 添加任务（带groupId） ================= */
-function addTask(){
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('show');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function saveToLocal() {
+  localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, history }));
+}
+
+function loadFromLocal() {
+  const saved = localStorage.getItem('study_tracker_data');
+  if (saved) {
+    const data = JSON.parse(saved);
+    tasks = data.tasks || [];
+    history = data.history || {};
+  }
+}
+
+function exportData() {
+  const data = { tasks, history };
+  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `学习记录_${getDateStr(new Date())}.json`;
+  a.click();
+  showToast('已导出');
+}
+
+function importData() {
+  document.getElementById('importFile').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const data = JSON.parse(ev.target.result);
+    tasks = data.tasks || [];
+    history = data.history || {};
+    saveToLocal();
+    renderAll();
+    showToast('导入成功');
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (confirm('确定清空？')) {
+    tasks = [];
+    history = {};
+    saveToLocal();
+    renderAll();
+    toggleSettings();
+  }
+}
+
+function addTask() {
   const text = document.getElementById("taskInput").value.trim();
-  const range = +document.getElementById("rangeSelect").value;
+  const range = parseInt(document.getElementById("rangeSelect").value);
+  if (!text) return;
 
-  if(!text) return;
-
-  const groupId = Date.now();
-
-  for(let i=0;i<range;i++){
+  for (let i = 0; i < range; i++) {
     const d = new Date();
-    d.setDate(d.getDate()+i);
-
-    tasks.push({
-      id: groupId + '-' + i,
-      groupId,
-      text,
-      date: getDateStr(d),
-      done:false
-    });
+    d.setDate(d.getDate() + i);
+    const dateStr = getDateStr(d);
+    if (!tasks.some(t => t.text === text && t.date === dateStr)) {
+      tasks.push({ id: Date.now() + '-' + i, text, date: dateStr, done: false });
+    }
   }
-
-  save();
+  saveToLocal();
   renderAll();
+  document.getElementById("taskInput").value = '';
 }
 
-/* ================= 删除（升级版） ================= */
-function deleteTask(id){
-
-  const task = tasks.find(t=>t.id===id);
-  if(!task) return;
-
-  const mode = confirm("删除任务？\n确定=删除整个任务\n取消=只删除当天");
-
-  if(mode){
-    tasks = tasks.filter(t=>t.groupId !== task.groupId);
-  }else{
-    tasks = tasks.filter(t=>t.id !== id);
+function deleteTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (task) {
+    tasks = tasks.filter(t => t.id !== id);
+    updateHistory(task.date);
+    saveToLocal();
+    renderAll();
   }
-
-  save();
-  renderAll();
 }
 
-/* ================= 切换 ================= */
-function toggleTask(id){
-  const t = tasks.find(t=>t.id===id);
-  if(t) t.done = !t.done;
-  save();
-  renderAll();
+function toggleTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (task) {
+    task.done = !task.done;
+    updateHistory(task.date);
+    saveToLocal();
+    renderAll();
+  }
 }
 
-/* ================= 保存 ================= */
-function save(){
-  localStorage.setItem('study', JSON.stringify({tasks}));
-}
-
-/* ================= 加载 ================= */
-function load(){
-  const d = localStorage.getItem('study');
-  if(d) tasks = JSON.parse(d).tasks || [];
-}
-
-/* ================= 任务 ================= */
-function getTasks(date){
-  return tasks.filter(t=>t.date===date);
-}
-
-function renderTasks(){
-  const list = getTasks(selectedDate);
-  const el = document.getElementById("taskList");
-
-  if(list.length===0){
-    el.innerHTML="无任务";
+function updateHistory(date) {
+  const list = tasks.filter(t => t.date === date);
+  if (list.length === 0) {
+    delete history[date];
     return;
   }
+  const doneCount = list.filter(t => t.done).length;
+  const ratio = doneCount / list.length;
+  if (ratio === 1) history[date] = 1;
+  else if (ratio > 0) history[date] = 0.5;
+  else delete history[date];
+}
 
-  el.innerHTML = list.map(t=>`
+function getTasksByDate(date) {
+  return tasks.filter(t => t.date === date);
+}
+
+function renderTasks() {
+  const list = getTasksByDate(selectedDate);
+  const container = document.getElementById('taskList');
+  const todayStr = getDateStr(new Date());
+  document.getElementById('taskTitle').innerHTML = selectedDate === todayStr ? '📋 今日任务' : `📋 ${new Date(selectedDate).getMonth()+1}月${new Date(selectedDate).getDate()}日任务`;
+  
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-tasks">✨ 暂无任务</div>';
+    return;
+  }
+  container.innerHTML = list.map(task => `
     <div class="task-item">
       <div class="task-left">
-        <input type="checkbox" ${t.done?'checked':''} onclick="toggleTask('${t.id}')">
-        <span onclick="toggleTask('${t.id}')" class="task-text ${t.done?'done':''}">${t.text}</span>
+        <input type="checkbox" ${task.done ? 'checked' : ''} onclick="toggleTask('${task.id}')">
+        <span class="task-text ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
       </div>
-      <button class="delete-task" onclick="deleteTask('${t.id}')">删</button>
+      <button class="delete-task" onclick="deleteTask('${task.id}')">删除</button>
     </div>
   `).join('');
 }
 
-/* ================= 日历 ================= */
-function renderCalendar(){
-  const cal = document.getElementById("calendar");
-  const now = new Date();
-
-  const y = now.getFullYear();
-  const m = now.getMonth();
-
-  cal.innerHTML = "";
-
-  const week = ['日','一','二','三','四','五','六'];
-
-  week.forEach(w=>{
-    const d=document.createElement("div");
-    d.className="day header";
-    d.innerText=w;
-    cal.appendChild(d);
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
   });
+}
 
-  const first = new Date(y,m,1).getDay();
-  const days = new Date(y,m+1,0).getDate();
+function renderStats() {
+  document.getElementById('totalTasks').textContent = tasks.length;
+  document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
+  let streak = 0, d = new Date();
+  while (history[getDateStr(d)] === 1) { streak++; d.setDate(d.getDate() - 1); }
+  document.getElementById('streak').textContent = streak;
+}
 
-  for(let i=0;i<first;i++){
-    cal.appendChild(document.createElement("div"));
-  }
-
-  for(let i=1;i<=days;i++){
-    const d=new Date(y,m,i);
-    const key=getDateStr(d);
-
-    const div=document.createElement("div");
-
-    const isHoliday = holidays[key];
-
-    div.className = "day " +
-      (isHoliday?"holiday ":"") +
-      (key===getDateStr(new Date())?"today ":"") +
-      (getTasks(key).some(t=>t.done)?"full":"empty");
-
-    div.innerText=i;
-
-    div.onclick=()=>{
-      selectedDate=key;
-      renderTasks();
-    };
-
+function renderCalendar() {
+  const cal = document.getElementById('calendar');
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  document.getElementById('calendarTitle').innerHTML = `📅 ${year}年 ${month+1}月`;
+  
+  const week = ['日','一','二','三','四','五','六'];
+  cal.innerHTML = week.map(w => `<div class="day header">${w}</div>`).join('');
+  
+  const firstDay = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
+  
+  for (let i = 0; i < firstDay; i++) cal.appendChild(document.createElement('div'));
+  
+  for (let i = 1; i <= days; i++) {
+    const d = new Date(year, month, i);
+    const key = getDateStr(d);
+    const div = document.createElement('div');
+    div.className = `day ${history[key] === 1 ? 'full' : history[key] === 0.5 ? 'partial' : 'empty'}`;
+    if (key === getDateStr(new Date())) div.classList.add('today');
+    div.textContent = i;
+    div.onclick = (function(k) { return () => { selectedDate = k; renderTasks(); }; })(key);
     cal.appendChild(div);
   }
 }
 
-function renderAll(){
+function renderAll() {
   renderCalendar();
   renderTasks();
+  renderStats();
 }
 
-/* ================= init ================= */
-(async function(){
-  await loadHolidays();
-  load();
+loadFromLocal();
+renderAll();
+if (tasks.length === 0) {
+  const today = getDateStr(new Date());
+  tasks.push({ id: 'ex1', text: '📖 学习 React', date: today, done: false });
+  tasks.push({ id: 'ex2', text: '💻 刷 LeetCode', date: today, done: false });
+  saveToLocal();
   renderAll();
-})();
-
+}
+document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
 </body>
 </html>
