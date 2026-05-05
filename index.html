@@ -199,7 +199,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* ====================== 木质翻牌倒计时 ====================== */
@@ -207,7 +207,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .flip-box {
@@ -221,7 +221,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.8s;
+  transition: transform 0.8s ease;
   transform-style: preserve-3d;
 }
 
@@ -242,43 +242,49 @@ body {
   font-weight: bold;
   font-size: 15px;
   background: #d9c090;
+  background-image: linear-gradient(to bottom, #d9c090, #b99a6a);
   color: #333;
-  border: 2px solid #b99a6a;
+  border: 2px solid #9a7d55;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* 背面也是木纹，不是黑色！ */
 .flip-back {
   transform: rotateY(180deg);
-  background: #222;
-  color: #fff;
+  background: #d0b484;
+  background-image: linear-gradient(45deg, #d0b484, #b99a6a);
+  color: #222;
   font-family: "Courier New", monospace;
   gap: 6px;
-  border-color: #000;
+  border-color: #8a6d45;
 }
 
-.flip-back .digit {
+.digit {
   display: inline-block;
   min-width: 24px;
   text-align: center;
-  animation: none;
 }
 
-.flip-back .sec {
-  animation: flipTick 1s infinite;
+/* 胶片秒针转圈动画 */
+.sec {
+  position: relative;
+  display: inline-block;
+  animation: filmRotate 1s linear infinite;
 }
 
-@keyframes flipTick {
-  0% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(-8px); opacity: 0.4; }
-  100% { transform: translateY(0); opacity: 1; }
+@keyframes filmRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
+/* OK 按钮缩小 */
 #confirmBtn {
-  padding: 8px 14px;
+  padding: 6px 10px;
   background: #2e7d32;
   color: white;
   border: none;
   border-radius: 8px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
 }
@@ -378,7 +384,7 @@ h2 { margin: 0; font-size: 24px; }
           </div>
         </div>
       </div>
-      <button id="confirmBtn" onclick="startCountdown()">确定</button>
+      <button id="confirmBtn" onclick="toggleFlip()">OK</button>
     </div>
   </div>
 
@@ -429,21 +435,40 @@ const jpHolidays = {
 };
 function getHolidayName(d) { return jpHolidays[d] || null; }
 
-// ======================== 翻牌倒计时 ========================
+// ======================== 翻牌倒计时（可反复切换） ========================
 let countdownInterval = null;
 let targetDate = null;
 
-function startCountdown() {
-  const input = document.getElementById('targetDatePicker').value;
-  if (!input) {
-    showToast("请选择到期日");
-    return;
+// 支持来回翻转
+function toggleFlip() {
+  const flipInner = document.getElementById('flipInner');
+  const isFlipped = flipInner.classList.contains('flipped');
+  
+  if (!isFlipped) {
+    // 翻面 → 开始倒计时
+    const input = document.getElementById('targetDatePicker').value;
+    if (!input) { showToast("请选择到期日"); return; }
+    targetDate = new Date(input);
+    flipInner.classList.add('flipped');
+    startCountdownLoop();
+  } else {
+    // 翻回去 → 停止倒计时，可重新选择
+    flipInner.classList.remove('flipped');
+    stopCountdownLoop();
   }
-  targetDate = new Date(input);
-  document.getElementById('flipInner').classList.add('flipped');
+}
+
+function startCountdownLoop() {
   runCountdown();
   if (countdownInterval) clearInterval(countdownInterval);
   countdownInterval = setInterval(runCountdown, 1000);
+}
+
+function stopCountdownLoop() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
 }
 
 function runCountdown() {
