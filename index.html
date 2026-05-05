@@ -202,7 +202,7 @@ body {
   gap: 10px;
 }
 
-/* ====================== 木质翻牌倒计时 ====================== */
+/* ====================== 电影胶片倒计时 ====================== */
 .countdown-container {
   display: flex;
   align-items: center;
@@ -211,9 +211,9 @@ body {
 }
 
 .flip-box {
-  width: 240px;
-  height: 50px;
-  perspective: 800px;
+  width: 260px;
+  height: 55px;
+  perspective: 1000px;
   position: relative;
 }
 
@@ -235,58 +235,75 @@ body {
   height: 100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 15px;
-  background: #d9c090;
-  background-image: linear-gradient(to bottom, #d9c090, #b99a6a);
+  background: #d9b388;
+  background-image: linear-gradient(to bottom, #e4c49d, #b99a6a);
   color: #333;
-  border: 2px solid #9a7d55;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border: 2px solid #8b6f47;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
-/* 背面也是木纹，不是黑色！ */
 .flip-back {
   transform: rotateY(180deg);
-  background: #d0b484;
-  background-image: linear-gradient(45deg, #d0b484, #b99a6a);
-  color: #222;
+  background: #8b5a2b;
+  background-image: radial-gradient(circle, #a86d3e 0%, #7a4c24 100%);
+  color: #fff;
   font-family: "Courier New", monospace;
-  gap: 6px;
-  border-color: #8a6d45;
+  font-size: 18px;
+  letter-spacing: 1px;
+  gap: 8px;
+  border-color: #5c3a1e;
 }
 
-.digit {
-  display: inline-block;
-  min-width: 24px;
-  text-align: center;
-}
-
-/* 胶片秒针转圈动画 */
-.sec {
+/* 电影胶片圆盘动画 */
+.film-tape {
   position: relative;
-  display: inline-block;
-  animation: filmRotate 1s linear infinite;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #4b3621;
+  border-radius: 50%;
+  border: 2px solid #fff;
 }
 
-@keyframes filmRotate {
+.film-spool {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-radius: 50%;
+  animation: filmSpin 1s linear infinite;
+}
+
+@keyframes filmSpin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* OK 按钮缩小 */
+.film-number {
+  position: relative;
+  z-index: 2;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* OK 按钮 */
 #confirmBtn {
-  padding: 6px 10px;
-  background: #2e7d32;
+  padding: 6px 12px;
+  background: #3c6e2d;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
+  border: 1px solid #2d5220;
 }
 
 /* ====================== 其他样式 ====================== */
@@ -328,7 +345,7 @@ h2 { margin: 0; font-size: 24px; }
 .settings-panel.show { right: 0; }
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
 .overlay.show { display: block; }
-.close-settings { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; }
+.close-settings { position: absolute; top: 10px right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; }
 
 .language-selector { margin: 20px 0; padding: 10px 0; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; }
 .lang-btn { display: block; width: 100%; padding: 10px; margin: 5px 0; background: #f0f0f0; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; text-align: center; }
@@ -374,13 +391,17 @@ h2 { margin: 0; font-size: 24px; }
       <div class="flip-box">
         <div class="flip-inner" id="flipInner">
           <div class="flip-front">
-            <input type="date" id="targetDatePicker" style="padding:4px; border-radius:6px; border:1px solid #888;">
+            <input type="date" id="targetDatePicker" style="padding:5px; border-radius:6px; border:1px solid #666;">
           </div>
           <div class="flip-back" id="countdownDisplay">
-            <span class="digit" id="cd-d">00</span>天
-            <span class="digit" id="cd-h">00</span>时
-            <span class="digit" id="cd-m">00</span>分
-            <span class="digit sec" id="cd-s">00</span>秒
+            <span id="cd-d">00</span>天
+            <span id="cd-h">00</span>时
+            <span id="cd-m">00</span>分
+            <div class="film-tape">
+              <div class="film-spool"></div>
+              <span class="film-number" id="cd-s">00</span>
+            </div>
+            秒
           </div>
         </div>
       </div>
@@ -435,51 +456,44 @@ const jpHolidays = {
 };
 function getHolidayName(d) { return jpHolidays[d] || null; }
 
-// ======================== 翻牌倒计时（可反复切换） ========================
+// ======================== 电影胶片倒计时 ========================
 let countdownInterval = null;
 let targetDate = null;
 
-// 支持来回翻转
 function toggleFlip() {
   const flipInner = document.getElementById('flipInner');
   const isFlipped = flipInner.classList.contains('flipped');
   
   if (!isFlipped) {
-    // 翻面 → 开始倒计时
     const input = document.getElementById('targetDatePicker').value;
     if (!input) { showToast("请选择到期日"); return; }
     targetDate = new Date(input);
     flipInner.classList.add('flipped');
-    startCountdownLoop();
+    startCountdown();
   } else {
-    // 翻回去 → 停止倒计时，可重新选择
     flipInner.classList.remove('flipped');
-    stopCountdownLoop();
+    stopCountdown();
   }
 }
 
-function startCountdownLoop() {
-  runCountdown();
+function startCountdown() {
+  updateCountdown();
+  countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+function stopCountdown() {
   if (countdownInterval) clearInterval(countdownInterval);
-  countdownInterval = setInterval(runCountdown, 1000);
 }
 
-function stopCountdownLoop() {
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-}
-
-function runCountdown() {
+function updateCountdown() {
   const now = new Date();
   let diff = targetDate - now;
   if (diff < 0) diff = 0;
 
-  const d = Math.floor(diff / (1000*60*60*24));
-  const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-  const m = Math.floor((diff % (1000*60*60)) / (1000*60));
-  const s = Math.floor((diff % (1000*60)) / 1000);
+  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((diff % (1000 * 60)) / 1000);
 
   document.getElementById('cd-d').innerText = String(d).padStart(2, '0');
   document.getElementById('cd-h').innerText = String(h).padStart(2, '0');
@@ -507,7 +521,6 @@ const locales = {
     addSuccess:(r)=>r===999?"已添加每天任务":`已添加${r}天任务`,
     importSuccess:"导入成功", exportSuccess:"已导出",
     clearConfirm:"⚠️ 确认清空所有任务记录？", clearSuccess:"已清空",
-    legend:["无任务完成","25%完成","50%完成","67%完成","75%完成","进度条(>4)","全完成"],
   },
   en: {
     appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
@@ -527,7 +540,6 @@ const locales = {
     addSuccess:(r)=>r===999?"Added everyday task":`Added ${r} days task`,
     importSuccess:"Import successful", exportSuccess:"Exported",
     clearConfirm:"⚠️ Clear all tasks?", clearSuccess:"Cleared",
-    legend:["No Completed","25%","50%","67%","75%","Bar(>4)","Done"],
   },
   ja: {
     appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
@@ -547,7 +559,6 @@ const locales = {
     addSuccess:(r)=>r===999?"毎日タスクを追加":`${r}日間追加`,
     importSuccess:"インポート成功", exportSuccess:"エクスポート完了",
     clearConfirm:"全てのデータを削除しますか？", clearSuccess:"データクリア",
-    legend:["完了なし","25%","50%","67%","75%","バー(>4)","完了"],
   }
 };
 
@@ -826,12 +837,6 @@ function renderAll() {
 
 // ======================== 初始化 ========================
 loadFromLocal();
-if (tasks.length === 0) {
-  const today = getDateStr(new Date());
-  tasks.push({ id:'demo1', text:'📖 读书', date:today, done:false });
-  tasks.push({ id:'demo2', text:'💻 编程练习', date:today, done:false });
-  saveToLocal();
-}
 applyLanguage();
 document.querySelectorAll('.lang-btn').forEach(btn => {
   btn.classList.toggle('active', btn.dataset.lang === currentLang);
