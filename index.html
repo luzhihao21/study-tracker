@@ -202,31 +202,88 @@ body {
   gap: 12px;
 }
 
-/* 胶片倒计时样式 */
-.countdown-film {
-  display: inline-flex;
+/* ====================== 木质翻牌倒计时 ====================== */
+.countdown-container {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  background: #222;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
+  justify-content: center;
+  gap: 10px;
+}
+
+.flip-box {
+  width: 240px;
+  height: 50px;
+  perspective: 800px;
+  position: relative;
+}
+
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-front, .flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-.countdown-film::before {
-  content: "🎞️";
-  margin-right: 4px;
+  font-size: 15px;
+  background: #d9c090;
+  color: #333;
+  border: 2px solid #b99a6a;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* 图例 */
-.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; justify-content: center; font-size: 11px; color: #666; }
-.legend-item { display: flex; align-items: center; gap: 4px; }
-.legend-dot { width: 22px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+.flip-back {
+  transform: rotateY(180deg);
+  background: #222;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  gap: 6px;
+  border-color: #000;
+}
 
-/* 任务列表 */
+.flip-back .digit {
+  display: inline-block;
+  min-width: 24px;
+  text-align: center;
+  animation: none;
+}
+
+.flip-back .sec {
+  animation: flipTick 1s infinite;
+}
+
+@keyframes flipTick {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-8px); opacity: 0.4; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+#confirmBtn {
+  padding: 8px 14px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ====================== 其他样式 ====================== */
 .task-item {
   display: flex; justify-content: space-between; align-items: center;
   margin: 10px 0; padding: 8px; border-radius: 10px;
@@ -306,12 +363,28 @@ h2 { margin: 0; font-size: 24px; }
 <div class="card">
   <div class="month-title" id="calendarTitle">
     <span id="calendarText"></span>
-    <div class="countdown-film" id="countdown"></div>
+    
+    <div class="countdown-container">
+      <div class="flip-box">
+        <div class="flip-inner" id="flipInner">
+          <div class="flip-front">
+            <input type="date" id="targetDatePicker" style="padding:4px; border-radius:6px; border:1px solid #888;">
+          </div>
+          <div class="flip-back" id="countdownDisplay">
+            <span class="digit" id="cd-d">00</span>天
+            <span class="digit" id="cd-h">00</span>时
+            <span class="digit" id="cd-m">00</span>分
+            <span class="digit sec" id="cd-s">00</span>秒
+          </div>
+        </div>
+      </div>
+      <button id="confirmBtn" onclick="startCountdown()">确定</button>
+    </div>
   </div>
+
   <div class="calendar-wrapper">
     <div class="calendar" id="calendar"></div>
   </div>
-  <div class="legend" id="legendArea"></div>
 </div>
 
 <div class="card">
@@ -356,21 +429,37 @@ const jpHolidays = {
 };
 function getHolidayName(d) { return jpHolidays[d] || null; }
 
-// ======================== 倒计时功能 ========================
-function updateCountdown() {
-  const targetDate = new Date('2026-07-05');
-  const now = new Date();
-  const diffTime = targetDate - now;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  const countdownEl = document.getElementById('countdown');
-  if (diffDays > 0) {
-    countdownEl.textContent = `剩余 ${diffDays} 天`;
-  } else if (diffDays === 0) {
-    countdownEl.textContent = '今日目标日';
-  } else {
-    countdownEl.textContent = '已过期';
+// ======================== 翻牌倒计时 ========================
+let countdownInterval = null;
+let targetDate = null;
+
+function startCountdown() {
+  const input = document.getElementById('targetDatePicker').value;
+  if (!input) {
+    showToast("请选择到期日");
+    return;
   }
+  targetDate = new Date(input);
+  document.getElementById('flipInner').classList.add('flipped');
+  runCountdown();
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(runCountdown, 1000);
+}
+
+function runCountdown() {
+  const now = new Date();
+  let diff = targetDate - now;
+  if (diff < 0) diff = 0;
+
+  const d = Math.floor(diff / (1000*60*60*24));
+  const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const s = Math.floor((diff % (1000*60)) / 1000);
+
+  document.getElementById('cd-d').innerText = String(d).padStart(2, '0');
+  document.getElementById('cd-h').innerText = String(h).padStart(2, '0');
+  document.getElementById('cd-m').innerText = String(m).padStart(2, '0');
+  document.getElementById('cd-s').innerText = String(s).padStart(2, '0');
 }
 
 // ======================== 多语言 ========================
@@ -475,7 +564,6 @@ function buildDayCell(key, dayNum, todayStr) {
   } else if (ratio === 1) {
     div.classList.add('ratio-100');
   } else if (total === 3) {
-    // 3个任务：奔驰标样式
     if (done === 1) div.classList.add('mercedes-1');
     else if (done === 2) div.classList.add('mercedes-2');
     else div.classList.add('ratio-0');
@@ -518,25 +606,12 @@ function buildDayCell(key, dayNum, todayStr) {
   return div;
 }
 
-// ≤4个任务时，根据总数和完成数精确映射分格class
 function getSmallTaskRatioClass(total, done) {
   if (done === 0) return 'ratio-0';
-  const ratio = done / total;
-  if (total === 1) {
-    return 'ratio-0';
-  }
-  if (total === 2) {
-    if (done === 1) return 'ratio-50';
-  }
-  if (total === 3) {
-    if (done === 1) return 'mercedes-1';
-    if (done === 2) return 'mercedes-2';
-  }
-  if (total === 4) {
-    if (done === 1) return 'ratio-25';
-    if (done === 2) return 'ratio-50';
-    if (done === 3) return 'ratio-75';
-  }
+  if (total === 1) return 'ratio-0';
+  if (total === 2) { if (done === 1) return 'ratio-50'; }
+  if (total === 3) { if (done === 1) return 'mercedes-1'; if (done === 2) return 'mercedes-2'; }
+  if (total === 4) { if (done === 1) return 'ratio-25'; if (done === 2) return 'ratio-50'; if (done === 3) return 'ratio-75'; }
   return 'ratio-0';
 }
 
@@ -694,31 +769,6 @@ function renderStats() {
   document.getElementById('streak').textContent = streak;
 }
 
-function renderLegend() {
-  document.getElementById('legendArea').innerHTML = `
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#eeeeee;"></div>
-      <span>无任务完成</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:conic-gradient(from 210deg, #66bb6a 120deg, #e0e0e0 120deg);"></div>
-      <span>三分区(3任务)</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:linear-gradient(135deg,#66bb6a 50%,#e0e0e0 50%);"></div>
-      <span>分格(≤4)</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:linear-gradient(to right,#66bb6a 60%,#e0e0e0 60%);"></div>
-      <span>进度条(>4)</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#2e7d32;"></div>
-      <span>全完成</span>
-    </div>
-  `;
-}
-
 function renderCalendar() {
   const cal = document.getElementById('calendar');
   const now = new Date();
@@ -746,7 +796,7 @@ function renderCalendar() {
 }
 
 function renderAll() {
-  renderCalendar(); renderTasks(); renderStats(); renderLegend(); updateCountdown();
+  renderCalendar(); renderTasks(); renderStats();
 }
 
 // ======================== 初始化 ========================
