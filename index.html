@@ -90,11 +90,21 @@ body {
 }
 .day.header:hover { transform: none; }
 
-/* 无任务 */
+/* 无任务完成 */
 .day.ratio-0 { background: #eeeeee; color: #aaa; }
 
 /* 全完成 */
 .day.ratio-100 { background: #2e7d32; color: white; }
+
+/* 奔驰三分区样式（3个任务专用） */
+.day.mercedes-1 {
+  background: conic-gradient(from 210deg, #66bb6a 120deg, #e0e0e0 120deg);
+  color: #333;
+}
+.day.mercedes-2 {
+  background: conic-gradient(from 210deg, #66bb6a 240deg, #e0e0e0 240deg);
+  color: #333;
+}
 
 /* ≤4任务：分格色块方案 */
 .day.ratio-25 { background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%); color: #333; }
@@ -180,7 +190,36 @@ body {
 
 .day-num { position: relative; z-index: 5; line-height: 1; }
 
-.month-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #333; }
+.month-title { 
+  text-align: center; 
+  font-size: 16px; 
+  font-weight: bold; 
+  margin-bottom: 10px; 
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* 胶片倒计时样式 */
+.countdown-film {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #222;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.countdown-film::before {
+  content: "🎞️";
+  margin-right: 4px;
+}
 
 /* 图例 */
 .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; justify-content: center; font-size: 11px; color: #666; }
@@ -265,7 +304,10 @@ h2 { margin: 0; font-size: 24px; }
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
 <div class="card">
-  <div class="month-title" id="calendarTitle"></div>
+  <div class="month-title" id="calendarTitle">
+    <span id="calendarText"></span>
+    <div class="countdown-film" id="countdown"></div>
+  </div>
   <div class="calendar-wrapper">
     <div class="calendar" id="calendar"></div>
   </div>
@@ -314,6 +356,23 @@ const jpHolidays = {
 };
 function getHolidayName(d) { return jpHolidays[d] || null; }
 
+// ======================== 倒计时功能 ========================
+function updateCountdown() {
+  const targetDate = new Date('2026-07-05');
+  const now = new Date();
+  const diffTime = targetDate - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  const countdownEl = document.getElementById('countdown');
+  if (diffDays > 0) {
+    countdownEl.textContent = `剩余 ${diffDays} 天`;
+  } else if (diffDays === 0) {
+    countdownEl.textContent = '今日目标日';
+  } else {
+    countdownEl.textContent = '已过期';
+  }
+}
+
 // ======================== 多语言 ========================
 const locales = {
   zh: {
@@ -334,7 +393,7 @@ const locales = {
     addSuccess:(r)=>r===999?"已添加每天任务":`已添加${r}天任务`,
     importSuccess:"导入成功", exportSuccess:"已导出",
     clearConfirm:"⚠️ 确认清空所有任务记录？", clearSuccess:"已清空",
-    legend:["无任务","25%完成","50%完成","67%完成","75%完成","进度条(>4)","全完成"],
+    legend:["无任务完成","25%完成","50%完成","67%完成","75%完成","进度条(>4)","全完成"],
   },
   en: {
     appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
@@ -354,7 +413,7 @@ const locales = {
     addSuccess:(r)=>r===999?"Added everyday task":`Added ${r} days task`,
     importSuccess:"Import successful", exportSuccess:"Exported",
     clearConfirm:"⚠️ Clear all tasks?", clearSuccess:"Cleared",
-    legend:["None","25%","50%","67%","75%","Bar(>4)","Done"],
+    legend:["No Completed","25%","50%","67%","75%","Bar(>4)","Done"],
   },
   ja: {
     appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
@@ -374,7 +433,7 @@ const locales = {
     addSuccess:(r)=>r===999?"毎日タスクを追加":`${r}日間追加`,
     importSuccess:"インポート成功", exportSuccess:"エクスポート完了",
     clearConfirm:"全てのデータを削除しますか？", clearSuccess:"データクリア",
-    legend:["なし","25%","50%","67%","75%","バー(>4)","完了"],
+    legend:["完了なし","25%","50%","67%","75%","バー(>4)","完了"],
   }
 };
 
@@ -412,22 +471,18 @@ function buildDayCell(key, dayNum, todayStr) {
   div.className = 'day';
 
   if (total === 0) {
-    // 无任务：纯灰
     div.classList.add('ratio-0');
-
   } else if (ratio === 1) {
-    // 全完成：纯深绿
     div.classList.add('ratio-100');
-
+  } else if (total === 3) {
+    // 3个任务：奔驰标样式
+    if (done === 1) div.classList.add('mercedes-1');
+    else if (done === 2) div.classList.add('mercedes-2');
+    else div.classList.add('ratio-0');
   } else if (total <= 4) {
-    // ≤4个任务：原来的分格色块方案
-    // 按实际完成数/总数映射到最接近的分格class
-    // 支持1/2/3/4个任务的各种完成状态
     const ratioClass = getSmallTaskRatioClass(total, done);
     div.classList.add(ratioClass);
-
   } else {
-    // >4个任务：进度条方案
     div.style.background = '#eeeeee';
     if (done > 0) {
       const fill = document.createElement('div');
@@ -437,7 +492,6 @@ function buildDayCell(key, dayNum, todayStr) {
     }
   }
 
-  // 节假日
   if (holidayName) {
     const icon = document.createElement('span');
     icon.className = 'holiday-icon';
@@ -449,7 +503,6 @@ function buildDayCell(key, dayNum, todayStr) {
     div.appendChild(label);
   }
 
-  // 日期数字
   const numSpan = document.createElement('span');
   numSpan.className = 'day-num';
   numSpan.textContent = dayNum;
@@ -468,20 +521,16 @@ function buildDayCell(key, dayNum, todayStr) {
 // ≤4个任务时，根据总数和完成数精确映射分格class
 function getSmallTaskRatioClass(total, done) {
   if (done === 0) return 'ratio-0';
-  // 统一映射：计算完成比例，选最接近的视觉分格
-  // 支持的档位：ratio-25(1/4), ratio-33(1/3), ratio-50(1/2), ratio-67(2/3), ratio-75(3/4)
   const ratio = done / total;
   if (total === 1) {
-    // 1个任务只有0%或100%，100%已在外层处理
     return 'ratio-0';
   }
   if (total === 2) {
-    // 1/2
     if (done === 1) return 'ratio-50';
   }
   if (total === 3) {
-    if (done === 1) return 'ratio-33';
-    if (done === 2) return 'ratio-67';
+    if (done === 1) return 'mercedes-1';
+    if (done === 2) return 'mercedes-2';
   }
   if (total === 4) {
     if (done === 1) return 'ratio-25';
@@ -649,7 +698,11 @@ function renderLegend() {
   document.getElementById('legendArea').innerHTML = `
     <div class="legend-item">
       <div class="legend-dot" style="background:#eeeeee;"></div>
-      <span>无任务</span>
+      <span>无任务完成</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:conic-gradient(from 210deg, #66bb6a 120deg, #e0e0e0 120deg);"></div>
+      <span>三分区(3任务)</span>
     </div>
     <div class="legend-item">
       <div class="legend-dot" style="background:linear-gradient(135deg,#66bb6a 50%,#e0e0e0 50%);"></div>
@@ -673,8 +726,8 @@ function renderCalendar() {
   const t = locales[currentLang];
   const todayStr = getDateStr(now);
 
-  document.getElementById('calendarTitle').innerHTML =
-    t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
+  const calendarText = t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
+  document.getElementById('calendarText').innerHTML = calendarText;
 
   cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
 
@@ -693,7 +746,7 @@ function renderCalendar() {
 }
 
 function renderAll() {
-  renderCalendar(); renderTasks(); renderStats(); renderLegend();
+  renderCalendar(); renderTasks(); renderStats(); renderLegend(); updateCountdown();
 }
 
 // ======================== 初始化 ========================
