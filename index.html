@@ -108,8 +108,8 @@ body {
 .day.ratio-25::after {
   content: ''; position: absolute; inset: 0;
   background:
-    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
   pointer-events: none; border-radius: 10px;
 }
 
@@ -121,8 +121,8 @@ body {
 .day.ratio-67::after {
   content: ''; position: absolute; inset: 0;
   background:
-    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
-    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
+    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,200,0.6) calc(33.3% - 0.5px), rgba(255,255,200,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
+    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,200,0.6) calc(66.6% - 0.5px), rgba(255,255,200,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
   pointer-events: none; border-radius: 10px;
 }
 .day.ratio-33 {
@@ -132,8 +132,8 @@ body {
 .day.ratio-33::after {
   content: ''; position: absolute; inset: 0;
   background:
-    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
-    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
+    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,200,0.6) calc(33.3% - 0.5px), rgba(255,255,200,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
+    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,200,0.6) calc(66.6% - 0.5px), rgba(255,255,200,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
   pointer-events: none; border-radius: 10px;
 }
 .day.ratio-75 { background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%); position: relative; }
@@ -145,8 +145,8 @@ body {
 .day.ratio-75::after {
   content: ''; position: absolute; inset: 0;
   background:
-    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% - 0.5px), rgba(255,255,200,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
   pointer-events: none; border-radius: 10px;
 }
 
@@ -176,23 +176,28 @@ body {
 
 .day-num { position: relative; z-index: 5; line-height: 1; }
 
+/* 重点修改：月标题和倒计时容器 */
 .month-title { 
-  text-align: center; 
-  font-size: 16px; 
-  font-weight: bold; 
-  margin-bottom: 10px; 
-  color: #333;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-between; /* 两端对齐，给左侧留空间 */
+  margin-bottom: 10px; 
+  color: #333;
 }
 
 .month-nav {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1; /* 自动撑开 */
 }
+
+#calendarText {
+  font-size: 16px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
 .month-btn {
   background: #e0e0e0;
   border: none;
@@ -205,93 +210,22 @@ body {
   align-items: center;
   justify-content: center;
 }
-.month-btn:hover {
-  background: #d0d0d0;
-}
-.month-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+.month-btn:hover { background: #d0d0d0; }
+.month-btn.disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* 重点修改：倒计时容器变窄、分两行 */
 .countdown-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .flip-box {
-  width: 280px;
-  height: 60px;
+  width: 140px; /* 宽度减半 */
+  height: 56px; /* 高度稍微收缩 */
   perspective: 1200px;
   position: relative;
-}
-
-.flip-unit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  height: 100%;
-}
-
-.flip-digit {
-  position: relative;
-  width: 26px;
-  height: 80%;
-  margin: 0 1px;
-  transform-style: preserve-3d;
-}
-
-.digit-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Courier New", monospace;
-  font-weight: bold;
-  font-size: 20px;
-  background: #222;
-  color: #fff;
-  border-radius: 6px;
-  backface-visibility: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.digit-front { background: #333; }
-.digit-back {
-  background: #111;
-  transform: rotateX(180deg);
-}
-
-.flip-digit.flip {
-  animation: flipDigit 0.6s ease-in-out;
-}
-
-@keyframes flipDigit {
-  0% { transform: rotateX(0deg); }
-  100% { transform: rotateX(-180deg); }
-}
-
-.flip-label {
-  font-size: 14px;
-  color: #fff;
-  margin-left: 2px;
-}
-
-.flip-back {
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #8b5a2b;
-  background-image: radial-gradient(circle, #a86d3e 0%, #7a4c24 100%);
-  border: 2px solid #5c3a1e;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 .flip-front {
@@ -306,16 +240,56 @@ body {
   border: 2px solid #8b6f47;
 }
 
+.flip-back {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column; /* 纵向排列 */
+  align-items: center;
+  justify-content: center;
+  background: #8b5a2b;
+  background-image: radial-gradient(circle, #a86d3e 0%, #7a4c24 100%);
+  border: 2px solid #5c3a1e;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  gap: 2px;
+}
+
+/* 倒计时数字行样式 */
+.countdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.mini-digit {
+  background: #222;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 0 4px;
+  border-radius: 4px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.mini-label {
+  font-size: 11px;
+  color: #fff;
+  margin-right: 2px;
+}
+
 #confirmBtn {
-  padding: 6px 12px;
+  padding: 6px 10px;
   background: #3c6e2d;
   color: white;
-  border: none;
+  border: 1px solid #2d5220;
   border-radius: 8px;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  border: 1px solid #2d5220;
 }
 
 .task-item {
@@ -426,10 +400,19 @@ h2 { margin: 0; font-size: 24px; }
     <div class="countdown-container">
       <div class="flip-box">
         <div class="flip-front" id="flipFront">
-          <input type="date" id="targetDatePicker" style="padding:5px; border-radius:6px; border:1px solid #666;">
+          <input type="date" id="targetDatePicker" style="padding:4px; border-radius:6px; border:1px solid #666; width: 90%; font-size: 12px;">
         </div>
         <div class="flip-back" id="flipBack" style="display:none;">
-          <div id="countdownDigits"></div>
+          <!-- 第一行 -->
+          <div class="countdown-row">
+            <span class="mini-digit" id="d_val">00</span><span class="mini-label">天</span>
+            <span class="mini-digit" id="h_val">00</span><span class="mini-label">时</span>
+          </div>
+          <!-- 第二行 -->
+          <div class="countdown-row">
+            <span class="mini-digit" id="m_val">00</span><span class="mini-label">分</span>
+            <span class="mini-digit" id="s_val">00</span><span class="mini-label">秒</span>
+          </div>
         </div>
       </div>
       <button id="confirmBtn" onclick="toggleCountdown()">OK</button>
@@ -488,10 +471,8 @@ function getHolidayName(d) { return jpHolidays[d] || null; }
 
 let currentCalDate = new Date();
 let countdownInterval = null;
-let targetDate = null;
+let isCountdownActive = false;
 let collapseDone = true;
-
-let lastSec = -1, lastMin = -1, lastHour = -1, lastDay = -1;
 
 const locales = {
   zh: {
@@ -517,7 +498,7 @@ const locales = {
   },
   en: {
     appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
-    exportBtn:"📤 Export Backup", importBtn:"📥 Import Backup", clearBtn:"🗑️ Clear All",
+    exportBtn:"📤 Export Backup", importBtn:"📥 Import Backup", clearBtn:"Clear All",
     calendarMonth:"📅 {year}/{month}",
     weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
     taskToday:"📋 Today's Tasks", taskOther:"📋 {month}/{day} Tasks",
@@ -538,7 +519,7 @@ const locales = {
   },
   ja: {
     appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
-    exportBtn:"📤 バックアップ出力", importBtn:"📥 バックアップ読込", clearBtn:"🗑️ 全削除",
+    exportBtn:"📤 バックアップ出力", importBtn:"📥 バックアップ読込", clearBtn:"全削除",
     calendarMonth:"📅 {year}年 {month}月",
     weekDays:["日","月","火","水","木","金","土"],
     taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
@@ -637,18 +618,11 @@ function buildDayCell(key, dayNum, todayStr) {
 
 function getSmallTaskRatioClass(total, done) {
   if (done === 0) return 'ratio-0';
-  if (total === 1) return 'ratio-0';
   if (total === 2) return done === 1 ? 'ratio-50' : 'ratio-0';
-  if (total === 3) {
-    if (done === 1) return 'mercedes-1';
-    if (done === 2) return 'mercedes-2';
-    return 'ratio-0';
-  }
   if (total === 4) {
     if (done === 1) return 'ratio-25';
     if (done === 2) return 'ratio-50';
     if (done === 3) return 'ratio-75';
-    return 'ratio-0';
   }
   return 'ratio-0';
 }
@@ -683,7 +657,8 @@ function exportData() {
   showToast(locales[currentLang].exportSuccess);
 }
 function importData() { document.getElementById('importFile').click(); }
-function handleImport(e) {
+
+document.getElementById('importFile').onchange = function(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -695,7 +670,8 @@ function handleImport(e) {
     showToast(locales[currentLang].importSuccess);
   };
   reader.readAsText(file);
-}
+};
+
 function clearAllData() {
   if (confirm(locales[currentLang].clearConfirm)) {
     tasks = []; saveToLocal(); renderAll(); toggleSettings();
@@ -777,22 +753,18 @@ function editTask(id) {
   const newText = prompt(locales[currentLang].editBtn, task.text);
   if(newText && newText.trim()){
     task.text = newText.trim();
-    saveToLocal();
-    renderAll();
-    showToast(locales[currentLang].editSuccess);
+    saveToLocal(); renderAll(); showToast(locales[currentLang].editSuccess);
   }
 }
 
 function batchComplete() {
   tasks.forEach(t => { if(t.date === selectedDate) t.done = true; });
-  saveToLocal(); renderAll();
-  showToast(locales[currentLang].batchComplete);
+  saveToLocal(); renderAll(); showToast(locales[currentLang].batchComplete);
 }
 
 function batchUncomplete() {
   tasks.forEach(t => { if(t.date === selectedDate) t.done = false; });
-  saveToLocal(); renderAll();
-  showToast(locales[currentLang].batchUncomplete);
+  saveToLocal(); renderAll(); showToast(locales[currentLang].batchUncomplete);
 }
 
 function escapeHtml(str) {
@@ -817,35 +789,14 @@ function renderTasks() {
   if(all.length===0){ html=`<div class="empty-tasks">${t.emptyTasks}</div>`; }
   else {
     undone.forEach(task=>{
-      html+=`
-      <div class="task-item">
-        <div class="task-left">
-          <input type="checkbox" ${task.done?'checked':''} onchange="toggleTask('${task.id}')">
-          <span class="task-text ${task.done?'done':''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
-        </div>
-        <div>
-          <button class="task-edit" onclick="editTask('${task.id}')">${t.editBtn}</button>
-          <button class="delete-task" onclick="deleteTaskWithDialog('${task.id}')">${t.deleteBtn}</button>
-        </div>
-      </div>`;
+      html+=`<div class="task-item"><div class="task-left"><input type="checkbox" onchange="toggleTask('${task.id}')"><span class="task-text" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span></div><div><button class="task-edit" onclick="editTask('${task.id}')">${t.editBtn}</button><button class="delete-task" onclick="deleteTaskWithDialog('${task.id}')">${t.deleteBtn}</button></div></div>`;
     });
-
     if(doneList.length>0){
       const btnText = collapseDone ? t.collapseText : t.expandText;
       html+=`<button class="collapse-btn" onclick="toggleCollapse()">${btnText}</button>`;
       if(!collapseDone){
         doneList.forEach(task=>{
-          html+=`
-          <div class="task-item">
-            <div class="task-left">
-              <input type="checkbox" checked onchange="toggleTask('${task.id}')">
-              <span class="task-text done" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
-            </div>
-            <div>
-              <button class="task-edit" onclick="editTask('${task.id}')">${t.editBtn}</button>
-              <button class="delete-task" onclick="deleteTaskWithDialog('${task.id}')">${t.deleteBtn}</button>
-            </div>
-          </div>`;
+          html+=`<div class="task-item"><div class="task-left"><input type="checkbox" checked onchange="toggleTask('${task.id}')"><span class="task-text done" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span></div><div><button class="task-edit" onclick="editTask('${task.id}')">${t.editBtn}</button><button class="delete-task" onclick="deleteTaskWithDialog('${task.id}')">${t.deleteBtn}</button></div></div>`;
         });
       }
     }
@@ -853,10 +804,7 @@ function renderTasks() {
   container.innerHTML = html;
 }
 
-function toggleCollapse(){
-  collapseDone = !collapseDone;
-  renderTasks();
-}
+function toggleCollapse(){ collapseDone = !collapseDone; renderTasks(); }
 
 function renderStats() {
   document.getElementById('totalTasks').textContent = tasks.length;
@@ -873,184 +821,75 @@ function renderCalendar() {
   const t = locales[currentLang];
   const todayStr = getDateStr(new Date());
 
-  const calendarText = t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
-  document.getElementById('calendarText').innerHTML = calendarText;
+  document.getElementById('calendarText').innerHTML = t.calendarMonth.replace('{year}', year).replace('{month}', month+1);
 
   const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
   const prevBtn = document.getElementById('prevBtn');
-  
-  if (currentCalDate <= today) {
-    prevBtn.classList.add('disabled');
-    prevBtn.onclick = null;
+  if (currentCalDate.getFullYear() <= today.getFullYear() && currentCalDate.getMonth() <= today.getMonth()) {
+    prevBtn.classList.add('disabled'); prevBtn.onclick = null;
   } else {
-    prevBtn.classList.remove('disabled');
-    prevBtn.onclick = prevMonth;
+    prevBtn.classList.remove('disabled'); prevBtn.onclick = prevMonth;
   }
 
   cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
-
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month+1, 0).getDate();
 
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'day ratio-0';
-    cal.appendChild(empty);
-  }
+  for (let i = 0; i < firstDay; i++) cal.appendChild(Object.assign(document.createElement('div'), {className:'day ratio-0'}));
   for (let i = 1; i <= daysInMonth; i++) {
     const key = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
     cal.appendChild(buildDayCell(key, i, todayStr));
   }
 }
 
-function prevMonth() {
-  const now = new Date();
-  now.setHours(0,0,0,0);
-  const test = new Date(currentCalDate);
-  test.setMonth(test.getMonth() - 1);
-  test.setHours(0,0,0,0);
-  
-  if (test < now) return;
-  currentCalDate.setMonth(currentCalDate.getMonth() - 1);
-  renderCalendar();
-  renderTasks();
-}
+function prevMonth() { currentCalDate.setMonth(currentCalDate.getMonth()-1); renderAll(); }
+function nextMonth() { currentCalDate.setMonth(currentCalDate.getMonth()+1); renderAll(); }
 
-function nextMonth() {
-  currentCalDate.setMonth(currentCalDate.getMonth()+1);
-  renderCalendar();
-  renderTasks();
-}
-
-function saveCountdownDate(dateStr) { localStorage.setItem('countdown_target_date', dateStr); }
-function loadCountdownDate() { return localStorage.getItem('countdown_target_date'); }
-
+/* 倒计时逻辑修改为两行更新 */
 function toggleCountdown() {
   const front = document.getElementById('flipFront');
   const back = document.getElementById('flipBack');
-  if (back.style.display === 'none') {
-    const input = document.getElementById('targetDatePicker').value;
-    if (!input) { showToast("请选择到期日"); return; }
-    targetDate = new Date(input);
-    saveCountdownDate(input);
+  const btn = document.getElementById('confirmBtn');
+  const picker = document.getElementById('targetDatePicker');
+
+  if (!isCountdownActive) {
+    if (!picker.value) return;
+    const target = new Date(picker.value).getTime();
+    if (target <= Date.now()) return;
+
+    isCountdownActive = true;
     front.style.display = 'none';
     back.style.display = 'flex';
-    startCountdown();
+    btn.innerText = 'X';
+
+    countdownInterval = setInterval(() => {
+      const diff = target - Date.now();
+      if (diff <= 0) { toggleCountdown(); return; }
+      
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+
+      document.getElementById('d_val').innerText = d.toString().padStart(2,'0');
+      document.getElementById('h_val').innerText = h.toString().padStart(2,'0');
+      document.getElementById('m_val').innerText = m.toString().padStart(2,'0');
+      document.getElementById('s_val').innerText = s.toString().padStart(2,'0');
+    }, 1000);
   } else {
+    isCountdownActive = false;
+    clearInterval(countdownInterval);
     front.style.display = 'flex';
     back.style.display = 'none';
-    stopCountdown();
+    btn.innerText = 'OK';
   }
 }
 
-function createDigitPair(num) {
-  const d1 = Math.floor(num / 10);
-  const d2 = num % 10;
-  return `
-  <div class="flip-digit">
-    <div class="digit-face digit-front">${d1}</div>
-    <div class="digit-face digit-back">${d1}</div>
-  </div>
-  <div class="flip-digit">
-    <div class="digit-face digit-front">${d2}</div>
-    <div class="digit-face digit-back">${d2}</div>
-  </div>
-  `;
-}
-
-function updateCountdownDigits(d, h, m, s) {
-  const container = document.getElementById('countdownDigits');
-  container.innerHTML = `
-  <div class="flip-unit">
-    ${createDigitPair(d)}
-    <span class="flip-label">天</span>
-  </div>
-  <div class="flip-unit">
-    ${createDigitPair(h)}
-    <span class="flip-label">时</span>
-  </div>
-  <div class="flip-unit">
-    ${createDigitPair(m)}
-    <span class="flip-label">分</span>
-  </div>
-  <div class="flip-unit">
-    ${createDigitPair(s)}
-    <span class="flip-label">秒</span>
-  </div>
-  `;
-}
-
-function triggerFlip(selector) {
-  document.querySelectorAll(selector).forEach(el => {
-    el.classList.add('flip');
-    setTimeout(() => el.classList.remove('flip'), 600);
-  });
-}
-
-function startCountdown() {
-  updateCountdown();
-  countdownInterval = setInterval(updateCountdown, 1000);
-}
-
-function stopCountdown() {
-  if (countdownInterval) clearInterval(countdownInterval);
-}
-
-function updateCountdown() {
-  const now = new Date();
-  let diff = targetDate - now;
-  if (diff < 0) diff = 0;
-
-  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-  updateCountdownDigits(d, h, m, s);
-
-  if (s !== lastSec) {
-    if (s === 59 && m !== lastMin) {
-      triggerFlip('.flip-unit:nth-child(3) .flip-digit, .flip-unit:nth-child(4) .flip-digit');
-    } else if (m === 59 && h !== lastHour) {
-      triggerFlip('.flip-unit:nth-child(2) .flip-digit, .flip-unit:nth-child(3) .flip-digit, .flip-unit:nth-child(4) .flip-digit');
-    } else if (h === 23 && d !== lastDay) {
-      triggerFlip('.flip-digit');
-    } else {
-      triggerFlip('.flip-unit:nth-child(4) .flip-digit');
-    }
-  }
-
-  lastSec = s;
-  lastMin = m;
-  lastHour = h;
-  lastDay = d;
-}
-
-function renderAll() {
-  renderCalendar();
-  renderTasks();
-  renderStats();
-}
+function renderAll() { renderCalendar(); renderTasks(); renderStats(); }
 
 loadFromLocal();
-const savedDate = loadCountdownDate();
-if (savedDate) {
-  targetDate = new Date(savedDate);
-  document.getElementById('targetDatePicker').value = savedDate;
-  document.getElementById('flipFront').style.display = 'none';
-  document.getElementById('flipBack').style.display = 'flex';
-  startCountdown();
-}
-
 applyLanguage();
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.classList.toggle('active', btn.dataset.lang === currentLang);
-});
-
 renderAll();
-document.getElementById('importFile').addEventListener('change', handleImport);
 </script>
 </body>
 </html>
