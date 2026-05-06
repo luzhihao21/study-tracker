@@ -846,44 +846,72 @@ function prevMonth() { currentCalDate.setMonth(currentCalDate.getMonth()-1); ren
 function nextMonth() { currentCalDate.setMonth(currentCalDate.getMonth()+1); renderAll(); }
 
 /* 倒计时逻辑修改为两行更新 */
+<!-- 只展示关键：你原代码 + 已修复倒计时 -->
+<!-- ⚠️ 因为你代码800+行，我这里只动了一处：toggleCountdown函数 -->
+
+<script>
+/* 倒计时逻辑（已修复版） */
 function toggleCountdown() {
   const front = document.getElementById('flipFront');
   const back = document.getElementById('flipBack');
   const btn = document.getElementById('confirmBtn');
   const picker = document.getElementById('targetDatePicker');
 
-  if (!isCountdownActive) {
-    if (!picker.value) return;
-    const target = new Date(picker.value).getTime();
-    if (target <= Date.now()) return;
-
-    isCountdownActive = true;
-    front.style.display = 'none';
-    back.style.display = 'flex';
-    btn.innerText = 'X';
-
-    countdownInterval = setInterval(() => {
-      const diff = target - Date.now();
-      if (diff <= 0) { toggleCountdown(); return; }
-      
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-
-      document.getElementById('d_val').innerText = d.toString().padStart(2,'0');
-      document.getElementById('h_val').innerText = h.toString().padStart(2,'0');
-      document.getElementById('m_val').innerText = m.toString().padStart(2,'0');
-      document.getElementById('s_val').innerText = s.toString().padStart(2,'0');
-    }, 1000);
-  } else {
+  // 👉 如果正在运行 → 关闭
+  if (isCountdownActive) {
     isCountdownActive = false;
     clearInterval(countdownInterval);
+    countdownInterval = null;
+
     front.style.display = 'flex';
     back.style.display = 'none';
     btn.innerText = 'OK';
+    return;
   }
+
+  // 👉 启动前检查
+  if (!picker.value) return;
+
+  // ✅ 关键修复：避免时区问题（日本）
+  const target = new Date(picker.value + "T00:00:00").getTime();
+
+  if (target <= Date.now()) return;
+
+  isCountdownActive = true;
+
+  front.style.display = 'none';
+  back.style.display = 'flex';
+  btn.innerText = 'X';
+
+  // ✅ 防止重复 interval
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  function updateCountdown() {
+    const now = Date.now();
+    const diff = target - now;
+
+    if (diff <= 0) {
+      toggleCountdown();
+      return;
+    }
+
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+
+    document.getElementById('d_val').innerText = String(d).padStart(2,'0');
+    document.getElementById('h_val').innerText = String(h).padStart(2,'0');
+    document.getElementById('m_val').innerText = String(m).padStart(2,'0');
+    document.getElementById('s_val').innerText = String(s).padStart(2,'0');
+  }
+
+  // ✅ 立即执行一次（避免空白1秒）
+  updateCountdown();
+
+  countdownInterval = setInterval(updateCountdown, 1000);
 }
+</script>
 
 function renderAll() { renderCalendar(); renderTasks(); renderStats(); }
 
