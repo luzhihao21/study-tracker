@@ -225,7 +225,7 @@ body {
 }
 
 .flip-box {
-  width: 220px;
+  width: 165px;
   height: 60px;
   perspective: 1200px;
   position: relative;
@@ -520,7 +520,7 @@ const locales = {
   zh: {
     appTitle:"📘 学习进度", settingsTitle:"⚙️ 设置", langLabel:"语言 / Language / 言語",
     exportBtn:"📤 导出备份", importBtn:"📥 导入备份", clearBtn:"🗑️ 清空所有",
-    calendarMonth:"📅 {year}年 {month}月",
+    calendarMonth:"{year}年{month}月",
     weekDays:["日","一","二","三","四","五","六"],
     taskToday:"📋 今日任务", taskOther:"📋 {month}月{day}日任务",
     taskPlaceholder:"输入学习任务...",
@@ -541,7 +541,7 @@ const locales = {
   en: {
     appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
     exportBtn:"📤 Export Backup", importBtn:"📥 Import Backup", clearBtn:"🗑️ Clear All",
-    calendarMonth:"📅 {year}/{month}",
+    calendarMonth:"{year}/{month}",
     weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
     taskToday:"📋 Today's Tasks", taskOther:"📋 {month}/{day} Tasks",
     taskPlaceholder:"Enter learning task...",
@@ -562,7 +562,7 @@ const locales = {
   ja: {
     appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
     exportBtn:"📤 バックアップ出力", importBtn:"📥 バックアップ読込", clearBtn:"🗑️ 全削除",
-    calendarMonth:"📅 {year}年 {month}月",
+    calendarMonth:"{year}年{month}月",
     weekDays:["日","月","火","水","木","金","土"],
     taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
     taskPlaceholder:"学習タスクを入力...",
@@ -917,7 +917,7 @@ function renderCalendar() {
   // 回到今天按钮 —— 格子大小，放在最后
   const btn = document.createElement('button');
   btn.className = 'today-btn';
-  btn.textContent = '今天';
+  btn.textContent = '回到今天';
   btn.onclick = goToToday;
   cal.appendChild(btn);
 }
