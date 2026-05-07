@@ -112,7 +112,6 @@ body {
     linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% - 0.5px), rgba(255,255,255,0.6) calc(50% + 0.5px), transparent calc(50% + 0.5px));
   pointer-events: none; border-radius: 10px;
 }
-
 .day.ratio-50 { background: linear-gradient(135deg, #66bb6a 50%, #e0e0e0 50%); color: #333; }
 .day.ratio-67 {
   background: linear-gradient(to right, #66bb6a 66.6%, #e0e0e0 66.6%);
@@ -176,7 +175,7 @@ body {
 
 .day-num { position: relative; z-index: 5; line-height: 1; }
 
-/* 月份标题区域修复 —— 不再挤压遮挡 */
+/* 月份 + 倒计时 同一行布局 */
 .month-title { 
   text-align: center; 
   font-size: 16px; 
@@ -184,15 +183,17 @@ body {
   margin-bottom: 10px; 
   color: #333;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .month-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 .month-btn {
   background: #e0e0e0;
@@ -219,14 +220,14 @@ body {
 .countdown-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 1;
 }
 
 .flip-box {
   width: 165px;
-  height: 60px;
+  height: 50px;
   perspective: 1200px;
   position: relative;
   flex-shrink: 0;
@@ -242,7 +243,7 @@ body {
 
 .flip-digit {
   position: relative;
-  width: 22px;
+  width: 20px;
   height: 80%;
   margin: 0 1px;
   transform-style: preserve-3d;
@@ -257,7 +258,7 @@ body {
   justify-content: center;
   font-family: "Courier New", monospace;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
   background: #222;
   color: #fff;
   border-radius: 6px;
@@ -281,7 +282,7 @@ body {
 }
 
 .flip-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #fff;
   margin-left: 2px;
 }
@@ -314,12 +315,12 @@ body {
 
 /* OK 按钮正常显示 */
 #confirmBtn {
-  padding: 8px 10px;
+  padding: 6px 8px;
   background: #3c6e2d;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   border: 1px solid #2d5220;
@@ -339,6 +340,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: pre-wrap;
+  line-height: 1.1;
 }
 
 .task-item {
@@ -520,8 +523,9 @@ const locales = {
   zh: {
     appTitle:"📘 学习进度", settingsTitle:"⚙️ 设置", langLabel:"语言 / Language / 言語",
     exportBtn:"📤 导出备份", importBtn:"📥 导入备份", clearBtn:"🗑️ 清空所有",
-    calendarMonth:"{year}年{month}月",
+    calendarMonth:"{month}月",
     weekDays:["日","一","二","三","四","五","六"],
+    todayBtnText:"回到\n今天",
     taskToday:"📋 今日任务", taskOther:"📋 {month}月{day}日任务",
     taskPlaceholder:"输入学习任务...",
     rangeToday:"今天", range3Days:"最近3天", range7Days:"最近7天", rangeEveryday:"每天",
@@ -541,8 +545,9 @@ const locales = {
   en: {
     appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
     exportBtn:"📤 Export Backup", importBtn:"📥 Import Backup", clearBtn:"🗑️ Clear All",
-    calendarMonth:"{year}/{month}",
+    calendarMonth:"{month}",
     weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    todayBtnText:"Today",
     taskToday:"📋 Today's Tasks", taskOther:"📋 {month}/{day} Tasks",
     taskPlaceholder:"Enter learning task...",
     rangeToday:"Today", range3Days:"Next 3 days", range7Days:"Next 7 days", rangeEveryday:"Everyday",
@@ -562,8 +567,9 @@ const locales = {
   ja: {
     appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
     exportBtn:"📤 バックアップ出力", importBtn:"📥 バックアップ読込", clearBtn:"🗑️ 全削除",
-    calendarMonth:"{year}年{month}月",
+    calendarMonth:"{month}月",
     weekDays:["日","月","火","水","木","金","土"],
+    todayBtnText:"今日\nへ",
     taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
     taskPlaceholder:"学習タスクを入力...",
     rangeToday:"今日だけ", range3Days:"3日間", range7Days:"7日間", rangeEveryday:"毎日",
@@ -914,10 +920,10 @@ function renderCalendar() {
     cal.appendChild(buildDayCell(key, i, todayStr));
   }
 
-  // 回到今天按钮 —— 格子大小，放在最后
+  // 语言适配的回到今天按钮
   const btn = document.createElement('button');
   btn.className = 'today-btn';
-  btn.textContent = '回到今天';
+  btn.textContent = locales[currentLang].todayBtnText;
   btn.onclick = goToToday;
   cal.appendChild(btn);
 }
