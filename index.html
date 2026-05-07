@@ -176,6 +176,7 @@ body {
 
 .day-num { position: relative; z-index: 5; line-height: 1; }
 
+/* 月份标题区域修复 —— 不再挤压遮挡 */
 .month-title { 
   text-align: center; 
   font-size: 16px; 
@@ -183,27 +184,28 @@ body {
   margin-bottom: 10px; 
   color: #333;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 10px;
 }
 
 .month-nav {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .month-btn {
   background: #e0e0e0;
   border: none;
   border-radius: 6px;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 .month-btn:hover {
   background: #d0d0d0;
@@ -213,18 +215,21 @@ body {
   cursor: not-allowed;
 }
 
+/* 倒计时容器紧凑化 */
 .countdown-container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: 100%;
 }
 
 .flip-box {
-  width: 280px;
-  height: 80px;
+  width: 220px;
+  height: 60px;
   perspective: 1200px;
   position: relative;
+  flex-shrink: 0;
 }
 
 .flip-unit {
@@ -237,7 +242,7 @@ body {
 
 .flip-digit {
   position: relative;
-  width: 26px;
+  width: 22px;
   height: 80%;
   margin: 0 1px;
   transform-style: preserve-3d;
@@ -252,7 +257,7 @@ body {
   justify-content: center;
   font-family: "Courier New", monospace;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
   background: #222;
   color: #fff;
   border-radius: 6px;
@@ -276,7 +281,7 @@ body {
 }
 
 .flip-label {
-  font-size: 14px;
+  font-size: 12px;
   color: #fff;
   margin-left: 2px;
 }
@@ -307,8 +312,9 @@ body {
   border: 2px solid #8b6f47;
 }
 
+/* OK 按钮正常显示 */
 #confirmBtn {
-  padding: 6px 12px;
+  padding: 8px 10px;
   background: #3c6e2d;
   color: white;
   border: none;
@@ -317,18 +323,22 @@ body {
   font-weight: bold;
   cursor: pointer;
   border: 1px solid #2d5220;
+  flex-shrink: 0;
 }
 
+/* 回到今天按钮 —— 和日期格子一样大 */
 .today-btn {
-  grid-column: span 7;
-  padding: 6px;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 10px;
   background: #1565c0;
   color: white;
-  border: none;
-  border-radius: 8px;
+  font-size: 12px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .task-item {
@@ -904,9 +914,10 @@ function renderCalendar() {
     cal.appendChild(buildDayCell(key, i, todayStr));
   }
 
+  // 回到今天按钮 —— 格子大小，放在最后
   const btn = document.createElement('button');
   btn.className = 'today-btn';
-  btn.textContent = '📅 回到今天';
+  btn.textContent = '今天';
   btn.onclick = goToToday;
   cal.appendChild(btn);
 }
