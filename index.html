@@ -78,6 +78,8 @@ body {
   .delete-task { padding: 4px 10px; font-size: 11px; }
   .stat-number { font-size: 22px; }
   .input-group input, .input-group select, .input-group button { padding: 10px; }
+  .holiday-icon-china, .holiday-icon-japan { font-size: 7px; }
+  .holiday-label { font-size: 5px; }
 }
 
 @media (max-width: 380px) {
@@ -189,46 +191,48 @@ body {
 .today { outline: 2.5px solid #1565c0; outline-offset: 1px; font-weight: bold; }
 .day.selected-day { outline: 2.5px solid #e91e63; outline-offset: 1px; }
 
-/* 节日图标布局 - 中国🇨🇳靠上，日本🇯🇵靠底 */
-.holiday-icon-china, .holiday-icon-japan {
+/* 节日图标布局 - 中国🇨🇳靠上堆叠，日本🇯🇵靠底堆叠 */
+.holiday-china-wrapper, .holiday-japan-wrapper {
   position: absolute;
-  font-size: 8px;
-  opacity: 0.9;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   pointer-events: none;
   z-index: 10;
-  left: 2px;
-  background: rgba(255,255,240,0.7);
-  border-radius: 4px;
-  padding: 0 2px;
-  line-height: 1.2;
 }
-.holiday-icon-china { top: 2px; color: #e31b23; text-shadow: 0 0 1px gold; }
-.holiday-icon-japan { bottom: 2px; color: #bc002d; }
+.holiday-china-wrapper { top: 1px; }
+.holiday-japan-wrapper { bottom: 1px; }
 
-.holiday-label {
-  position: absolute;
-  left: 0; right: 0;
-  font-size: 6px;
-  font-weight: bold;
-  background: rgba(255,248,200,0.95);
-  border-radius: 3px;
+.holiday-item {
+  font-size: 7px;
   white-space: nowrap;
+  border-radius: 3px;
+  padding: 0 2px;
+  margin: 0 1px;
+  line-height: 1.3;
+  max-width: 95%;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 1px;
-  text-align: center;
-  pointer-events: none;
-  z-index: 10;
 }
-.china-label { top: 14px; color: #b13b4a; }
-.japan-label { bottom: 14px; color: #b13b4a; }
+.china-item {
+  background: rgba(255,235,190,0.95);
+  color: #c62828;
+  border-left: 2px solid #e31b23;
+}
+.japan-item {
+  background: rgba(230,240,255,0.95);
+  color: #1565c0;
+  border-left: 2px solid #bc002d;
+}
 
 .day-num { position: relative; z-index: 5; line-height: 1; }
 
 /* 月份 + 倒计时 同一行布局 */
 .month-title { 
   text-align: center; 
-  font-size: 16px; 
+  font-size: 18px; 
   font-weight: bold; 
   margin-bottom: 10px; 
   color: #333;
@@ -259,7 +263,6 @@ body {
   flex-shrink: 0;
 }
 .month-btn:hover { background: #d0d0d0; }
-.month-btn.disabled { opacity: 0.4; cursor: not-allowed; }
 
 .countdown-container {
   display: flex;
@@ -392,8 +395,6 @@ body {
 }
 .task-edit { background: #007bff; color:white; }
 .delete-task { background: #ff4444; color: white; }
-.delete-task:hover { background: #cc0000; }
-.task-edit:hover { background: #0056b3; }
 
 .empty-tasks { text-align: center; color: #999; padding: 25px; }
 
@@ -452,14 +453,15 @@ h2 { margin: 0; font-size: 24px; }
 
 /* 饼图样式 */
 .pie-container { display: flex; flex-direction: column; align-items: center; margin: 10px 0 20px; }
-canvas#goalPieChart { max-width: 240px; width: 100%; height: auto; background: #fef9e6; border-radius: 50%; margin-bottom: 12px; }
+canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #fef9e6; border-radius: 50%; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .milestone-card { background: #f8f9fc; border-radius: 18px; padding: 14px; margin-bottom: 18px; }
 .milestone-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; padding-left: 10px; }
 .milestone-title { font-size: 18px; font-weight: bold; }
 .progress-bar-bg { background: #e9ecef; border-radius: 20px; height: 28px; overflow: hidden; margin: 10px 0; }
-.progress-fill-bar { background: #2e7d32; width: 0%; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-weight: bold; font-size: 13px; border-radius: 20px; }
+.progress-fill-bar { background: #2e7d32; width: 0%; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-weight: bold; font-size: 13px; border-radius: 20px; transition: width 0.3s; }
 .milestone-stats { font-size: 13px; color: #2c3e66; margin-top: 5px; text-align: right; }
-.edit-goal-btn { background: #007bff22; border: 1px solid #007bff; padding: 4px 12px; border-radius: 30px; cursor: pointer; font-size: 12px; }
+.edit-goal-btn { background: #007bff22; border: 1px solid #007bff; padding: 4px 12px; border-radius: 30px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.edit-goal-btn:hover { background: #007bff44; }
 </style>
 </head>
 <body>
@@ -558,14 +560,16 @@ canvas#goalPieChart { max-width: 240px; width: 100%; height: auto; background: #
       <canvas id="goalPieChart" width="300" height="300"></canvas>
     </div>
     <div id="milestonesContainer"></div>
-    <div style="margin-top: 12px; text-align: center; font-size: 13px; color: gray;">💡 点击编辑按钮可修改目标总数，每日任务自动累加到大任务进度</div>
+    <div style="margin-top: 12px; text-align: center; font-size: 13px; color: gray; background: #e8f0fe; padding: 8px; border-radius: 12px;">
+      💡 提示：每日任务中如果包含「日语单词」或「日语语法」关键词，完成✅后会自动累加到大目标进度！
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== 中国节假日+24节气（五星红旗） ====================
+// ==================== 中国节假日+24节气 ====================
 const chinaHolidays24 = {
   "2025-01-01":"元旦","2025-01-29":"春节","2025-02-12":"元宵节","2025-04-04":"清明节","2025-05-01":"劳动节","2025-05-31":"端午节","2025-10-01":"国庆节","2025-10-06":"中秋节",
   "2025-02-03":"立春","2025-02-18":"雨水","2025-03-05":"惊蛰","2025-03-20":"春分","2025-04-04":"清明","2025-04-20":"谷雨","2025-05-05":"立夏","2025-05-21":"小满","2025-06-05":"芒种","2025-06-21":"夏至","2025-07-07":"小暑","2025-07-22":"大暑","2025-08-07":"立秋","2025-08-23":"处暑","2025-09-07":"白露","2025-09-23":"秋分","2025-10-08":"寒露","2025-10-23":"霜降","2025-11-07":"立冬","2025-11-22":"小雪","2025-12-07":"大雪","2025-12-21":"冬至",
@@ -585,16 +589,22 @@ const jpHolidays = {
   "2026-09-23":"秋分の日","2026-10-12":"スポーツの日","2026-11-03":"文化の日","2026-11-23":"勤労感謝の日"
 };
 
-function getChinaHoliday(d) { return chinaHolidays24[d] || null; }
-function getJapanHoliday(d) { return jpHolidays[d] || null; }
+function getChinaHolidaysList(d) {
+  const h = chinaHolidays24[d];
+  return h ? [h] : [];
+}
+function getJapanHolidaysList(d) {
+  const h = jpHolidays[d];
+  return h ? [h] : [];
+}
 
-// ==================== 大任务定义（可编辑） ====================
+// ==================== 大任务定义（可编辑，通过关键词关联任务） ====================
 let bigGoals = [
   { id: "goal_jp_word", name: "📖 日语单词", total: 3000, keyword: "日语单词" },
   { id: "goal_jp_grammar", name: "📚 日语语法", total: 200, keyword: "日语语法" }
 ];
 
-// ==================== 原有全局变量 ====================
+// ==================== 全局变量 ====================
 let currentLang = 'zh';
 let currentCalDate = new Date();
 let countdownInterval = null;
@@ -619,11 +629,12 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-// ==================== 大任务进度计算（关联每日任务） ====================
+// ==================== 大任务进度计算（关联每日任务 - 关键修复） ====================
 function computeGoalProgress(goal) {
   let doneCount = 0;
   for (let t of tasks) {
-    if (t.done && t.text.includes(goal.keyword)) {
+    // 检查已完成的任务文本是否包含关键词
+    if (t.done && t.text && t.text.includes(goal.keyword)) {
       doneCount++;
     }
   }
@@ -664,7 +675,10 @@ function drawPieChart() {
   let startAngle = -Math.PI/2;
   const colors = ['#2e7d32', '#ff9800', '#f44336', '#9c27b0'];
   ctx.clearRect(0, 0, w, h);
+  
+  let hasData = false;
   bigGoals.forEach((g, idx) => {
+    if (g.total > 0) hasData = true;
     const angle = (g.total / totalSum) * Math.PI * 2;
     const endAngle = startAngle + angle;
     ctx.beginPath();
@@ -674,6 +688,18 @@ function drawPieChart() {
     ctx.fill();
     startAngle = endAngle;
   });
+  
+  if (!hasData) {
+    ctx.beginPath();
+    ctx.fillStyle = '#ddd';
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#666';
+    ctx.font = '12px system-ui';
+    ctx.fillText('暂无目标', centerX-30, centerY+5);
+  }
+  
   ctx.fillStyle = '#333';
   ctx.font = 'bold 14px system-ui';
   ctx.fillText('🎯 目标占比', centerX-45, centerY-radius-8);
@@ -697,7 +723,7 @@ function loadBigGoals() {
   if (saved) { bigGoals = JSON.parse(saved); }
 }
 
-// ==================== 原有任务和日历逻辑 ====================
+// ==================== 任务和日历逻辑 ====================
 function getDayInfo(dateStr) {
   const dayTasks = tasks.filter(t => t.date === dateStr);
   const total = dayTasks.length;
@@ -729,11 +755,11 @@ function getSmallTaskRatioClass(total, done) {
   return 'ratio-0';
 }
 
-// 构建日期格子（包含双节日图标：中国🇨🇳靠上，日本🇯🇵靠底）
+// 构建日期格子（双节日堆叠显示：中国在上，日本在下）
 function buildDayCell(key, dayNum, todayStr) {
   const { total, done, ratio } = getDayInfo(key);
-  const chinaH = getChinaHoliday(key);
-  const japanH = getJapanHoliday(key);
+  const chinaHolidays = getChinaHolidaysList(key);
+  const japanHolidays = getJapanHolidaysList(key);
   const div = document.createElement('div');
   div.className = 'day';
 
@@ -756,30 +782,30 @@ function buildDayCell(key, dayNum, todayStr) {
     }
   }
 
-  // 中国节日图标+标签（靠上）
-  if (chinaH) {
-    const chinaIcon = document.createElement('span');
-    chinaIcon.className = 'holiday-icon-china';
-    chinaIcon.textContent = '🇨🇳';
-    chinaIcon.title = chinaH;
-    div.appendChild(chinaIcon);
-    const chinaLabel = document.createElement('span');
-    chinaLabel.className = 'holiday-label china-label';
-    chinaLabel.textContent = chinaH;
-    div.appendChild(chinaLabel);
+  // 中国节日（靠上堆叠）- 用🇨🇳图标 + 名称
+  if (chinaHolidays.length > 0) {
+    const chinaWrapper = document.createElement('div');
+    chinaWrapper.className = 'holiday-china-wrapper';
+    chinaHolidays.forEach(h => {
+      const item = document.createElement('div');
+      item.className = 'holiday-item china-item';
+      item.innerHTML = `🇨🇳 ${h}`;
+      chinaWrapper.appendChild(item);
+    });
+    div.appendChild(chinaWrapper);
   }
 
-  // 日本节日图标+标签（靠下）
-  if (japanH) {
-    const japanIcon = document.createElement('span');
-    japanIcon.className = 'holiday-icon-japan';
-    japanIcon.textContent = '🇯🇵';
-    japanIcon.title = japanH;
-    div.appendChild(japanIcon);
-    const japanLabel = document.createElement('span');
-    japanLabel.className = 'holiday-label japan-label';
-    japanLabel.textContent = japanH;
-    div.appendChild(japanLabel);
+  // 日本节日（靠底堆叠）- 用🇯🇵图标 + 名称
+  if (japanHolidays.length > 0) {
+    const japanWrapper = document.createElement('div');
+    japanWrapper.className = 'holiday-japan-wrapper';
+    japanHolidays.forEach(h => {
+      const item = document.createElement('div');
+      item.className = 'holiday-item japan-item';
+      item.innerHTML = `🇯🇵 ${h}`;
+      japanWrapper.appendChild(item);
+    });
+    div.appendChild(japanWrapper);
   }
 
   const numSpan = document.createElement('span');
@@ -804,8 +830,8 @@ function renderCalendar() {
   const t = locales[currentLang];
   const todayStr = getDateStr(new Date());
 
-  const calendarText = `${year}年${month+1}月`;
-  document.getElementById('calendarText').innerHTML = calendarText;
+  // 只显示月份，不显示年份
+  document.getElementById('calendarText').innerHTML = `${month+1}月`;
 
   cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
 
@@ -829,7 +855,7 @@ function renderCalendar() {
   cal.appendChild(btn);
 }
 
-// ==================== 任务管理（完全保留原逻辑） ====================
+// ==================== 任务管理 ====================
 function addTask() {
   const text = document.getElementById("taskInput").value.trim();
   const range = parseInt(document.getElementById("rangeSelect").value);
@@ -987,7 +1013,7 @@ function goToToday() {
   renderTasks();
 }
 
-// 倒计时功能（完整保留）
+// 倒计时功能
 function saveCountdownDate(dateStr) { localStorage.setItem('countdown_target_date', dateStr); }
 function loadCountdownDate() { return localStorage.getItem('countdown_target_date'); }
 
@@ -1143,17 +1169,17 @@ function setLanguage(lang) {
   });
 }
 
-// 多语言字典（完整保留）
+// 多语言字典
 const locales = {
   zh: {
-    appTitle:"📘 学习进度", settingsTitle:"⚙️ 设置", langLabel:"语言 / Language / 言語",
+    appTitle:"📘 学习进度", settingsTitle:"⚙️ 设置", langLabel:"语言",
     exportBtn:"📤 导出备份", importBtn:"📥 导入备份", clearBtn:"🗑️ 清空所有",
-    calendarMonth:"{month}月", weekDays:["日","一","二","三","四","五","六"],
-    todayBtnText:"回到\n今天", taskToday:"📋 今日任务", taskOther:"📋 {month}月{day}日任务",
+    weekDays:["日","一","二","三","四","五","六"],
+    todayBtnText:"今天", taskToday:"📋 今日任务", taskOther:"📋 {month}月{day}日任务",
     taskPlaceholder:"输入学习任务...", rangeToday:"今天", range3Days:"最近3天", range7Days:"最近7天", rangeEveryday:"每天",
     addBtn:"添加", totalLabel:"总任务", completedLabel:"已完成", streakLabel:"连续学习",
     emptyTasks:"✨ 暂无任务", deleteBtn:"删除", editBtn:"修改",
-    deleteConfirmFuture:(t,c)=>`「${t}」\n【确定】删除今天及以后 (${c}个任务)\n【取消】继续选择`,
+    deleteConfirmFuture:(t,c)=>`「${t}」\n确定删除今天及以后 (${c}个任务)？`,
     deleteConfirmAll:(t,c)=>`是否删除全部「${t}」 (共${c}个任务)？`,
     deleteCancel:"已取消", deleteFutureSuccess:"已删除今天及以后的任务",
     deleteAllSuccess:"已全部删除", deleteSingleSuccess:(t)=>`已删除「${t}」`,
@@ -1161,45 +1187,45 @@ const locales = {
     addSuccess:(r)=>r===999?"已添加每天任务":`已添加${r}天任务`,
     importSuccess:"导入成功", exportSuccess:"已导出",
     clearConfirm:"⚠️ 确认清空所有任务记录？", clearSuccess:"已清空",
-    collapseText:"展开已完成任务", expandText:"收起已完成任务",
+    collapseText:"展开已完成", expandText:"收起已完成",
     batchComplete:"一键完成", batchUncomplete:"一键取消"
   },
   en: {
-    appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language / 语言 / 言語",
-    exportBtn:"📤 Export Backup", importBtn:"📥 Import Backup", clearBtn:"🗑️ Clear All",
-    calendarMonth:"{month}", weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language",
+    exportBtn:"📤 Export", importBtn:"📥 Import", clearBtn:"🗑️ Clear",
+    weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
     todayBtnText:"Today", taskToday:"📋 Today's Tasks", taskOther:"📋 {month}/{day} Tasks",
-    taskPlaceholder:"Enter learning task...", rangeToday:"Today", range3Days:"Next 3 days", range7Days:"Next 7 days", rangeEveryday:"Everyday",
-    addBtn:"Add", totalLabel:"Total", completedLabel:"Completed", streakLabel:"Streak",
-    emptyTasks:"✨ No tasks", deleteBtn:"Delete", editBtn:"Edit",
-    deleteConfirmFuture:(t,c)=>`「${t}」\n[OK] Delete today & future (${c} tasks)\n[Cancel] More options`,
-    deleteConfirmAll:(t,c)=>`Delete ALL 「${t}」 (${c} tasks)?`,
-    deleteCancel:"Cancelled", deleteFutureSuccess:"Deleted today & future tasks",
-    deleteAllSuccess:"Deleted all tasks", deleteSingleSuccess:(t)=>`Deleted 「${t}」`,
-    taskEmptyWarning:"Please enter task content", editSuccess:"Edited",
-    addSuccess:(r)=>r===999?"Added everyday task":`Added ${r} days task`,
-    importSuccess:"Import successful", exportSuccess:"Exported",
-    clearConfirm:"⚠️ Clear all tasks?", clearSuccess:"Cleared",
-    collapseText:"Show completed", expandText:"Hide completed",
-    batchComplete:"Batch Complete", batchUncomplete:"Batch Undo"
+    taskPlaceholder:"Enter task...", rangeToday:"Today", range3Days:"3 Days", range7Days:"7 Days", rangeEveryday:"Everyday",
+    addBtn:"Add", totalLabel:"Total", completedLabel:"Done", streakLabel:"Streak",
+    emptyTasks:"✨ No tasks", deleteBtn:"Del", editBtn:"Edit",
+    deleteConfirmFuture:(t,c)=>`Delete "${t}" today+future (${c} tasks)?`,
+    deleteConfirmAll:(t,c)=>`Delete ALL "${t}" (${c} tasks)?`,
+    deleteCancel:"Cancelled", deleteFutureSuccess:"Deleted future tasks",
+    deleteAllSuccess:"Deleted all", deleteSingleSuccess:(t)=>`Deleted "${t}"`,
+    taskEmptyWarning:"Enter task", editSuccess:"Edited",
+    addSuccess:(r)=>r===999?"Added everyday":`Added ${r} days`,
+    importSuccess:"Imported", exportSuccess:"Exported",
+    clearConfirm:"Clear all data?", clearSuccess:"Cleared",
+    collapseText:"Show done", expandText:"Hide done",
+    batchComplete:"Complete", batchUncomplete:"Undo"
   },
   ja: {
-    appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語 / Language / 语言",
-    exportBtn:"📤 バックアップ出力", importBtn:"📥 バックアップ読込", clearBtn:"🗑️ 全削除",
-    calendarMonth:"{month}月", weekDays:["日","月","火","水","木","金","土"],
-    todayBtnText:"今日\nへ", taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
-    taskPlaceholder:"学習タスクを入力...", rangeToday:"今日だけ", range3Days:"3日間", range7Days:"7日間", rangeEveryday:"毎日",
-    addBtn:"追加", totalLabel:"総タスク", completedLabel:"完了済み", streakLabel:"連続学習",
-    emptyTasks:"✨ タスクがありません", deleteBtn:"削除", editBtn:"編集",
-    deleteConfirmFuture:(t,c)=>`「${t}」\n【OK】今日以降(${c}件)削除\n【キャンセル】全削除選択へ`,
+    appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語",
+    exportBtn:"📤 出力", importBtn:"📥 読込", clearBtn:"🗑️ 削除",
+    weekDays:["日","月","火","水","木","金","土"],
+    todayBtnText:"今日", taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
+    taskPlaceholder:"タスク入力...", rangeToday:"今日", range3Days:"3日間", range7Days:"7日間", rangeEveryday:"毎日",
+    addBtn:"追加", totalLabel:"総数", completedLabel:"完了", streakLabel:"連続",
+    emptyTasks:"✨ タスクなし", deleteBtn:"削除", editBtn:"編集",
+    deleteConfirmFuture:(t,c)=>`「${t}」今日以降(${c}件)削除しますか？`,
     deleteConfirmAll:(t,c)=>`全ての「${t}」(${c}件)を削除しますか？`,
-    deleteCancel:"キャンセル", deleteFutureSuccess:"今日以降のタスクを削除",
-    deleteAllSuccess:"全て削除しました", deleteSingleSuccess:(t)=>`「${t}」を削除`,
-    taskEmptyWarning:"タスクを入力してください", editSuccess:"編集完了",
-    addSuccess:(r)=>r===999?"毎日タスクを追加":`${r}日間追加`,
-    importSuccess:"インポート成功", exportSuccess:"エクスポート完了",
-    clearConfirm:"全てのデータを削除しますか？", clearSuccess:"データクリア",
-    collapseText:"完了済みを表示", expandText:"完了済みを隠す",
+    deleteCancel:"キャンセル", deleteFutureSuccess:"今日以降を削除",
+    deleteAllSuccess:"全て削除", deleteSingleSuccess:(t)=>`「${t}」を削除`,
+    taskEmptyWarning:"タスクを入力", editSuccess:"編集完了",
+    addSuccess:(r)=>r===999?"毎日タスク追加":`${r}日間追加`,
+    importSuccess:"インポート成功", exportSuccess:"エクスポート",
+    clearConfirm:"全データ削除しますか？", clearSuccess:"クリア完了",
+    collapseText:"完了表示", expandText:"完了非表示",
     batchComplete:"一括完了", batchUncomplete:"一括取消"
   }
 };
@@ -1249,7 +1275,7 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 renderAll();
 document.getElementById('importFile').addEventListener('change', handleImport);
 
-// 页面切换监听
+// 页面切换
 document.querySelectorAll('.page-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const pageId = btn.dataset.page;
