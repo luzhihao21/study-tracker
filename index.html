@@ -16,7 +16,6 @@ body {
   min-height: 100vh;
 }
 
-/* 双页导航 */
 .page-nav {
   display: flex;
   gap: 12px;
@@ -78,8 +77,6 @@ body {
   .delete-task { padding: 4px 10px; font-size: 11px; }
   .stat-number { font-size: 22px; }
   .input-group input, .input-group select, .input-group button { padding: 10px; }
-  .holiday-icon-china, .holiday-icon-japan { font-size: 7px; }
-  .holiday-label { font-size: 5px; }
 }
 
 @media (max-width: 380px) {
@@ -147,23 +144,9 @@ body {
   background: linear-gradient(to right, #66bb6a 66.6%, #e0e0e0 66.6%);
   color: #fff;
 }
-.day.ratio-67::after {
-  content: ''; position: absolute; inset: 0;
-  background:
-    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
-    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
-  pointer-events: none; border-radius: 10px;
-}
 .day.ratio-33 {
   background: linear-gradient(to right, #66bb6a 33.3%, #e0e0e0 33.3%);
   color: #333;
-}
-.day.ratio-33::after {
-  content: ''; position: absolute; inset: 0;
-  background:
-    linear-gradient(to right, transparent calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% - 0.5px), rgba(255,255,255,0.6) calc(33.3% + 0.5px), transparent calc(33.3% + 0.5px)),
-    linear-gradient(to right, transparent calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% - 0.5px), rgba(255,255,255,0.6) calc(66.6% + 0.5px), transparent calc(66.6% + 0.5px));
-  pointer-events: none; border-radius: 10px;
 }
 .day.ratio-75 { background: linear-gradient(to right, #66bb6a 50%, #e0e0e0 50%); position: relative; }
 .day.ratio-75::before {
@@ -191,7 +174,6 @@ body {
 .today { outline: 2.5px solid #1565c0; outline-offset: 1px; font-weight: bold; }
 .day.selected-day { outline: 2.5px solid #e91e63; outline-offset: 1px; }
 
-/* 节日图标布局 - 中国🇨🇳靠上堆叠，日本🇯🇵靠底堆叠 */
 .holiday-china-wrapper, .holiday-japan-wrapper {
   position: absolute;
   left: 0;
@@ -229,7 +211,6 @@ body {
 
 .day-num { position: relative; z-index: 5; line-height: 1; }
 
-/* 月份 + 倒计时 同一行布局 */
 .month-title { 
   text-align: center; 
   font-size: 18px; 
@@ -451,9 +432,42 @@ h2 { margin: 0; font-size: 24px; }
   cursor: pointer;
 }
 
-/* 饼图样式 */
-.pie-container { display: flex; flex-direction: column; align-items: center; margin: 10px 0 20px; }
-canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #fef9e6; border-radius: 50%; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+/* ===== 饼图区域 ===== */
+.pie-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.pie-canvas-wrap {
+  position: relative;
+  width: min(260px, 80vw);
+  height: min(260px, 80vw);
+}
+#goalPieChart {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.pie-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+.legend-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .milestone-card { background: #f8f9fc; border-radius: 18px; padding: 14px; margin-bottom: 18px; }
 .milestone-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; padding-left: 10px; }
 .milestone-title { font-size: 18px; font-weight: bold; }
@@ -462,6 +476,12 @@ canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #
 .milestone-stats { font-size: 13px; color: #2c3e66; margin-top: 5px; text-align: right; }
 .edit-goal-btn { background: #007bff22; border: 1px solid #007bff; padding: 4px 12px; border-radius: 30px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .edit-goal-btn:hover { background: #007bff44; }
+
+/* 新增大目标管理区 */
+.add-goal-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.add-goal-row input { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; }
+.add-goal-row button { padding: 8px 14px; background: #28a745; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; }
+.del-goal-btn { background: #dc354533; border: 1px solid #dc3545; padding: 3px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; color: #dc3545; }
 </style>
 </head>
 <body>
@@ -487,22 +507,20 @@ canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #
 </div>
 <input type="file" id="importFile" style="display:none;" accept=".json">
 
-<!-- 双页切换 -->
 <div class="page-nav">
   <div class="page-btn active" data-page="page1">📅 热力日历</div>
   <div class="page-btn" data-page="page2">🥧 目标总览</div>
 </div>
 
-<!-- 页面1: 热力图 + 任务 -->
+<!-- 页面1 -->
 <div id="page1" class="page show">
   <div class="card">
     <div class="month-title" id="calendarTitle">
       <div class="month-nav">
-        <button class="month-btn" id="prevBtn" onclick="prevMonth()">‹</button>
+        <button class="month-btn" onclick="prevMonth()">‹</button>
         <span id="calendarText"></span>
         <button class="month-btn" onclick="nextMonth()">›</button>
       </div>
-      
       <div class="countdown-container">
         <div class="flip-box">
           <div class="flip-front" id="flipFront">
@@ -515,7 +533,6 @@ canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #
         <button id="confirmBtn" onclick="toggleCountdown()">OK</button>
       </div>
     </div>
-
     <div class="calendar-wrapper">
       <div class="calendar" id="calendar"></div>
     </div>
@@ -552,16 +569,32 @@ canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #
   </div>
 </div>
 
-<!-- 页面2: 饼图 + 大任务管理 -->
+<!-- 页面2 -->
 <div id="page2" class="page">
   <div class="card">
-    <h3>📊 总目标步步为营</h3>
-    <div class="pie-container">
-      <canvas id="goalPieChart" width="300" height="300"></canvas>
+    <h3>📊 大目标总览</h3>
+
+    <!-- 新增大目标 -->
+    <div class="add-goal-row">
+      <input id="newGoalName" placeholder="大目标名称（如：日语单词）">
+      <input id="newGoalKeyword" placeholder="关联关键词">
+      <input id="newGoalTotal" placeholder="总数" type="number" min="1" style="width:70px;flex:none;">
+      <button onclick="addBigGoal()">＋添加</button>
     </div>
+
+    <!-- 饼图：显示各大目标「剩余量」占比 -->
+    <div class="pie-section">
+      <div class="pie-canvas-wrap">
+        <canvas id="goalPieChart"></canvas>
+      </div>
+      <div class="pie-legend" id="pieLegend"></div>
+      <div style="font-size:12px;color:#999;margin-top:6px;">饼图 = 各目标剩余量占比（越小越好！）</div>
+    </div>
+
     <div id="milestonesContainer"></div>
-    <div style="margin-top: 12px; text-align: center; font-size: 13px; color: gray; background: #e8f0fe; padding: 8px; border-radius: 12px;">
-      💡 提示：每日任务中如果包含「日语单词」或「日语语法」关键词，完成✅后会自动累加到大目标进度！
+
+    <div style="margin-top:12px;text-align:center;font-size:13px;color:gray;background:#e8f0fe;padding:8px;border-radius:12px;">
+      💡 小任务文本包含关键词并打✅，自动累加到对应大目标进度
     </div>
   </div>
 </div>
@@ -569,15 +602,14 @@ canvas#goalPieChart { max-width: 260px; width: 100%; height: auto; background: #
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== 中国节假日+24节气 ====================
+// ==================== 节假日数据 ====================
 const chinaHolidays24 = {
   "2025-01-01":"元旦","2025-01-29":"春节","2025-02-12":"元宵节","2025-04-04":"清明节","2025-05-01":"劳动节","2025-05-31":"端午节","2025-10-01":"国庆节","2025-10-06":"中秋节",
-  "2025-02-03":"立春","2025-02-18":"雨水","2025-03-05":"惊蛰","2025-03-20":"春分","2025-04-04":"清明","2025-04-20":"谷雨","2025-05-05":"立夏","2025-05-21":"小满","2025-06-05":"芒种","2025-06-21":"夏至","2025-07-07":"小暑","2025-07-22":"大暑","2025-08-07":"立秋","2025-08-23":"处暑","2025-09-07":"白露","2025-09-23":"秋分","2025-10-08":"寒露","2025-10-23":"霜降","2025-11-07":"立冬","2025-11-22":"小雪","2025-12-07":"大雪","2025-12-21":"冬至",
+  "2025-02-03":"立春","2025-02-18":"雨水","2025-03-05":"惊蛰","2025-03-20":"春分","2025-04-20":"谷雨","2025-05-05":"立夏","2025-05-21":"小满","2025-06-05":"芒种","2025-06-21":"夏至","2025-07-07":"小暑","2025-07-22":"大暑","2025-08-07":"立秋","2025-08-23":"处暑","2025-09-07":"白露","2025-09-23":"秋分","2025-10-08":"寒露","2025-10-23":"霜降","2025-11-07":"立冬","2025-11-22":"小雪","2025-12-07":"大雪","2025-12-21":"冬至",
   "2026-01-01":"元旦","2026-02-17":"春节","2026-04-05":"清明节","2026-05-01":"劳动节","2026-06-25":"端午节","2026-10-01":"国庆节","2026-10-05":"中秋节",
-  "2026-02-04":"立春","2026-02-19":"雨水","2026-03-05":"惊蛰","2026-03-20":"春分","2026-04-05":"清明","2026-04-20":"谷雨","2026-05-05":"立夏","2026-05-21":"小满","2026-06-05":"芒种","2026-06-21":"夏至","2026-07-07":"小暑","2026-07-23":"大暑","2026-08-07":"立秋","2026-08-23":"处暑","2026-09-07":"白露","2026-09-23":"秋分","2026-10-08":"寒露","2026-10-23":"霜降","2026-11-07":"立冬","2026-11-22":"小雪","2026-12-07":"大雪","2026-12-21":"冬至"
+  "2026-02-04":"立春","2026-02-19":"雨水","2026-03-05":"惊蛰","2026-03-20":"春分","2026-04-20":"谷雨","2026-05-05":"立夏","2026-05-21":"小满","2026-06-05":"芒种","2026-06-21":"夏至","2026-07-07":"小暑","2026-07-23":"大暑","2026-08-07":"立秋","2026-08-23":"处暑","2026-09-07":"白露","2026-09-23":"秋分","2026-10-08":"寒露","2026-10-23":"霜降","2026-11-07":"立冬","2026-11-22":"小雪","2026-12-07":"大雪","2026-12-21":"冬至"
 };
 
-// ==================== 日本节假日 ====================
 const jpHolidays = {
   "2025-01-01":"元日","2025-01-13":"成人の日","2025-02-11":"建国記念の日","2025-02-23":"天皇誕生日",
   "2025-03-20":"春分の日","2025-04-29":"昭和の日","2025-05-03":"憲法記念日","2025-05-04":"みどりの日",
@@ -589,367 +621,415 @@ const jpHolidays = {
   "2026-09-23":"秋分の日","2026-10-12":"スポーツの日","2026-11-03":"文化の日","2026-11-23":"勤労感謝の日"
 };
 
-function getChinaHolidaysList(d) {
-  const h = chinaHolidays24[d];
-  return h ? [h] : [];
-}
-function getJapanHolidaysList(d) {
-  const h = jpHolidays[d];
-  return h ? [h] : [];
-}
-
-// ==================== 大任务定义（可编辑，通过关键词关联任务） ====================
-let bigGoals = [
-  { id: "goal_jp_word", name: "📖 日语单词", total: 3000, keyword: "日语单词" },
-  { id: "goal_jp_grammar", name: "📚 日语语法", total: 200, keyword: "日语语法" }
-];
-
-// ==================== 全局变量 ====================
+// ==================== 全局状态 ====================
 let currentLang = 'zh';
 let currentCalDate = new Date();
 let countdownInterval = null;
 let targetDate = null;
 let collapseDone = true;
-let lastSec = -1, lastMin = -1, lastHour = -1, lastDay = -1;
+let lastSec=-1, lastMin=-1, lastHour=-1, lastDay=-1;
 let tasks = [];
 let selectedDate = getDateStr(new Date());
 
+// 大目标数据结构：
+// { id, name, keyword, total, completed }
+// completed 直接存储已完成次数（每次打勾含关键词的小任务 +1，取消 -1）
+let bigGoals = [
+  { id: 'goal_jp_word', name: '📖 日语单词', keyword: '日语单词', total: 3000, completed: 0 },
+  { id: 'goal_jp_grammar', name: '📚 日语语法', keyword: '日语语法', total: 200, completed: 0 }
+];
+
+const PIE_COLORS = ['#2e7d32','#ff9800','#f44336','#9c27b0','#0288d1','#00897b','#e91e63','#795548'];
+
 // ==================== 工具函数 ====================
 function getDateStr(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-  const day = String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
 }
 
-// ==================== 大任务进度计算（关联每日任务 - 关键修复） ====================
-function computeGoalProgress(goal) {
-  let doneCount = 0;
-  for (let t of tasks) {
-    // 检查已完成的任务文本是否包含关键词
-    if (t.done && t.text && t.text.includes(goal.keyword)) {
-      doneCount++;
+// ==================== 大目标：核心逻辑 ====================
+
+// 当小任务 done 状态改变时，检查是否命中某个大目标关键词，并更新 completed
+function updateGoalProgressOnToggle(task, isDoneNow) {
+  let changed = false;
+  for (const g of bigGoals) {
+    if (g.keyword && task.text.includes(g.keyword)) {
+      if (isDoneNow) {
+        g.completed = Math.min(g.total, g.completed + 1);
+      } else {
+        g.completed = Math.max(0, g.completed - 1);
+      }
+      changed = true;
     }
   }
-  return doneCount;
+  if (changed) saveBigGoals();
 }
 
-function renderMilestonesAndPie() {
-  const container = document.getElementById('milestonesContainer');
-  if (!container) return;
-  let html = '';
-  for (let g of bigGoals) {
-    const completed = computeGoalProgress(g);
-    const percent = g.total > 0 ? (completed / g.total * 100) : 0;
-    html += `
-      <div class="milestone-card">
-        <div class="milestone-header">
-          <span class="milestone-title">${g.name}</span>
-          <span><span class="edit-goal-btn" onclick="editGoalTotal('${g.id}')">✏️ 编辑目标</span></span>
-        </div>
-        <div class="progress-bar-bg"><div class="progress-fill-bar" style="width: ${percent}%;">${Math.floor(percent)}%</div></div>
-        <div class="milestone-stats">✅ 已完成 ${completed} / 目标 ${g.total} &nbsp; 剩余 ${Math.max(0, g.total-completed)}</div>
-      </div>
-    `;
-  }
-  container.innerHTML = html;
-  drawPieChart();
-}
-
-function drawPieChart() {
-  const canvas = document.getElementById('goalPieChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  canvas.width = w; canvas.height = h;
-  const centerX = w/2, centerY = h/2, radius = Math.min(w,h)*0.35;
-  let totalSum = bigGoals.reduce((a,b)=>a+b.total, 0);
-  if (totalSum === 0) totalSum = 1;
-  let startAngle = -Math.PI/2;
-  const colors = ['#2e7d32', '#ff9800', '#f44336', '#9c27b0'];
-  ctx.clearRect(0, 0, w, h);
-  
-  let hasData = false;
-  bigGoals.forEach((g, idx) => {
-    if (g.total > 0) hasData = true;
-    const angle = (g.total / totalSum) * Math.PI * 2;
-    const endAngle = startAngle + angle;
-    ctx.beginPath();
-    ctx.fillStyle = colors[idx % colors.length];
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-    ctx.fill();
-    startAngle = endAngle;
-  });
-  
-  if (!hasData) {
-    ctx.beginPath();
-    ctx.fillStyle = '#ddd';
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#666';
-    ctx.font = '12px system-ui';
-    ctx.fillText('暂无目标', centerX-30, centerY+5);
-  }
-  
-  ctx.fillStyle = '#333';
-  ctx.font = 'bold 14px system-ui';
-  ctx.fillText('🎯 目标占比', centerX-45, centerY-radius-8);
+function addBigGoal() {
+  const name = document.getElementById('newGoalName').value.trim();
+  const keyword = document.getElementById('newGoalKeyword').value.trim();
+  const total = parseInt(document.getElementById('newGoalTotal').value);
+  if (!name || !total || total < 1) { showToast('请填写完整：名称、关键词、总数'); return; }
+  const id = 'goal_' + Date.now();
+  bigGoals.push({ id, name, keyword, total, completed: 0 });
+  saveBigGoals();
+  document.getElementById('newGoalName').value = '';
+  document.getElementById('newGoalKeyword').value = '';
+  document.getElementById('newGoalTotal').value = '';
+  renderMilestonesAndPie();
+  showToast('✅ 大目标已添加');
 }
 
 function editGoalTotal(goalId) {
-  const goal = bigGoals.find(g => g.id === goalId);
-  if (!goal) return;
-  let newTotal = prompt(`修改「${goal.name}」总目标数量 (当前 ${goal.total})`, goal.total);
-  if (newTotal !== null && !isNaN(parseFloat(newTotal)) && parseFloat(newTotal) >= 0) {
-    goal.total = Math.floor(parseFloat(newTotal));
+  const g = bigGoals.find(g=>g.id===goalId);
+  if (!g) return;
+  const newTotal = prompt(`修改「${g.name}」总目标数量（当前 ${g.total}）`, g.total);
+  if (newTotal !== null && !isNaN(parseInt(newTotal)) && parseInt(newTotal) >= 0) {
+    g.total = Math.max(g.completed, parseInt(newTotal));
     saveBigGoals();
     renderMilestonesAndPie();
-    showToast(`✅ ${goal.name} 目标已更新为 ${goal.total}`);
+    showToast(`已更新目标为 ${g.total}`);
   }
 }
 
-function saveBigGoals() { localStorage.setItem('study_big_goals', JSON.stringify(bigGoals)); }
+function editGoalCompleted(goalId) {
+  const g = bigGoals.find(g=>g.id===goalId);
+  if (!g) return;
+  const val = prompt(`手动修改「${g.name}」已完成数量（当前 ${g.completed}）\n可用于补录历史进度`, g.completed);
+  if (val !== null && !isNaN(parseInt(val)) && parseInt(val) >= 0) {
+    g.completed = Math.min(g.total, Math.max(0, parseInt(val)));
+    saveBigGoals();
+    renderMilestonesAndPie();
+    showToast(`已更新为 ${g.completed}`);
+  }
+}
+
+function deleteGoal(goalId) {
+  if (!confirm('确认删除这个大目标？')) return;
+  bigGoals = bigGoals.filter(g=>g.id!==goalId);
+  saveBigGoals();
+  renderMilestonesAndPie();
+  showToast('已删除');
+}
+
+function saveBigGoals() {
+  localStorage.setItem('study_big_goals_v2', JSON.stringify(bigGoals));
+}
+
 function loadBigGoals() {
-  const saved = localStorage.getItem('study_big_goals');
-  if (saved) { bigGoals = JSON.parse(saved); }
+  const saved = localStorage.getItem('study_big_goals_v2');
+  if (saved) {
+    try { bigGoals = JSON.parse(saved); } catch(e) {}
+  }
 }
 
-// ==================== 任务和日历逻辑 ====================
+// ==================== 饼图（剩余量占比）====================
+function drawPieChart() {
+  const canvas = document.getElementById('goalPieChart');
+  if (!canvas) return;
+
+  // 让 canvas 物理像素匹配显示尺寸
+  const size = canvas.parentElement.clientWidth || 260;
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, size, size);
+  const cx = size/2, cy = size/2, r = size*0.42;
+
+  // 用「剩余量」画饼图
+  const data = bigGoals.map((g, i) => ({
+    label: g.name,
+    remaining: Math.max(0, g.total - g.completed),
+    color: PIE_COLORS[i % PIE_COLORS.length]
+  }));
+
+  const totalRemaining = data.reduce((s,d)=>s+d.remaining, 0);
+
+  if (totalRemaining === 0) {
+    // 全部完成！
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = '#2e7d32';
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${size*0.08}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🎉 全部完成！', cx, cy);
+  } else {
+    let startAngle = -Math.PI/2;
+    data.forEach(d => {
+      if (d.remaining <= 0) return;
+      const angle = (d.remaining / totalRemaining) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, startAngle, startAngle+angle);
+      ctx.closePath();
+      ctx.fillStyle = d.color;
+      ctx.fill();
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      startAngle += angle;
+    });
+
+    // 中心白圆（甜甜圈效果）
+    ctx.beginPath();
+    ctx.arc(cx, cy, r*0.48, 0, Math.PI*2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+
+    ctx.fillStyle = '#333';
+    ctx.font = `bold ${size*0.07}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('剩余', cx, cy-size*0.05);
+    ctx.fillText(totalRemaining, cx, cy+size*0.05);
+  }
+
+  // 图例
+  const legend = document.getElementById('pieLegend');
+  legend.innerHTML = data.map((d,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.color}"></div>
+      <span>${d.label}：剩 ${d.remaining}</span>
+    </div>
+  `).join('');
+}
+
+// ==================== 大目标进度条 ====================
+function renderMilestonesAndPie() {
+  const container = document.getElementById('milestonesContainer');
+  if (!container) return;
+
+  let html = '';
+  bigGoals.forEach(g => {
+    const pct = g.total > 0 ? Math.min(100, (g.completed/g.total*100)) : 0;
+    const remaining = Math.max(0, g.total - g.completed);
+    html += `
+    <div class="milestone-card">
+      <div class="milestone-header">
+        <span class="milestone-title">${g.name}</span>
+        <span>
+          <span class="edit-goal-btn" onclick="editGoalCompleted('${g.id}')">✏️ 改进度</span>
+          <span class="edit-goal-btn" style="margin-left:4px;" onclick="editGoalTotal('${g.id}')">🎯 改目标</span>
+          <span class="del-goal-btn" style="margin-left:4px;" onclick="deleteGoal('${g.id}')">✕</span>
+        </span>
+      </div>
+      ${g.keyword ? `<div style="font-size:12px;color:#888;margin-bottom:6px;">关键词：「${g.keyword}」</div>` : ''}
+      <div class="progress-bar-bg">
+        <div class="progress-fill-bar" style="width:${pct}%;">${Math.floor(pct)}%</div>
+      </div>
+      <div class="milestone-stats">✅ 已完成 ${g.completed} / 目标 ${g.total} &nbsp; 剩余 ${remaining}</div>
+    </div>`;
+  });
+
+  container.innerHTML = html || '<div style="text-align:center;color:#999;padding:20px;">暂无大目标，请在上方添加</div>';
+  drawPieChart();
+}
+
+// ==================== 节假日 ====================
+function getChinaHolidaysList(d) { const h=chinaHolidays24[d]; return h?[h]:[]; }
+function getJapanHolidaysList(d) { const h=jpHolidays[d]; return h?[h]:[]; }
+
+// ==================== 日历 ====================
 function getDayInfo(dateStr) {
-  const dayTasks = tasks.filter(t => t.date === dateStr);
+  const dayTasks = tasks.filter(t=>t.date===dateStr);
   const total = dayTasks.length;
-  if (total === 0) return { total:0, done:0, ratio:0 };
-  const done = dayTasks.filter(t => t.done).length;
-  return { total, done, ratio: done/total };
+  if (total===0) return {total:0,done:0,ratio:0};
+  const done = dayTasks.filter(t=>t.done).length;
+  return {total,done,ratio:done/total};
 }
+function isFullDone(dateStr) { const {total,done}=getDayInfo(dateStr); return total>0&&done===total; }
 
-function isFullDone(dateStr) {
-  const { total, done } = getDayInfo(dateStr);
-  return total > 0 && done === total;
-}
-
-function getSmallTaskRatioClass(total, done) {
-  if (done === 0) return 'ratio-0';
-  if (total === 1) return 'ratio-0';
-  if (total === 2) return done === 1 ? 'ratio-50' : 'ratio-0';
-  if (total === 3) {
-    if (done === 1) return 'mercedes-1';
-    if (done === 2) return 'mercedes-2';
-    return 'ratio-0';
-  }
-  if (total === 4) {
-    if (done === 1) return 'ratio-25';
-    if (done === 2) return 'ratio-50';
-    if (done === 3) return 'ratio-75';
-    return 'ratio-0';
-  }
+function getSmallTaskRatioClass(total,done) {
+  if (done===0) return 'ratio-0';
+  if (total===1) return 'ratio-0';
+  if (total===2) return done===1?'ratio-50':'ratio-0';
+  if (total===3) { if(done===1) return 'mercedes-1'; if(done===2) return 'mercedes-2'; return 'ratio-0'; }
+  if (total===4) { if(done===1) return 'ratio-25'; if(done===2) return 'ratio-50'; if(done===3) return 'ratio-75'; return 'ratio-0'; }
   return 'ratio-0';
 }
 
-// 构建日期格子（双节日堆叠显示：中国在上，日本在下）
 function buildDayCell(key, dayNum, todayStr) {
-  const { total, done, ratio } = getDayInfo(key);
-  const chinaHolidays = getChinaHolidaysList(key);
-  const japanHolidays = getJapanHolidaysList(key);
+  const {total,done,ratio} = getDayInfo(key);
+  const chinaH = getChinaHolidaysList(key);
+  const japanH = getJapanHolidaysList(key);
   const div = document.createElement('div');
   div.className = 'day';
 
-  if (total === 0) div.classList.add('ratio-0');
-  else if (ratio === 1) div.classList.add('ratio-100');
-  else if (total === 3) {
-    if (done === 1) div.classList.add('mercedes-1');
-    else if (done === 2) div.classList.add('mercedes-2');
+  if (total===0) div.classList.add('ratio-0');
+  else if (ratio===1) div.classList.add('ratio-100');
+  else if (total===3) {
+    if(done===1) div.classList.add('mercedes-1');
+    else if(done===2) div.classList.add('mercedes-2');
     else div.classList.add('ratio-0');
-  } else if (total <= 4) {
-    const ratioClass = getSmallTaskRatioClass(total, done);
-    div.classList.add(ratioClass);
+  } else if (total<=4) {
+    div.classList.add(getSmallTaskRatioClass(total,done));
   } else {
-    div.style.background = '#eeeeee';
-    if (done > 0) {
-      const fill = document.createElement('div');
-      fill.className = 'progress-fill';
-      fill.style.width = (ratio * 100).toFixed(1) + '%';
+    div.style.background='#eeeeee';
+    if(done>0){
+      const fill=document.createElement('div');
+      fill.className='progress-fill';
+      fill.style.width=(ratio*100).toFixed(1)+'%';
       div.appendChild(fill);
     }
   }
 
-  // 中国节日（靠上堆叠）- 用🇨🇳图标 + 名称
-  if (chinaHolidays.length > 0) {
-    const chinaWrapper = document.createElement('div');
-    chinaWrapper.className = 'holiday-china-wrapper';
-    chinaHolidays.forEach(h => {
-      const item = document.createElement('div');
-      item.className = 'holiday-item china-item';
-      item.innerHTML = `🇨🇳 ${h}`;
-      chinaWrapper.appendChild(item);
-    });
-    div.appendChild(chinaWrapper);
+  if (chinaH.length>0) {
+    const w=document.createElement('div'); w.className='holiday-china-wrapper';
+    chinaH.forEach(h=>{const i=document.createElement('div');i.className='holiday-item china-item';i.innerHTML=`🇨🇳 ${h}`;w.appendChild(i);});
+    div.appendChild(w);
+  }
+  if (japanH.length>0) {
+    const w=document.createElement('div'); w.className='holiday-japan-wrapper';
+    japanH.forEach(h=>{const i=document.createElement('div');i.className='holiday-item japan-item';i.innerHTML=`🇯🇵 ${h}`;w.appendChild(i);});
+    div.appendChild(w);
   }
 
-  // 日本节日（靠底堆叠）- 用🇯🇵图标 + 名称
-  if (japanHolidays.length > 0) {
-    const japanWrapper = document.createElement('div');
-    japanWrapper.className = 'holiday-japan-wrapper';
-    japanHolidays.forEach(h => {
-      const item = document.createElement('div');
-      item.className = 'holiday-item japan-item';
-      item.innerHTML = `🇯🇵 ${h}`;
-      japanWrapper.appendChild(item);
-    });
-    div.appendChild(japanWrapper);
-  }
-
-  const numSpan = document.createElement('span');
-  numSpan.className = 'day-num';
-  numSpan.textContent = dayNum;
+  const numSpan=document.createElement('span'); numSpan.className='day-num'; numSpan.textContent=dayNum;
   div.appendChild(numSpan);
-
-  if (key === todayStr) div.classList.add('today');
-  if (key === selectedDate) div.classList.add('selected-day');
-
-  div.onclick = (function(dateKey) {
-    return function() { selectedDate = dateKey; renderTasks(); renderCalendar(); };
-  })(key);
-
+  if(key===todayStr) div.classList.add('today');
+  if(key===selectedDate) div.classList.add('selected-day');
+  div.onclick=(function(dk){return function(){selectedDate=dk;renderTasks();renderCalendar();};})(key);
   return div;
 }
 
 function renderCalendar() {
-  const cal = document.getElementById('calendar');
-  const year = currentCalDate.getFullYear();
-  const month = currentCalDate.getMonth();
-  const t = locales[currentLang];
-  const todayStr = getDateStr(new Date());
-
-  // 只显示月份，不显示年份
-  document.getElementById('calendarText').innerHTML = `${month+1}月`;
-
-  cal.innerHTML = t.weekDays.map(w => `<div class="day header">${w}</div>`).join('');
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'day ratio-0';
-    cal.appendChild(empty);
+  const cal=document.getElementById('calendar');
+  const year=currentCalDate.getFullYear(), month=currentCalDate.getMonth();
+  const t=locales[currentLang];
+  const todayStr=getDateStr(new Date());
+  document.getElementById('calendarText').innerHTML=`${month+1}月`;
+  cal.innerHTML=t.weekDays.map(w=>`<div class="day header">${w}</div>`).join('');
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  for(let i=0;i<firstDay;i++){const e=document.createElement('div');e.className='day ratio-0';cal.appendChild(e);}
+  for(let i=1;i<=daysInMonth;i++){
+    const key=`${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+    cal.appendChild(buildDayCell(key,i,todayStr));
   }
-  for (let i = 1; i <= daysInMonth; i++) {
-    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-    cal.appendChild(buildDayCell(key, i, todayStr));
-  }
-
-  const btn = document.createElement('button');
-  btn.className = 'today-btn';
-  btn.textContent = locales[currentLang].todayBtnText;
-  btn.onclick = goToToday;
+  const btn=document.createElement('button');
+  btn.className='today-btn'; btn.textContent=t.todayBtnText; btn.onclick=goToToday;
   cal.appendChild(btn);
 }
 
-// ==================== 任务管理 ====================
+// ==================== 任务管理（关键修改：toggle时更新大目标）====================
 function addTask() {
-  const text = document.getElementById("taskInput").value.trim();
-  const range = parseInt(document.getElementById("rangeSelect").value);
-  const t = locales[currentLang];
-  if (!text) { showToast(t.taskEmptyWarning); return; }
-  for (let i = 0; i < range; i++) {
-    const d = new Date(); d.setDate(d.getDate() + i);
-    const dateStr = getDateStr(d);
-    if (!tasks.some(task => task.text === text && task.date === dateStr)) {
-      tasks.push({ id: Date.now()+'-'+i+'-'+Math.random(), text, date: dateStr, done: false });
+  const text=document.getElementById('taskInput').value.trim();
+  const range=parseInt(document.getElementById('rangeSelect').value);
+  const t=locales[currentLang];
+  if(!text){showToast(t.taskEmptyWarning);return;}
+  for(let i=0;i<range;i++){
+    const d=new Date(); d.setDate(d.getDate()+i);
+    const dateStr=getDateStr(d);
+    if(!tasks.some(task=>task.text===text&&task.date===dateStr)){
+      tasks.push({id:Date.now()+'-'+i+'-'+Math.random(),text,date:dateStr,done:false});
     }
   }
   saveToLocal(); renderAll();
-  document.getElementById("taskInput").value = '';
+  document.getElementById('taskInput').value='';
   showToast(t.addSuccess(range));
 }
 
 function deleteTaskWithDialog(taskId) {
-  const targetTask = tasks.find(t => t.id === taskId);
-  if (!targetTask) return;
-  const t = locales[currentLang];
-  const sameTextTasks = tasks.filter(t => t.text === targetTask.text).sort((a,b) => a.date.localeCompare(b.date));
-  if (sameTextTasks.length <= 1) {
-    tasks = tasks.filter(t => t.id !== taskId);
+  const targetTask=tasks.find(t=>t.id===taskId);
+  if(!targetTask) return;
+  const t=locales[currentLang];
+  const sameTextTasks=tasks.filter(t=>t.text===targetTask.text).sort((a,b)=>a.date.localeCompare(b.date));
+  if(sameTextTasks.length<=1){
+    // 如果删除已完成的任务，先扣除大目标进度
+    if (targetTask.done) updateGoalProgressOnToggle(targetTask, false);
+    tasks=tasks.filter(t=>t.id!==taskId);
     saveToLocal(); renderAll(); showToast(t.deleteSingleSuccess(targetTask.text)); return;
   }
-  const futureTasks = sameTextTasks.filter(t => t.date >= targetTask.date);
-  if (confirm(t.deleteConfirmFuture(targetTask.text, futureTasks.length))) {
-    tasks = tasks.filter(t => !(t.text === targetTask.text && t.date >= targetTask.date));
+  const futureTasks=sameTextTasks.filter(t=>t.date>=targetTask.date);
+  if(confirm(t.deleteConfirmFuture(targetTask.text,futureTasks.length))){
+    // 扣除将被删除的已完成任务的大目标进度
+    futureTasks.filter(tt=>tt.done).forEach(tt=>updateGoalProgressOnToggle(tt, false));
+    tasks=tasks.filter(t=>!(t.text===targetTask.text&&t.date>=targetTask.date));
     saveToLocal(); renderAll(); showToast(t.deleteFutureSuccess);
   } else {
-    if (confirm(t.deleteConfirmAll(targetTask.text, sameTextTasks.length))) {
-      tasks = tasks.filter(t => t.text !== targetTask.text);
+    if(confirm(t.deleteConfirmAll(targetTask.text,sameTextTasks.length))){
+      sameTextTasks.filter(tt=>tt.done).forEach(tt=>updateGoalProgressOnToggle(tt, false));
+      tasks=tasks.filter(t=>t.text!==targetTask.text);
       saveToLocal(); renderAll(); showToast(t.deleteAllSuccess);
     } else showToast(t.deleteCancel);
   }
 }
 
 function toggleTask(id) {
-  const task = tasks.find(t => t.id === id);
-  if (task) { task.done = !task.done; saveToLocal(); renderAll(); }
+  const task=tasks.find(t=>t.id===id);
+  if(!task) return;
+  task.done=!task.done;
+  // 关键：打勾/取消时同步更新大目标进度
+  updateGoalProgressOnToggle(task, task.done);
+  saveToLocal(); renderAll();
 }
 
 function editTask(id) {
-  const task = tasks.find(t=>t.id===id);
+  const task=tasks.find(t=>t.id===id);
   if(!task) return;
-  const newText = prompt(locales[currentLang].editBtn, task.text);
-  if(newText && newText.trim()){
-    task.text = newText.trim();
-    saveToLocal();
-    renderAll();
-    showToast(locales[currentLang].editSuccess);
+  const newText=prompt(locales[currentLang].editBtn, task.text);
+  if(newText&&newText.trim()){
+    // 若已完成，先撤销旧关键词的贡献
+    if (task.done) updateGoalProgressOnToggle(task, false);
+    task.text=newText.trim();
+    // 若已完成，重新应用新关键词的贡献
+    if (task.done) updateGoalProgressOnToggle(task, true);
+    saveToLocal(); renderAll(); showToast(locales[currentLang].editSuccess);
   }
 }
 
 function batchComplete() {
-  tasks.forEach(t => { if(t.date === selectedDate) t.done = true; });
-  saveToLocal(); renderAll();
-  showToast(locales[currentLang].batchComplete);
+  tasks.forEach(t=>{
+    if(t.date===selectedDate && !t.done){
+      t.done=true;
+      updateGoalProgressOnToggle(t, true);
+    }
+  });
+  saveToLocal(); renderAll(); showToast(locales[currentLang].batchComplete);
 }
 
 function batchUncomplete() {
-  tasks.forEach(t => { if(t.date === selectedDate) t.done = false; });
-  saveToLocal(); renderAll();
-  showToast(locales[currentLang].batchUncomplete);
+  tasks.forEach(t=>{
+    if(t.date===selectedDate && t.done){
+      t.done=false;
+      updateGoalProgressOnToggle(t, false);
+    }
+  });
+  saveToLocal(); renderAll(); showToast(locales[currentLang].batchUncomplete);
 }
 
 function escapeHtml(str) {
-  return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+  return str.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 }
 
 function renderTasks() {
-  const all = tasks.filter(t => t.date === selectedDate);
-  const undone = all.filter(t=>!t.done);
-  const doneList = all.filter(t=>t.done);
-  const container = document.getElementById('taskList');
-  const todayStr = getDateStr(new Date());
-  const t = locales[currentLang];
+  const all=tasks.filter(t=>t.date===selectedDate);
+  const undone=all.filter(t=>!t.done);
+  const doneList=all.filter(t=>t.done);
+  const container=document.getElementById('taskList');
+  const todayStr=getDateStr(new Date());
+  const t=locales[currentLang];
+  if(selectedDate===todayStr) document.getElementById('taskTitle').innerHTML=t.taskToday;
+  else{const p=selectedDate.split('-');document.getElementById('taskTitle').innerHTML=t.taskOther.replace('{month}',parseInt(p[1])).replace('{day}',parseInt(p[2]));}
 
-  if (selectedDate === todayStr) document.getElementById('taskTitle').innerHTML = t.taskToday;
-  else {
-    const parts = selectedDate.split('-');
-    document.getElementById('taskTitle').innerHTML = t.taskOther.replace('{month}', parseInt(parts[1])).replace('{day}', parseInt(parts[2]));
-  }
-
-  let html = '';
-  if(all.length===0){ html=`<div class="empty-tasks">${t.emptyTasks}</div>`; }
-  else {
+  let html='';
+  if(all.length===0){html=`<div class="empty-tasks">${t.emptyTasks}</div>`;}
+  else{
     undone.forEach(task=>{
-      html+=`
-      <div class="task-item">
+      html+=`<div class="task-item">
         <div class="task-left">
-          <input type="checkbox" ${task.done?'checked':''} onchange="toggleTask('${task.id}')">
-          <span class="task-text ${task.done?'done':''}" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
+          <input type="checkbox" onchange="toggleTask('${task.id}')">
+          <span class="task-text" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
         </div>
         <div>
           <button class="task-edit" onclick="editTask('${task.id}')">${t.editBtn}</button>
@@ -957,14 +1037,11 @@ function renderTasks() {
         </div>
       </div>`;
     });
-
     if(doneList.length>0){
-      const btnText = collapseDone ? t.collapseText : t.expandText;
-      html+=`<button class="collapse-btn" onclick="toggleCollapse()">${btnText}</button>`;
+      html+=`<button class="collapse-btn" onclick="toggleCollapse()">${collapseDone?t.collapseText:t.expandText}</button>`;
       if(!collapseDone){
         doneList.forEach(task=>{
-          html+=`
-          <div class="task-item">
+          html+=`<div class="task-item">
             <div class="task-left">
               <input type="checkbox" checked onchange="toggleTask('${task.id}')">
               <span class="task-text done" onclick="toggleTask('${task.id}')">${escapeHtml(task.text)}</span>
@@ -978,315 +1055,227 @@ function renderTasks() {
       }
     }
   }
-  container.innerHTML = html;
+  container.innerHTML=html;
 }
 
-function toggleCollapse(){
-  collapseDone = !collapseDone;
-  renderTasks();
+function toggleCollapse(){collapseDone=!collapseDone;renderTasks();}
+
+function renderStats(){
+  document.getElementById('totalTasks').textContent=tasks.length;
+  document.getElementById('completedTasks').textContent=tasks.filter(t=>t.done).length;
+  let streak=0,d=new Date();
+  while(isFullDone(getDateStr(d))){streak++;d.setDate(d.getDate()-1);}
+  document.getElementById('streak').textContent=streak;
 }
 
-function renderStats() {
-  document.getElementById('totalTasks').textContent = tasks.length;
-  document.getElementById('completedTasks').textContent = tasks.filter(t => t.done).length;
-  let streak = 0, d = new Date();
-  while (isFullDone(getDateStr(d))) { streak++; d.setDate(d.getDate()-1); }
-  document.getElementById('streak').textContent = streak;
-}
+function prevMonth(){currentCalDate.setMonth(currentCalDate.getMonth()-1);renderCalendar();renderTasks();}
+function nextMonth(){currentCalDate.setMonth(currentCalDate.getMonth()+1);renderCalendar();renderTasks();}
+function goToToday(){currentCalDate=new Date();selectedDate=getDateStr(new Date());renderCalendar();renderTasks();}
 
-function prevMonth() {
-  currentCalDate.setMonth(currentCalDate.getMonth() - 1);
-  renderCalendar();
-  renderTasks();
-}
+// ==================== 倒计时 ====================
+function saveCountdownDate(d){localStorage.setItem('countdown_target_date',d);}
+function loadCountdownDate(){return localStorage.getItem('countdown_target_date');}
 
-function nextMonth() {
-  currentCalDate.setMonth(currentCalDate.getMonth()+1);
-  renderCalendar();
-  renderTasks();
-}
-
-function goToToday() {
-  currentCalDate = new Date();
-  selectedDate = getDateStr(new Date());
-  renderCalendar();
-  renderTasks();
-}
-
-// 倒计时功能
-function saveCountdownDate(dateStr) { localStorage.setItem('countdown_target_date', dateStr); }
-function loadCountdownDate() { return localStorage.getItem('countdown_target_date'); }
-
-function toggleCountdown() {
-  const front = document.getElementById('flipFront');
-  const back = document.getElementById('flipBack');
-  if (back.style.display === 'none') {
-    const input = document.getElementById('targetDatePicker').value;
-    if (!input) { showToast("请选择到期日"); return; }
-    targetDate = new Date(input);
-    saveCountdownDate(input);
-    front.style.display = 'none';
-    back.style.display = 'flex';
-    startCountdown();
+function toggleCountdown(){
+  const front=document.getElementById('flipFront'),back=document.getElementById('flipBack');
+  if(back.style.display==='none'){
+    const input=document.getElementById('targetDatePicker').value;
+    if(!input){showToast('请选择到期日');return;}
+    targetDate=new Date(input); saveCountdownDate(input);
+    front.style.display='none'; back.style.display='flex'; startCountdown();
   } else {
-    front.style.display = 'flex';
-    back.style.display = 'none';
-    stopCountdown();
+    front.style.display='flex'; back.style.display='none'; stopCountdown();
   }
 }
 
-function createDigitPair(num) {
-  const d1 = Math.floor(num / 10);
-  const d2 = num % 10;
-  return `
-  <div class="flip-digit">
-    <div class="digit-face digit-front">${d1}</div>
-    <div class="digit-face digit-back">${d1}</div>
-  </div>
-  <div class="flip-digit">
-    <div class="digit-face digit-front">${d2}</div>
-    <div class="digit-face digit-back">${d2}</div>
-  </div>
-  `;
+function createDigitPair(num){
+  const d1=Math.floor(num/10),d2=num%10;
+  return `<div class="flip-digit"><div class="digit-face digit-front">${d1}</div><div class="digit-face digit-back">${d1}</div></div><div class="flip-digit"><div class="digit-face digit-front">${d2}</div><div class="digit-face digit-back">${d2}</div></div>`;
 }
 
-function updateCountdownDigits(d, h, m, s) {
-  const container = document.getElementById('countdownDigits');
-  container.innerHTML = `
-  <div style="display:flex;">
-    <div class="flip-unit">
-      ${createDigitPair(d)}
-      <span class="flip-label">天</span>
-    </div>
-    <div class="flip-unit">
-      ${createDigitPair(h)}
-      <span class="flip-label">时</span>
-    </div>
-  </div>
-  <div style="display:flex;">
-    <div class="flip-unit">
-      ${createDigitPair(m)}
-      <span class="flip-label">分</span>
-    </div>
-    <div class="flip-unit">
-      ${createDigitPair(s)}
-      <span class="flip-label">秒</span>
-    </div>
-  </div>
-  `;
+function updateCountdownDigits(d,h,m,s){
+  document.getElementById('countdownDigits').innerHTML=`
+  <div style="display:flex;"><div class="flip-unit">${createDigitPair(d)}<span class="flip-label">天</span></div><div class="flip-unit">${createDigitPair(h)}<span class="flip-label">时</span></div></div>
+  <div style="display:flex;"><div class="flip-unit">${createDigitPair(m)}<span class="flip-label">分</span></div><div class="flip-unit">${createDigitPair(s)}<span class="flip-label">秒</span></div></div>`;
 }
 
-function triggerFlip(selector) {
-  document.querySelectorAll(selector).forEach(el => {
-    el.classList.add('flip');
-    setTimeout(() => el.classList.remove('flip'), 600);
-  });
+function startCountdown(){updateCountdown();countdownInterval=setInterval(updateCountdown,1000);}
+function stopCountdown(){if(countdownInterval)clearInterval(countdownInterval);}
+
+function updateCountdown(){
+  const now=new Date(); let diff=targetDate-now; if(diff<0)diff=0;
+  const d=Math.floor(diff/(1000*60*60*24));
+  const h=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+  const m=Math.floor((diff%(1000*60*60))/(1000*60));
+  const s=Math.floor((diff%(1000*60))/1000);
+  updateCountdownDigits(d,h,m,s);
+  lastSec=s;lastMin=m;lastHour=h;lastDay=d;
 }
 
-function startCountdown() {
-  updateCountdown();
-  countdownInterval = setInterval(updateCountdown, 1000);
-}
-
-function stopCountdown() {
-  if (countdownInterval) clearInterval(countdownInterval);
-}
-
-function updateCountdown() {
-  const now = new Date();
-  let diff = targetDate - now;
-  if (diff < 0) diff = 0;
-  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const s = Math.floor((diff % (1000 * 60)) / 1000);
-  updateCountdownDigits(d, h, m, s);
-  if (s !== lastSec) {
-    if (s === 59 && m !== lastMin) triggerFlip('.flip-unit:nth-child(3) .flip-digit, .flip-unit:nth-child(4) .flip-digit');
-    else if (m === 59 && h !== lastHour) triggerFlip('.flip-unit:nth-child(2) .flip-digit, .flip-unit:nth-child(3) .flip-digit, .flip-unit:nth-child(4) .flip-digit');
-    else if (h === 23 && d !== lastDay) triggerFlip('.flip-digit');
-    else triggerFlip('.flip-unit:nth-child(4) .flip-digit');
-  }
-  lastSec = s; lastMin = m; lastHour = h; lastDay = d;
-}
-
-// ==================== 设置和持久化 ====================
-function toggleSettings() {
+// ==================== 设置 & 持久化 ====================
+function toggleSettings(){
   document.getElementById('settingsPanel').classList.toggle('show');
   document.getElementById('overlay').classList.toggle('show');
 }
 
-function saveToLocal() {
-  localStorage.setItem('study_tracker_data', JSON.stringify({ tasks, lang: currentLang }));
+function saveToLocal(){
+  localStorage.setItem('study_tracker_data',JSON.stringify({tasks,lang:currentLang}));
 }
 
-function loadFromLocal() {
-  const saved = localStorage.getItem('study_tracker_data');
-  if (saved) {
-    const data = JSON.parse(saved);
-    tasks = data.tasks || [];
-    if (data.lang) currentLang = data.lang;
-  }
+function loadFromLocal(){
+  const saved=localStorage.getItem('study_tracker_data');
+  if(saved){const data=JSON.parse(saved);tasks=data.tasks||[];if(data.lang)currentLang=data.lang;}
 }
 
-function exportData() {
-  const blob = new Blob([JSON.stringify({ tasks, lang: currentLang, bigGoals })], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `study_tracker_${getDateStr(new Date())}.json`;
-  a.click();
+function exportData(){
+  const blob=new Blob([JSON.stringify({tasks,lang:currentLang,bigGoals})],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`study_tracker_${getDateStr(new Date())}.json`;a.click();
   showToast(locales[currentLang].exportSuccess);
 }
 
-function importData() { document.getElementById('importFile').click(); }
+function importData(){document.getElementById('importFile').click();}
 
-function handleImport(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const data = JSON.parse(ev.target.result);
-    tasks = data.tasks || [];
-    if (data.lang) currentLang = data.lang;
-    if (data.bigGoals) bigGoals = data.bigGoals;
-    saveToLocal(); saveBigGoals(); applyLanguage(); renderAll();
+function handleImport(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const data=JSON.parse(ev.target.result);
+    tasks=data.tasks||[];
+    if(data.lang)currentLang=data.lang;
+    if(data.bigGoals)bigGoals=data.bigGoals;
+    saveToLocal();saveBigGoals();applyLanguage();renderAll();
     showToast(locales[currentLang].importSuccess);
   };
   reader.readAsText(file);
 }
 
-function clearAllData() {
-  if (confirm(locales[currentLang].clearConfirm)) {
-    tasks = []; saveToLocal(); renderAll(); toggleSettings();
+function clearAllData(){
+  if(confirm(locales[currentLang].clearConfirm)){
+    tasks=[];saveToLocal();renderAll();toggleSettings();
     showToast(locales[currentLang].clearSuccess);
   }
 }
 
-function setLanguage(lang) {
-  currentLang = lang; saveToLocal(); applyLanguage(); renderAll();
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === lang);
-  });
+function setLanguage(lang){
+  currentLang=lang;saveToLocal();applyLanguage();renderAll();
+  document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===lang));
 }
 
-// 多语言字典
+// ==================== 多语言 ====================
 const locales = {
   zh: {
-    appTitle:"📘 学习进度", settingsTitle:"⚙️ 设置", langLabel:"语言",
-    exportBtn:"📤 导出备份", importBtn:"📥 导入备份", clearBtn:"🗑️ 清空所有",
+    appTitle:"📘 学习进度",settingsTitle:"⚙️ 设置",langLabel:"语言",
+    exportBtn:"📤 导出备份",importBtn:"📥 导入备份",clearBtn:"🗑️ 清空所有",
     weekDays:["日","一","二","三","四","五","六"],
-    todayBtnText:"今天", taskToday:"📋 今日任务", taskOther:"📋 {month}月{day}日任务",
-    taskPlaceholder:"输入学习任务...", rangeToday:"今天", range3Days:"最近3天", range7Days:"最近7天", rangeEveryday:"每天",
-    addBtn:"添加", totalLabel:"总任务", completedLabel:"已完成", streakLabel:"连续学习",
-    emptyTasks:"✨ 暂无任务", deleteBtn:"删除", editBtn:"修改",
+    todayBtnText:"今天",taskToday:"📋 今日任务",taskOther:"📋 {month}月{day}日任务",
+    taskPlaceholder:"输入学习任务...",rangeToday:"今天",range3Days:"最近3天",range7Days:"最近7天",rangeEveryday:"每天",
+    addBtn:"添加",totalLabel:"总任务",completedLabel:"已完成",streakLabel:"连续学习",
+    emptyTasks:"✨ 暂无任务",deleteBtn:"删除",editBtn:"修改",
     deleteConfirmFuture:(t,c)=>`「${t}」\n确定删除今天及以后 (${c}个任务)？`,
     deleteConfirmAll:(t,c)=>`是否删除全部「${t}」 (共${c}个任务)？`,
-    deleteCancel:"已取消", deleteFutureSuccess:"已删除今天及以后的任务",
-    deleteAllSuccess:"已全部删除", deleteSingleSuccess:(t)=>`已删除「${t}」`,
-    taskEmptyWarning:"请输入任务内容", editSuccess:"修改成功",
+    deleteCancel:"已取消",deleteFutureSuccess:"已删除今天及以后的任务",
+    deleteAllSuccess:"已全部删除",deleteSingleSuccess:(t)=>`已删除「${t}」`,
+    taskEmptyWarning:"请输入任务内容",editSuccess:"修改成功",
     addSuccess:(r)=>r===999?"已添加每天任务":`已添加${r}天任务`,
-    importSuccess:"导入成功", exportSuccess:"已导出",
-    clearConfirm:"⚠️ 确认清空所有任务记录？", clearSuccess:"已清空",
-    collapseText:"展开已完成", expandText:"收起已完成",
-    batchComplete:"一键完成", batchUncomplete:"一键取消"
+    importSuccess:"导入成功",exportSuccess:"已导出",
+    clearConfirm:"⚠️ 确认清空所有任务记录？",clearSuccess:"已清空",
+    collapseText:"展开已完成",expandText:"收起已完成",
+    batchComplete:"一键完成",batchUncomplete:"一键取消"
   },
   en: {
-    appTitle:"📘 Study Tracker", settingsTitle:"⚙️ Settings", langLabel:"Language",
-    exportBtn:"📤 Export", importBtn:"📥 Import", clearBtn:"🗑️ Clear",
+    appTitle:"📘 Study Tracker",settingsTitle:"⚙️ Settings",langLabel:"Language",
+    exportBtn:"📤 Export",importBtn:"📥 Import",clearBtn:"🗑️ Clear",
     weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-    todayBtnText:"Today", taskToday:"📋 Today's Tasks", taskOther:"📋 {month}/{day} Tasks",
-    taskPlaceholder:"Enter task...", rangeToday:"Today", range3Days:"3 Days", range7Days:"7 Days", rangeEveryday:"Everyday",
-    addBtn:"Add", totalLabel:"Total", completedLabel:"Done", streakLabel:"Streak",
-    emptyTasks:"✨ No tasks", deleteBtn:"Del", editBtn:"Edit",
+    todayBtnText:"Today",taskToday:"📋 Today's Tasks",taskOther:"📋 {month}/{day} Tasks",
+    taskPlaceholder:"Enter task...",rangeToday:"Today",range3Days:"3 Days",range7Days:"7 Days",rangeEveryday:"Everyday",
+    addBtn:"Add",totalLabel:"Total",completedLabel:"Done",streakLabel:"Streak",
+    emptyTasks:"✨ No tasks",deleteBtn:"Del",editBtn:"Edit",
     deleteConfirmFuture:(t,c)=>`Delete "${t}" today+future (${c} tasks)?`,
     deleteConfirmAll:(t,c)=>`Delete ALL "${t}" (${c} tasks)?`,
-    deleteCancel:"Cancelled", deleteFutureSuccess:"Deleted future tasks",
-    deleteAllSuccess:"Deleted all", deleteSingleSuccess:(t)=>`Deleted "${t}"`,
-    taskEmptyWarning:"Enter task", editSuccess:"Edited",
+    deleteCancel:"Cancelled",deleteFutureSuccess:"Deleted future tasks",
+    deleteAllSuccess:"Deleted all",deleteSingleSuccess:(t)=>`Deleted "${t}"`,
+    taskEmptyWarning:"Enter task",editSuccess:"Edited",
     addSuccess:(r)=>r===999?"Added everyday":`Added ${r} days`,
-    importSuccess:"Imported", exportSuccess:"Exported",
-    clearConfirm:"Clear all data?", clearSuccess:"Cleared",
-    collapseText:"Show done", expandText:"Hide done",
-    batchComplete:"Complete", batchUncomplete:"Undo"
+    importSuccess:"Imported",exportSuccess:"Exported",
+    clearConfirm:"Clear all data?",clearSuccess:"Cleared",
+    collapseText:"Show done",expandText:"Hide done",
+    batchComplete:"Complete All",batchUncomplete:"Undo All"
   },
   ja: {
-    appTitle:"📘 学習進捗", settingsTitle:"⚙️ 設定", langLabel:"言語",
-    exportBtn:"📤 出力", importBtn:"📥 読込", clearBtn:"🗑️ 削除",
+    appTitle:"📘 学習進捗",settingsTitle:"⚙️ 設定",langLabel:"言語",
+    exportBtn:"📤 出力",importBtn:"📥 読込",clearBtn:"🗑️ 削除",
     weekDays:["日","月","火","水","木","金","土"],
-    todayBtnText:"今日", taskToday:"📋 今日のタスク", taskOther:"📋 {month}月{day}日タスク",
-    taskPlaceholder:"タスク入力...", rangeToday:"今日", range3Days:"3日間", range7Days:"7日間", rangeEveryday:"毎日",
-    addBtn:"追加", totalLabel:"総数", completedLabel:"完了", streakLabel:"連続",
-    emptyTasks:"✨ タスクなし", deleteBtn:"削除", editBtn:"編集",
+    todayBtnText:"今日",taskToday:"📋 今日のタスク",taskOther:"📋 {month}月{day}日タスク",
+    taskPlaceholder:"タスク入力...",rangeToday:"今日",range3Days:"3日間",range7Days:"7日間",rangeEveryday:"毎日",
+    addBtn:"追加",totalLabel:"総数",completedLabel:"完了",streakLabel:"連続",
+    emptyTasks:"✨ タスクなし",deleteBtn:"削除",editBtn:"編集",
     deleteConfirmFuture:(t,c)=>`「${t}」今日以降(${c}件)削除しますか？`,
     deleteConfirmAll:(t,c)=>`全ての「${t}」(${c}件)を削除しますか？`,
-    deleteCancel:"キャンセル", deleteFutureSuccess:"今日以降を削除",
-    deleteAllSuccess:"全て削除", deleteSingleSuccess:(t)=>`「${t}」を削除`,
-    taskEmptyWarning:"タスクを入力", editSuccess:"編集完了",
+    deleteCancel:"キャンセル",deleteFutureSuccess:"今日以降を削除",
+    deleteAllSuccess:"全て削除",deleteSingleSuccess:(t)=>`「${t}」を削除`,
+    taskEmptyWarning:"タスクを入力",editSuccess:"編集完了",
     addSuccess:(r)=>r===999?"毎日タスク追加":`${r}日間追加`,
-    importSuccess:"インポート成功", exportSuccess:"エクスポート",
-    clearConfirm:"全データ削除しますか？", clearSuccess:"クリア完了",
-    collapseText:"完了表示", expandText:"完了非表示",
-    batchComplete:"一括完了", batchUncomplete:"一括取消"
+    importSuccess:"インポート成功",exportSuccess:"エクスポート",
+    clearConfirm:"全データ削除しますか？",clearSuccess:"クリア完了",
+    collapseText:"完了表示",expandText:"完了非表示",
+    batchComplete:"一括完了",batchUncomplete:"一括取消"
   }
 };
 
-function applyLanguage() {
-  const t = locales[currentLang];
-  document.getElementById('appTitle').innerText = t.appTitle;
-  document.getElementById('settingsTitle').innerText = t.settingsTitle;
-  document.getElementById('langLabel').innerText = t.langLabel;
-  document.getElementById('exportBtn').innerText = t.exportBtn;
-  document.getElementById('importBtn').innerText = t.importBtn;
-  document.getElementById('clearBtn').innerText = t.clearBtn;
-  document.getElementById('totalLabel').innerText = t.totalLabel;
-  document.getElementById('completedLabel').innerText = t.completedLabel;
-  document.getElementById('streakLabel').innerText = t.streakLabel;
-  document.getElementById('taskInput').placeholder = t.taskPlaceholder;
-  document.getElementById('addBtn').innerText = t.addBtn;
-  const sel = document.getElementById('rangeSelect');
-  sel.options[0].text = t.rangeToday;
-  sel.options[1].text = t.range3Days;
-  sel.options[2].text = t.range7Days;
-  sel.options[3].text = t.rangeEveryday;
+function applyLanguage(){
+  const t=locales[currentLang];
+  document.getElementById('appTitle').innerText=t.appTitle;
+  document.getElementById('settingsTitle').innerText=t.settingsTitle;
+  document.getElementById('langLabel').innerText=t.langLabel;
+  document.getElementById('exportBtn').innerText=t.exportBtn;
+  document.getElementById('importBtn').innerText=t.importBtn;
+  document.getElementById('clearBtn').innerText=t.clearBtn;
+  document.getElementById('totalLabel').innerText=t.totalLabel;
+  document.getElementById('completedLabel').innerText=t.completedLabel;
+  document.getElementById('streakLabel').innerText=t.streakLabel;
+  document.getElementById('taskInput').placeholder=t.taskPlaceholder;
+  document.getElementById('addBtn').innerText=t.addBtn;
+  const sel=document.getElementById('rangeSelect');
+  sel.options[0].text=t.rangeToday;sel.options[1].text=t.range3Days;
+  sel.options[2].text=t.range7Days;sel.options[3].text=t.rangeEveryday;
 }
 
-function renderAll() {
-  renderCalendar();
-  renderTasks();
-  renderStats();
-  renderMilestonesAndPie();
+function renderAll(){
+  renderCalendar();renderTasks();renderStats();renderMilestonesAndPie();
 }
 
 // ==================== 初始化 ====================
 loadFromLocal();
 loadBigGoals();
-const savedDate = loadCountdownDate();
-if (savedDate) {
-  targetDate = new Date(savedDate);
-  document.getElementById('targetDatePicker').value = savedDate;
-  document.getElementById('flipFront').style.display = 'none';
-  document.getElementById('flipBack').style.display = 'flex';
+const savedDate=loadCountdownDate();
+if(savedDate){
+  targetDate=new Date(savedDate);
+  document.getElementById('targetDatePicker').value=savedDate;
+  document.getElementById('flipFront').style.display='none';
+  document.getElementById('flipBack').style.display='flex';
   startCountdown();
 }
 applyLanguage();
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.classList.toggle('active', btn.dataset.lang === currentLang);
-});
+document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===currentLang));
 renderAll();
-document.getElementById('importFile').addEventListener('change', handleImport);
+document.getElementById('importFile').addEventListener('change',handleImport);
 
 // 页面切换
-document.querySelectorAll('.page-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const pageId = btn.dataset.page;
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+document.querySelectorAll('.page-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const pageId=btn.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
     document.getElementById(pageId).classList.add('show');
-    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    if (pageId === 'page2') {
-      renderMilestonesAndPie();
-    }
+    if(pageId==='page2') renderMilestonesAndPie();
   });
+});
+
+// 窗口大小变化时重绘饼图
+window.addEventListener('resize', ()=>{
+  if(document.getElementById('page2').classList.contains('show')) drawPieChart();
 });
 </script>
 </body>
