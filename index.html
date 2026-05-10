@@ -640,42 +640,51 @@ function renderGoalPie(){
 
 function renderMilestones(){
   const c=document.getElementById('milestonesContainer');if(!c)return;
-  const totalAll=bigGoals.reduce((s,g)=>s+g.total,0);
-  c.innerHTML=bigGoals.map((g,i)=>{
+  let html='';
+  bigGoals.forEach((g,i)=>{
     const pct=g.total>0?Math.min(100,g.completed/g.total*100):0;
     const remaining=Math.max(0,g.total-g.completed);
     const pctInt=Math.floor(pct);
-    // 近7天速度
     const recentDays=7;
     const cutoff=new Date();cutoff.setDate(cutoff.getDate()-recentDays);
     const cutoffStr=getDateStr(cutoff);
     const recentDone=tasks.filter(t=>t.done&&t.date>=cutoffStr&&g.keyword&&t.text.includes(g.keyword)).length;
     const dailyRate=recentDone/recentDays;
     let speedTag='';
-    if(remaining===0){speedTag='<span style="background:#e8f5e9;color:#2e7d32;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;">🎉 已完成</span>';}
-    else if(dailyRate>0){
+    if(remaining===0){
+      speedTag='<span style="background:#e8f5e9;color:#2e7d32;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;">🎉 已完成</span>';
+    } else if(dailyRate>0){
       const daysN=Math.ceil(remaining/dailyRate);
-      speedTag='<span style="background:#fff3e0;color:#e65100;padding:2px 7px;border-radius:10px;font-size:11px;">⏱ 按近7天速度约'+daysN+'天</span>';
+      speedTag='<span style="background:#fff3e0;color:#e65100;padding:2px 7px;border-radius:10px;font-size:11px;">⏱ 约'+daysN+'天</span>';
     } else {
       speedTag='<span style="background:#f5f5f5;color:#bbb;padding:2px 7px;border-radius:10px;font-size:11px;">暂无速度数据</span>';
     }
-    return '<div class="goal-card" style="border-left-color:'+g.color+'">'
-      +'<div class="goal-card-header">'
-      +'<div class="goal-label">'
-      +'<div class="goal-badge-lg" style="background:'+g.color+'">'+(LABELS[i]||i+1)+'</div>'
-      +'<div><div class="goal-name">'+escapeHtml(g.name)+'</div>'+(g.keyword?'<div class="goal-kw">关键词：「'+escapeHtml(g.keyword)+'」</div>':'')+'</div>'
-      +'</div>'
-      +'<div class="goal-actions">'
-      +'<button class="goal-act-btn" onclick="editGoalCompleted(''+g.id+'')">改进度</button>'
-      +'<button class="goal-act-btn" onclick="editGoalTotal(''+g.id+'')">改目标</button>'
-      +'<button class="goal-act-btn del" onclick="deleteGoal(''+g.id+'')">✕</button>'
-      +'</div></div>'
-      +'<div class="progress-bar-bg"><div class="progress-fill-bar" style="width:'+pct+'%;background:'+g.color+'">'+(pct>=15?pctInt+'%':'')+'</div></div>'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">'
-      +'<div class="goal-numbers"><span>✅ <strong>'+g.completed+'</strong> / '+g.total+'</span>&nbsp;&nbsp;<span>剩 <strong>'+remaining+'</strong></span></div>'
-      +speedTag
-      +'</div></div>';
-  }).join('') || '<div style="text-align:center;color:#bbb;padding:20px;">暂无目标</div>';
+    const gid=g.id;
+    const lbl=LABELS[i]||String(i+1);
+    const pctBar=pct>=15?pctInt+'%':'';
+    const kwHtml=g.keyword?`<div class="goal-kw">关键词：「${escapeHtml(g.keyword)}」</div>`:'';
+    html+=`<div class="goal-card" style="border-left-color:${g.color}">
+      <div class="goal-card-header">
+        <div class="goal-label">
+          <div class="goal-badge-lg" style="background:${g.color}">${lbl}</div>
+          <div><div class="goal-name">${escapeHtml(g.name)}</div>${kwHtml}</div>
+        </div>
+        <div class="goal-actions">
+          <button class="goal-act-btn" onclick="editGoalCompleted('${gid}')">改进度</button>
+          <button class="goal-act-btn" onclick="editGoalTotal('${gid}')">改目标</button>
+          <button class="goal-act-btn del" onclick="deleteGoal('${gid}')">✕</button>
+        </div>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-fill-bar" style="width:${pct}%;background:${g.color}">${pctBar}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+        <div class="goal-numbers"><span>✅ <strong>${g.completed}</strong> / ${g.total}</span>&nbsp;&nbsp;<span>剩 <strong>${remaining}</strong></span></div>
+        ${speedTag}
+      </div>
+    </div>`;
+  });
+  c.innerHTML=html||'<div style="text-align:center;color:#bbb;padding:20px;">暂无目标</div>';
 }
 
 // ===== 日历 =====
