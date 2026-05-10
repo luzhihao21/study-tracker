@@ -11,9 +11,16 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   margin: 0;
-  padding: 12px;
+  padding: 0;
   background: #f5f7fa;
   min-height: 100vh;
+  padding-bottom: 70px;
+}
+
+.main-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 12px;
 }
 
 .page-nav {
@@ -70,7 +77,7 @@ body {
 }
 
 @media (max-width: 480px) {
-  body { padding: 8px; }
+  .main-container { padding: 8px; }
   .card { padding: 12px 10px; }
   .day { font-size: 12px; }
   .task-text { font-size: 14px; }
@@ -384,11 +391,6 @@ body {
 .input-group select { padding: 12px; border: 1px solid #ddd; border-radius: 12px; }
 .input-group button { padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 12px; cursor: pointer; }
 
-.stats-container { display: flex; justify-content: space-around; text-align: center; gap: 10px; }
-.stat-card { flex: 1; background: #f8f9fa; padding: 12px; border-radius: 14px; }
-.stat-number { font-size: 28px; font-weight: bold; color: #007bff; }
-.stat-label { font-size: 12px; color: #666; }
-
 .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 h2 { margin: 0; font-size: 24px; }
 .settings-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; }
@@ -408,7 +410,7 @@ h2 { margin: 0; font-size: 24px; }
 .lang-btn.active { background: #007bff; color: white; }
 
 .toast {
-  position: fixed; bottom: 30px; left: 50%;
+  position: fixed; bottom: 80px; left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: #333; color: white; padding: 10px 20px;
   border-radius: 30px; z-index: 1100; transition: transform 0.3s;
@@ -477,125 +479,160 @@ h2 { margin: 0; font-size: 24px; }
 .edit-goal-btn { background: #007bff22; border: 1px solid #007bff; padding: 4px 12px; border-radius: 30px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .edit-goal-btn:hover { background: #007bff44; }
 
-/* 新增大目标管理区 */
 .add-goal-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .add-goal-row input { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; }
 .add-goal-row button { padding: 8px 14px; background: #28a745; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; }
 .del-goal-btn { background: #dc354533; border: 1px solid #dc3545; padding: 3px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; color: #dc3545; }
+
+/* 底部导航栏 - 只有两个按钮 */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(20px);
+  display: flex;
+  gap: 16px;
+  padding: 8px 24px 20px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+  z-index: 100;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+.nav-btn {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0 6px;
+  border-radius: 32px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  background: #f0f2f5;
+  color: #5a5e6e;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.nav-btn.active {
+  background: #007bff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,123,255,0.25);
+}
+.nav-icon { font-size: 20px; }
+
+body { padding-bottom: 70px; }
 </style>
 </head>
 <body>
 
-<div class="header-bar">
-  <h2 id="appTitle">📘 学习进度</h2>
-  <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
-</div>
-
-<div class="overlay" id="overlay" onclick="toggleSettings()"></div>
-<div class="settings-panel" id="settingsPanel">
-  <button class="close-settings" onclick="toggleSettings()">✕</button>
-  <h4 id="settingsTitle">⚙️ 设置</h4>
-  <div class="language-selector">
-    <div id="langLabel" style="margin-bottom:8px;font-weight:bold;">语言 / Language / 言語</div>
-    <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">🇨🇳 中文</button>
-    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
-    <button class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">🇯🇵 日本語</button>
+<div class="main-container">
+  <div class="header-bar">
+    <h2 id="appTitle">📘 学习进度</h2>
+    <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
   </div>
-  <button onclick="exportData()" id="exportBtn" style="background:#28a745;margin-bottom:8px;width:100%;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer;">📤 导出备份</button>
-  <button onclick="importData()" id="importBtn" style="background:#ff9800;margin-bottom:8px;width:100%;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer;">📥 导入备份</button>
-  <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545;width:100%;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer;">🗑️ 清空所有</button>
-</div>
-<input type="file" id="importFile" style="display:none;" accept=".json">
 
-<div class="page-nav">
-  <div class="page-btn active" data-page="page1">📅 热力日历</div>
-  <div class="page-btn" data-page="page2">🥧 目标总览</div>
-</div>
+  <div class="overlay" id="overlay" onclick="toggleSettings()"></div>
+  <div class="settings-panel" id="settingsPanel">
+    <button class="close-settings" onclick="toggleSettings()">✕</button>
+    <h4 id="settingsTitle">⚙️ 设置</h4>
+    <div class="language-selector">
+      <div id="langLabel" style="margin-bottom:8px;font-weight:bold;">语言 / Language / 言語</div>
+      <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">🇨🇳 中文</button>
+      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
+      <button class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">🇯🇵 日本語</button>
+    </div>
+    <button onclick="exportData()" id="exportBtn" style="background:#28a745;margin-bottom:8px;width:100%;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer;">📤 导出备份</button>
+    <button onclick="importData()" id="importBtn" style="background:#ff9800;margin-bottom:8px;width:100%;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer;">📥 导入备份</button>
+    <button onclick="clearAllData()" id="clearBtn" style="background:#dc3545;width:100%;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer;">🗑️ 清空所有</button>
+  </div>
+  <input type="file" id="importFile" style="display:none;" accept=".json">
 
-<!-- 页面1 -->
-<div id="page1" class="page show">
-  <div class="card">
-    <div class="month-title" id="calendarTitle">
-      <div class="month-nav">
-        <button class="month-btn" onclick="prevMonth()">‹</button>
-        <span id="calendarText"></span>
-        <button class="month-btn" onclick="nextMonth()">›</button>
-      </div>
-      <div class="countdown-container">
-        <div class="flip-box">
-          <div class="flip-front" id="flipFront">
-            <input type="date" id="targetDatePicker" style="padding:5px; border-radius:6px; border:1px solid #666;">
-          </div>
-          <div class="flip-back" id="flipBack" style="display:none;">
-            <div id="countdownDigits"></div>
-          </div>
+  <!-- 页面1：任务分解（原来的内容） -->
+  <div id="page1" class="page show">
+    <div class="card">
+      <div class="month-title" id="calendarTitle">
+        <div class="month-nav">
+          <button class="month-btn" onclick="prevMonth()">‹</button>
+          <span id="calendarText"></span>
+          <button class="month-btn" onclick="nextMonth()">›</button>
         </div>
-        <button id="confirmBtn" onclick="toggleCountdown()">OK</button>
+        <div class="countdown-container">
+          <div class="flip-box">
+            <div class="flip-front" id="flipFront">
+              <input type="date" id="targetDatePicker" style="padding:5px; border-radius:6px; border:1px solid #666;">
+            </div>
+            <div class="flip-back" id="flipBack" style="display:none;">
+              <div id="countdownDigits"></div>
+            </div>
+          </div>
+          <button id="confirmBtn" onclick="toggleCountdown()">OK</button>
+        </div>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="calendar" id="calendar"></div>
       </div>
     </div>
-    <div class="calendar-wrapper">
-      <div class="calendar" id="calendar"></div>
+
+    <div class="card">
+      <h4 id="taskTitle">📋 今日任务</h4>
+      <div style="display:flex; flex-wrap:wrap;">
+        <button class="batch-btn" onclick="batchComplete()">✅ 一键全部完成</button>
+        <button class="batch-btn" onclick="batchUncomplete()">🔄 一键全部取消</button>
+      </div>
+      <div id="taskList"></div>
+    </div>
+
+    <div class="card">
+      <div class="input-group">
+        <input id="taskInput" placeholder="输入学习任务..." onkeypress="if(event.key==='Enter') addTask()">
+        <select id="rangeSelect">
+          <option value="1">今天</option>
+          <option value="3">最近3天</option>
+          <option value="7">最近7天</option>
+          <option value="999">每天</option>
+        </select>
+        <button onclick="addTask()" id="addBtn">添加</button>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h4 id="taskTitle">📋 今日任务</h4>
-    <div style="display:flex; flex-wrap:wrap;">
-      <button class="batch-btn" onclick="batchComplete()">✅ 一键全部完成</button>
-      <button class="batch-btn" onclick="batchUncomplete()">🔄 一键全部取消</button>
-    </div>
-    <div id="taskList"></div>
-  </div>
-
-  <div class="card">
-    <div class="input-group">
-      <input id="taskInput" placeholder="输入学习任务..." onkeypress="if(event.key==='Enter') addTask()">
-      <select id="rangeSelect">
-        <option value="1">今天</option>
-        <option value="3">最近3天</option>
-        <option value="7">最近7天</option>
-        <option value="999">每天</option>
-      </select>
-      <button onclick="addTask()" id="addBtn">添加</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="stats-container">
-      <div class="stat-card"><div class="stat-number" id="totalTasks">0</div><div class="stat-label" id="totalLabel">总任务</div></div>
-      <div class="stat-card"><div class="stat-number" id="completedTasks">0</div><div class="stat-label" id="completedLabel">已完成</div></div>
-      <div class="stat-card"><div class="stat-number" id="streak">0</div><div class="stat-label" id="streakLabel">连续学习</div></div>
+  <!-- 页面2：总任务（饼图 + 大目标管理） -->
+  <div id="page2" class="page">
+    <div class="card">
+      <h3>📊 大目标总览</h3>
+      <div class="add-goal-row">
+        <input id="newGoalName" placeholder="大目标名称（如：日语单词）">
+        <input id="newGoalKeyword" placeholder="关联关键词">
+        <input id="newGoalTotal" placeholder="总数" type="number" min="1" style="width:70px;flex:none;">
+        <button onclick="addBigGoal()">＋添加</button>
+      </div>
+      <div class="pie-section">
+        <div class="pie-canvas-wrap">
+          <canvas id="goalPieChart"></canvas>
+        </div>
+        <div class="pie-legend" id="pieLegend"></div>
+        <div style="font-size:12px;color:#999;margin-top:6px;">饼图 = 各目标剩余量占比（越小越好！）</div>
+      </div>
+      <div id="milestonesContainer"></div>
+      <div style="margin-top:12px;text-align:center;font-size:13px;color:gray;background:#e8f0fe;padding:8px;border-radius:12px;">
+        💡 小任务文本包含关键词并打✅，自动累加到对应大目标进度
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 页面2 -->
-<div id="page2" class="page">
-  <div class="card">
-    <h3>📊 大目标总览</h3>
-
-    <!-- 新增大目标 -->
-    <div class="add-goal-row">
-      <input id="newGoalName" placeholder="大目标名称（如：日语单词）">
-      <input id="newGoalKeyword" placeholder="关联关键词">
-      <input id="newGoalTotal" placeholder="总数" type="number" min="1" style="width:70px;flex:none;">
-      <button onclick="addBigGoal()">＋添加</button>
-    </div>
-
-    <!-- 饼图：显示各大目标「剩余量」占比 -->
-    <div class="pie-section">
-      <div class="pie-canvas-wrap">
-        <canvas id="goalPieChart"></canvas>
-      </div>
-      <div class="pie-legend" id="pieLegend"></div>
-      <div style="font-size:12px;color:#999;margin-top:6px;">饼图 = 各目标剩余量占比（越小越好！）</div>
-    </div>
-
-    <div id="milestonesContainer"></div>
-
-    <div style="margin-top:12px;text-align:center;font-size:13px;color:gray;background:#e8f0fe;padding:8px;border-radius:12px;">
-      💡 小任务文本包含关键词并打✅，自动累加到对应大目标进度
-    </div>
+<!-- 底部只有两个按钮：任务分解 / 总任务 -->
+<div class="bottom-nav">
+  <div class="nav-btn active" data-page="page1">
+    <span class="nav-icon">📋</span> <span>任务分解</span>
+  </div>
+  <div class="nav-btn" data-page="page2">
+    <span class="nav-icon">🥧</span> <span>总任务</span>
   </div>
 </div>
 
@@ -631,9 +668,7 @@ let lastSec=-1, lastMin=-1, lastHour=-1, lastDay=-1;
 let tasks = [];
 let selectedDate = getDateStr(new Date());
 
-// 大目标数据结构：
-// { id, name, keyword, total, completed }
-// completed 直接存储已完成次数（每次打勾含关键词的小任务 +1，取消 -1）
+// 大目标数据结构
 let bigGoals = [
   { id: 'goal_jp_word', name: '📖 日语单词', keyword: '日语单词', total: 3000, completed: 0 },
   { id: 'goal_jp_grammar', name: '📚 日语语法', keyword: '日语语法', total: 200, completed: 0 }
@@ -653,9 +688,7 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2000);
 }
 
-// ==================== 大目标：核心逻辑 ====================
-
-// 当小任务 done 状态改变时，检查是否命中某个大目标关键词，并更新 completed
+// ==================== 大目标核心逻辑 ====================
 function updateGoalProgressOnToggle(task, isDoneNow) {
   let changed = false;
   for (const g of bigGoals) {
@@ -729,31 +762,23 @@ function loadBigGoals() {
   }
 }
 
-// ==================== 饼图（剩余量占比）====================
+// ==================== 饼图 ====================
 function drawPieChart() {
   const canvas = document.getElementById('goalPieChart');
   if (!canvas) return;
-
-  // 让 canvas 物理像素匹配显示尺寸
   const size = canvas.parentElement.clientWidth || 260;
   canvas.width = size;
   canvas.height = size;
-
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, size, size);
   const cx = size/2, cy = size/2, r = size*0.42;
-
-  // 用「剩余量」画饼图
   const data = bigGoals.map((g, i) => ({
     label: g.name,
     remaining: Math.max(0, g.total - g.completed),
     color: PIE_COLORS[i % PIE_COLORS.length]
   }));
-
   const totalRemaining = data.reduce((s,d)=>s+d.remaining, 0);
-
   if (totalRemaining === 0) {
-    // 全部完成！
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI*2);
     ctx.fillStyle = '#2e7d32';
@@ -779,13 +804,10 @@ function drawPieChart() {
       ctx.stroke();
       startAngle += angle;
     });
-
-    // 中心白圆（甜甜圈效果）
     ctx.beginPath();
     ctx.arc(cx, cy, r*0.48, 0, Math.PI*2);
     ctx.fillStyle = 'white';
     ctx.fill();
-
     ctx.fillStyle = '#333';
     ctx.font = `bold ${size*0.07}px system-ui`;
     ctx.textAlign = 'center';
@@ -793,8 +815,6 @@ function drawPieChart() {
     ctx.fillText('剩余', cx, cy-size*0.05);
     ctx.fillText(totalRemaining, cx, cy+size*0.05);
   }
-
-  // 图例
   const legend = document.getElementById('pieLegend');
   legend.innerHTML = data.map((d,i)=>`
     <div class="legend-item">
@@ -804,11 +824,9 @@ function drawPieChart() {
   `).join('');
 }
 
-// ==================== 大目标进度条 ====================
 function renderMilestonesAndPie() {
   const container = document.getElementById('milestonesContainer');
   if (!container) return;
-
   let html = '';
   bigGoals.forEach(g => {
     const pct = g.total > 0 ? Math.min(100, (g.completed/g.total*100)) : 0;
@@ -830,7 +848,6 @@ function renderMilestonesAndPie() {
       <div class="milestone-stats">✅ 已完成 ${g.completed} / 目标 ${g.total} &nbsp; 剩余 ${remaining}</div>
     </div>`;
   });
-
   container.innerHTML = html || '<div style="text-align:center;color:#999;padding:20px;">暂无大目标，请在上方添加</div>';
   drawPieChart();
 }
@@ -864,7 +881,6 @@ function buildDayCell(key, dayNum, todayStr) {
   const japanH = getJapanHolidaysList(key);
   const div = document.createElement('div');
   div.className = 'day';
-
   if (total===0) div.classList.add('ratio-0');
   else if (ratio===1) div.classList.add('ratio-100');
   else if (total===3) {
@@ -882,7 +898,6 @@ function buildDayCell(key, dayNum, todayStr) {
       div.appendChild(fill);
     }
   }
-
   if (chinaH.length>0) {
     const w=document.createElement('div'); w.className='holiday-china-wrapper';
     chinaH.forEach(h=>{const i=document.createElement('div');i.className='holiday-item china-item';i.innerHTML=`🇨🇳 ${h}`;w.appendChild(i);});
@@ -893,7 +908,6 @@ function buildDayCell(key, dayNum, todayStr) {
     japanH.forEach(h=>{const i=document.createElement('div');i.className='holiday-item japan-item';i.innerHTML=`🇯🇵 ${h}`;w.appendChild(i);});
     div.appendChild(w);
   }
-
   const numSpan=document.createElement('span'); numSpan.className='day-num'; numSpan.textContent=dayNum;
   div.appendChild(numSpan);
   if(key===todayStr) div.classList.add('today');
@@ -921,7 +935,7 @@ function renderCalendar() {
   cal.appendChild(btn);
 }
 
-// ==================== 任务管理（关键修改：toggle时更新大目标）====================
+// ==================== 任务管理 ====================
 function addTask() {
   const text=document.getElementById('taskInput').value.trim();
   const range=parseInt(document.getElementById('rangeSelect').value);
@@ -945,14 +959,12 @@ function deleteTaskWithDialog(taskId) {
   const t=locales[currentLang];
   const sameTextTasks=tasks.filter(t=>t.text===targetTask.text).sort((a,b)=>a.date.localeCompare(b.date));
   if(sameTextTasks.length<=1){
-    // 如果删除已完成的任务，先扣除大目标进度
     if (targetTask.done) updateGoalProgressOnToggle(targetTask, false);
     tasks=tasks.filter(t=>t.id!==taskId);
     saveToLocal(); renderAll(); showToast(t.deleteSingleSuccess(targetTask.text)); return;
   }
   const futureTasks=sameTextTasks.filter(t=>t.date>=targetTask.date);
   if(confirm(t.deleteConfirmFuture(targetTask.text,futureTasks.length))){
-    // 扣除将被删除的已完成任务的大目标进度
     futureTasks.filter(tt=>tt.done).forEach(tt=>updateGoalProgressOnToggle(tt, false));
     tasks=tasks.filter(t=>!(t.text===targetTask.text&&t.date>=targetTask.date));
     saveToLocal(); renderAll(); showToast(t.deleteFutureSuccess);
@@ -969,7 +981,6 @@ function toggleTask(id) {
   const task=tasks.find(t=>t.id===id);
   if(!task) return;
   task.done=!task.done;
-  // 关键：打勾/取消时同步更新大目标进度
   updateGoalProgressOnToggle(task, task.done);
   saveToLocal(); renderAll();
 }
@@ -979,10 +990,8 @@ function editTask(id) {
   if(!task) return;
   const newText=prompt(locales[currentLang].editBtn, task.text);
   if(newText&&newText.trim()){
-    // 若已完成，先撤销旧关键词的贡献
     if (task.done) updateGoalProgressOnToggle(task, false);
     task.text=newText.trim();
-    // 若已完成，重新应用新关键词的贡献
     if (task.done) updateGoalProgressOnToggle(task, true);
     saveToLocal(); renderAll(); showToast(locales[currentLang].editSuccess);
   }
@@ -1021,7 +1030,6 @@ function renderTasks() {
   const t=locales[currentLang];
   if(selectedDate===todayStr) document.getElementById('taskTitle').innerHTML=t.taskToday;
   else{const p=selectedDate.split('-');document.getElementById('taskTitle').innerHTML=t.taskOther.replace('{month}',parseInt(p[1])).replace('{day}',parseInt(p[2]));}
-
   let html='';
   if(all.length===0){html=`<div class="empty-tasks">${t.emptyTasks}</div>`;}
   else{
@@ -1059,14 +1067,6 @@ function renderTasks() {
 }
 
 function toggleCollapse(){collapseDone=!collapseDone;renderTasks();}
-
-function renderStats(){
-  document.getElementById('totalTasks').textContent=tasks.length;
-  document.getElementById('completedTasks').textContent=tasks.filter(t=>t.done).length;
-  let streak=0,d=new Date();
-  while(isFullDone(getDateStr(d))){streak++;d.setDate(d.getDate()-1);}
-  document.getElementById('streak').textContent=streak;
-}
 
 function prevMonth(){currentCalDate.setMonth(currentCalDate.getMonth()-1);renderCalendar();renderTasks();}
 function nextMonth(){currentCalDate.setMonth(currentCalDate.getMonth()+1);renderCalendar();renderTasks();}
@@ -1166,12 +1166,9 @@ function setLanguage(lang){
 const locales = {
   zh: {
     appTitle:"📘 学习进度",settingsTitle:"⚙️ 设置",langLabel:"语言",
-    exportBtn:"📤 导出备份",importBtn:"📥 导入备份",clearBtn:"🗑️ 清空所有",
     weekDays:["日","一","二","三","四","五","六"],
     todayBtnText:"今天",taskToday:"📋 今日任务",taskOther:"📋 {month}月{day}日任务",
-    taskPlaceholder:"输入学习任务...",rangeToday:"今天",range3Days:"最近3天",range7Days:"最近7天",rangeEveryday:"每天",
-    addBtn:"添加",totalLabel:"总任务",completedLabel:"已完成",streakLabel:"连续学习",
-    emptyTasks:"✨ 暂无任务",deleteBtn:"删除",editBtn:"修改",
+    addBtn:"添加",emptyTasks:"✨ 暂无任务",deleteBtn:"删除",editBtn:"修改",
     deleteConfirmFuture:(t,c)=>`「${t}」\n确定删除今天及以后 (${c}个任务)？`,
     deleteConfirmAll:(t,c)=>`是否删除全部「${t}」 (共${c}个任务)？`,
     deleteCancel:"已取消",deleteFutureSuccess:"已删除今天及以后的任务",
@@ -1185,12 +1182,9 @@ const locales = {
   },
   en: {
     appTitle:"📘 Study Tracker",settingsTitle:"⚙️ Settings",langLabel:"Language",
-    exportBtn:"📤 Export",importBtn:"📥 Import",clearBtn:"🗑️ Clear",
     weekDays:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
     todayBtnText:"Today",taskToday:"📋 Today's Tasks",taskOther:"📋 {month}/{day} Tasks",
-    taskPlaceholder:"Enter task...",rangeToday:"Today",range3Days:"3 Days",range7Days:"7 Days",rangeEveryday:"Everyday",
-    addBtn:"Add",totalLabel:"Total",completedLabel:"Done",streakLabel:"Streak",
-    emptyTasks:"✨ No tasks",deleteBtn:"Del",editBtn:"Edit",
+    addBtn:"Add",emptyTasks:"✨ No tasks",deleteBtn:"Del",editBtn:"Edit",
     deleteConfirmFuture:(t,c)=>`Delete "${t}" today+future (${c} tasks)?`,
     deleteConfirmAll:(t,c)=>`Delete ALL "${t}" (${c} tasks)?`,
     deleteCancel:"Cancelled",deleteFutureSuccess:"Deleted future tasks",
@@ -1204,12 +1198,9 @@ const locales = {
   },
   ja: {
     appTitle:"📘 学習進捗",settingsTitle:"⚙️ 設定",langLabel:"言語",
-    exportBtn:"📤 出力",importBtn:"📥 読込",clearBtn:"🗑️ 削除",
     weekDays:["日","月","火","水","木","金","土"],
     todayBtnText:"今日",taskToday:"📋 今日のタスク",taskOther:"📋 {month}月{day}日タスク",
-    taskPlaceholder:"タスク入力...",rangeToday:"今日",range3Days:"3日間",range7Days:"7日間",rangeEveryday:"毎日",
-    addBtn:"追加",totalLabel:"総数",completedLabel:"完了",streakLabel:"連続",
-    emptyTasks:"✨ タスクなし",deleteBtn:"削除",editBtn:"編集",
+    addBtn:"追加",emptyTasks:"✨ タスクなし",deleteBtn:"削除",editBtn:"編集",
     deleteConfirmFuture:(t,c)=>`「${t}」今日以降(${c}件)削除しますか？`,
     deleteConfirmAll:(t,c)=>`全ての「${t}」(${c}件)を削除しますか？`,
     deleteCancel:"キャンセル",deleteFutureSuccess:"今日以降を削除",
@@ -1231,21 +1222,20 @@ function applyLanguage(){
   document.getElementById('exportBtn').innerText=t.exportBtn;
   document.getElementById('importBtn').innerText=t.importBtn;
   document.getElementById('clearBtn').innerText=t.clearBtn;
-  document.getElementById('totalLabel').innerText=t.totalLabel;
-  document.getElementById('completedLabel').innerText=t.completedLabel;
-  document.getElementById('streakLabel').innerText=t.streakLabel;
-  document.getElementById('taskInput').placeholder=t.taskPlaceholder;
+  document.getElementById('taskInput').placeholder=t.taskPlaceholder||"输入学习任务...";
   document.getElementById('addBtn').innerText=t.addBtn;
   const sel=document.getElementById('rangeSelect');
-  sel.options[0].text=t.rangeToday;sel.options[1].text=t.range3Days;
-  sel.options[2].text=t.range7Days;sel.options[3].text=t.rangeEveryday;
+  if(sel.options[0]) sel.options[0].text="今天";
+  if(sel.options[1]) sel.options[1].text="最近3天";
+  if(sel.options[2]) sel.options[2].text="最近7天";
+  if(sel.options[3]) sel.options[3].text="每天";
 }
 
 function renderAll(){
-  renderCalendar();renderTasks();renderStats();renderMilestonesAndPie();
+  renderCalendar();renderTasks();renderMilestonesAndPie();
 }
 
-// ==================== 初始化 ====================
+// ==================== 初始化 + 底部导航 ====================
 loadFromLocal();
 loadBigGoals();
 const savedDate=loadCountdownDate();
@@ -1261,19 +1251,18 @@ document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active
 renderAll();
 document.getElementById('importFile').addEventListener('change',handleImport);
 
-// 页面切换
-document.querySelectorAll('.page-btn').forEach(btn=>{
+// 底部导航切换（去掉原来的统计卡片，换成两个按钮）
+document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    const pageId=btn.dataset.page;
+    const pageId = btn.dataset.page;
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
     document.getElementById(pageId).classList.add('show');
-    document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    if(pageId==='page2') renderMilestonesAndPie();
+    if(pageId === 'page2') renderMilestonesAndPie();
   });
 });
 
-// 窗口大小变化时重绘饼图
 window.addEventListener('resize', ()=>{
   if(document.getElementById('page2').classList.contains('show')) drawPieChart();
 });
